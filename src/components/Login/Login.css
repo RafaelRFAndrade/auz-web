@@ -1,85 +1,233 @@
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f5f5f5;
-  }
-  
-  .login-card {
-    width: 400px;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    background-color: white;
-  }
-  
-  h2 {
-    text-align: center;
-    margin-bottom: 24px;
-    color: #333;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #333;
-  }
-  
-  input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-  }
-  
-  input:focus {
-    outline: none;
-    border-color: #4a90e2;
-  }
-  
-  .login-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .login-button:hover {
-    background-color: #357abD;
-  }
-  
-  .error-message {
-    background-color: #ffebee;
-    color: #c62828;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 16px;
-  }
-  
-  .additional-options {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
-  .additional-options a {
-    color: #4a90e2;
-    text-decoration: none;
-  }
-  
-  .additional-options a:hover {
-    text-decoration: underline;
-  }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #202020;
+  color: white;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo {
+  width: 60px;
+  height: auto;
+}
+
+h1 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  color: #cccccc;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  border: none;
+  color: white;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.password-input {
+  position: relative;
+}
+
+.eye-button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-icon {
+  width: 24px;
+  height: 24px;
+  color: #666;
+}
+
+.forgot-password {
+  display: block;
+  text-align: left;
+  color: #0894d8;
+  margin-top: 10px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.login-button {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background-color: #474747;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 30px 0;
+  transition: background-color 0.2s;
+}
+
+.login-button:hover {
+  background-color: #555555;
+}
+
+.login-button:disabled {
+  background-color: #333333;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.create-account {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.create-account a {
+  color: #0894d8;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.privacy-policy {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.privacy-policy a {
+  color: #0894d8;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+body {
+  background-color: #121212;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+}
+.forgot-password-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.forgot-password-container {
+  position: relative;
+  z-index: 1001;
+  transform: none;
+  top: auto;
+  left: auto;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #cccccc;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.recovery-instructions {
+  color: #cccccc;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.whatsapp-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px;
+  background-color: #25D366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 20px 0;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.whatsapp-button:hover {
+  background-color: #128C7E;
+}
+
+.whatsapp-button[disabled] {
+  background-color: #555555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.whatsapp-icon-wrapper {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.whatsapp-icon {
+  color: white;
+}
