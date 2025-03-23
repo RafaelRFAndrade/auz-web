@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/api';
+import { usuarioService } from '../../services/Usuario';
 
 const Home = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -9,15 +9,18 @@ const Home = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        if (!authService.isAuthenticated()) {
+        if (!usuarioService.isAuthenticated()) {
           navigate('/login');
           return;
         }
-        // irmao aqui a gente pode adicionar uma chamada para obter dados do usuário se precisar
+
+        const homeData = await usuarioService.getHome(); 
+        setUserData({ name: homeData.nomeUsuario }); 
+        
       } catch (error) {
         console.error('Error fetching user data:', error);
         if (error.response && error.response.status === 401) {
-          authService.logout();
+          usuarioService.logout();
           navigate('/login');
         }
       }
@@ -27,7 +30,7 @@ const Home = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    authService.logout();
+    usuarioService.logout();
     navigate('/login');
   };
 

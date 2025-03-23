@@ -3,11 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login/Login';
 import Register from './components/Login/Register'; 
 import Home from './components/home/Home'; 
-import { authService } from './services/api';
+import { usuarioService } from './services/Usuario';
 
 function App() {
   const ProtectedRoute = ({ children }) => {
-    if (!authService.isAuthenticated()) {
+    if (!usuarioService.isAuthenticated()) {
       return <Navigate to="/login" />;
     }
     return children;
