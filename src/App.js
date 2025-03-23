@@ -3,14 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login/Login';
 import Register from './components/Login/Register'; 
 import Home from './components/home/Home'; 
+import { authService } from './services/api';
 
 function App() {
-  const isAuthenticated = () => {
-    return localStorage.getItem('authToken') !== null;
-  };
-
   const ProtectedRoute = ({ children }) => {
-    if (!isAuthenticated()) {
+    if (!authService.isAuthenticated()) {
       return <Navigate to="/login" />;
     }
     return children;

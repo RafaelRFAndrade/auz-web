@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import epicLogo from '../../logo.svg'; 
-import axios from 'axios';
+import { authService } from '../../services/api';
 
 const ForgotPasswordModal = ({ onClose, isVisible }) => {
 
@@ -89,21 +89,9 @@ const Login = () => {
       setLoginError('');
       
       try {
-        const response = await axios.post('http://localhost:8080/Usuario/Login', {
-          email: email,
-          senha: password
-        });
-        
-        if (response.data) {
-          localStorage.setItem('authToken', response.data.token);
-          
-          axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-          
-          console.log('Login successful');
-          navigate('/home');
-        } else {
-          setLoginError('Ocorreu um erro no login. Tente novamente.');
-        }
+        await authService.login(email, password);
+        console.log('Login successful');
+        navigate('/home');
       } catch (error) {
         console.error('Login error:', error);
         if (error.response) {

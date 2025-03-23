@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './Login.css'; 
 import epicLogo from '../../logo.svg';
+import { authService } from '../../services/api';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -65,19 +65,9 @@ const Register = () => {
       setRegisterError('');
       
       try {
-        const response = await axios.post('http://localhost:8080/Usuario', {
-          nome: name,
-          email: email,
-          senha: password,
-          tipoPermissao: 0 
-        });
-        
-        if (response.status === 200 || response.status === 201) {
-          console.log('Registration successful');
-          navigate('/login');
-        } else {
-          setRegisterError('Ocorreu um erro no cadastro. Tente novamente.');
-        }
+        await authService.register(name, email, password);
+        console.log('Registration successful');
+        navigate('/login');
       } catch (error) {
         console.error('Registration error:', error);
         if (error.response) {

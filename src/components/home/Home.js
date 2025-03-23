@@ -1,25 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { authService } from '../../services/api';
 
 const Home = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
+    const fetchUserData = async () => {
+      try {
+        if (!authService.isAuthenticated()) {
+          navigate('/login');
+          return;
+        }
+        // irmao aqui a gente pode adicionar uma chamada para obter dados do usuário se precisar
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        if (error.response && error.response.status === 401) {
+          authService.logout();
+          navigate('/login');
+        }
+      }
+    };
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    fetchUserData();
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    delete axios.defaults.headers.common['Authorization'];
-    
+    authService.logout();
     navigate('/login');
   };
 
