@@ -22,8 +22,6 @@ apiClient.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-// Autenticação
 export const authService = {
   login: async (email, senha) => {
     try {
@@ -56,8 +54,6 @@ export const authService = {
     return localStorage.getItem('authToken') !== null;
   }
 };
-
-// Usuários
 export const userService = {
   getCurrentUser: async () => {
     try {
