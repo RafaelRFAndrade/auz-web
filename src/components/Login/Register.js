@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css'; 
 import epicLogo from '../../logo.svg';
-import { authService } from '../../services/api';
+import { usuarioService } from '../../services/Usuario';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -65,7 +65,7 @@ const Register = () => {
       setRegisterError('');
       
       try {
-        await authService.register(name, email, password);
+        await usuarioService.register(name, email, password);
         console.log('Registration successful');
         navigate('/login');
       } catch (error) {

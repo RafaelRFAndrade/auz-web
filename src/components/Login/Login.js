@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import epicLogo from '../../logo.svg'; 
-import { authService } from '../../services/api';
+import { usuarioService } from '../../services/Usuario';
 
 const ForgotPasswordModal = ({ onClose, isVisible }) => {
 
@@ -89,7 +89,7 @@ const Login = () => {
       setLoginError('');
       
       try {
-        await authService.login(email, password);
+        await usuarioService.login(email, password);
         console.log('Login successful');
         navigate('/home');
       } catch (error) {
