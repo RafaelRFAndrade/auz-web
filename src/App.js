@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login/Login';
 import Register from './components/Login/Register'; 
 import Home from './components/home/Home'; 
+import Doctors from './components/home/Doctors';
 import { usuarioService } from './services/Usuario';
 
 function App() {
@@ -19,6 +20,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
           path="/home" 
           element={
             <ProtectedRoute>
@@ -26,7 +35,15 @@ function App() {
             </ProtectedRoute>
           } 
         />
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route 
+          path="/doctors" 
+          element={
+            <ProtectedRoute>
+              <Doctors />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );

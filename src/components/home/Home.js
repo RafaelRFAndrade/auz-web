@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usuarioService } from '../../services/Usuario';
+import './Home.css';
 
 const Home = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -19,7 +20,7 @@ const Home = () => {
 
         const homeData = await usuarioService.getHome(); 
         setUserData({ name: homeData.nomeUsuario }); 
-        
+
       } catch (error) {
         console.error('Error fetching user data:', error);
         if (error.response && error.response.status === 401) {
@@ -45,8 +46,19 @@ const Home = () => {
   };
 
   const handleNavigation = (page) => {
+    // Atualiza o estado active para o botão clicado
     setActivePage(page);
-    // quando tivermos as outras telas aqui vai ficar a nav
+    
+    // Navega para a página correspondente
+    if (page === 'home') {
+      navigate('/');
+    } else if (page === 'doctors') {
+      navigate('/doctors');
+    } else if (page === 'patients') {
+      navigate('/patients');
+    } else if (page === 'requests') {
+      navigate('/requests');
+    }
   };
 
   return (
@@ -122,7 +134,7 @@ const Home = () => {
             onClick={handleLogout}
             title="Sair">
             Sair
-        </button>
+          </button>
         </div>
       </div>
       

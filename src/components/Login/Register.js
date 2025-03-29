@@ -92,11 +92,6 @@ const Register = () => {
     navigate('/login');
   };
 
-  const handlePrivacyPolicy = (e) => {
-    e.preventDefault();
-    console.log('Redirecionando para política de privacidade...');
-  };
-
   return (
     <div className="login-container">
       <div className="logo-container">
@@ -183,10 +178,6 @@ const Register = () => {
       
       <div className="create-account">
         <a href="#" onClick={handleLogin}>Já tem uma conta? Entrar</a>
-      </div>
-      
-      <div className="privacy-policy">
-        <a href="#" onClick={handlePrivacyPolicy}>Política de Privacidade</a>
       </div>
     </div>
   );

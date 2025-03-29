@@ -1,218 +1,218 @@
 .home-container {
-    display: flex;
-    background-color: #f5f5f5;
-    color: #333;
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  }
-  
-  .sidebar {
-    width: 70px;
-    background-color: #ffffff;
-    padding: 20px 0;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    transition: width 0.3s ease;
-    overflow: hidden;
-    position: relative;
-    z-index: 10;
-  }
-  
-  .sidebar:hover {
-    width: 240px;
-  }
-  
-  .logo-sidebar {
-    text-align: center;
-    margin-bottom: 30px;
-    padding: 0 10px;
-  }
-  
-  .logo-sidebar img {
-    width: 40px;
-    height: auto;
-  }
-  
-  .menu-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    color: #555;
-    text-decoration: none;
-    transition: background-color 0.2s;
-    white-space: nowrap;
-  }
-  
-  .menu-item:hover {
-    background-color: #f0f0f0;
-    color: #0894d8;
-  }
-  
-  .menu-item.active {
-    background-color: #e6f7ff;
-    color: #0894d8;
-    border-left: 4px solid #0894d8;
-  }
-  
-  .menu-item-icon {
-    margin-right: 12px;
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-  
-  .menu-item-text {
-    font-size: 15px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-  
-  .sidebar:hover .menu-item-text {
-    opacity: 1;
-  }
-  
-  .user-section {
-    margin-top: auto;
-    padding: 15px;
-    border-top: 1px solid #eaeaea;
-    overflow: hidden;
-  }
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #0894d8;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin-right: 10px;
-    flex-shrink: 0;
-  }
-  
-  .user-name {
-    font-size: 14px;
-    font-weight: 500;
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-  
-  .sidebar:hover .user-name {
-    opacity: 1;
-  }
-  
-  .logout-button {
-    display: block;
-    width: 40px;
-    height: 40px;
-    background-color: #f0f0f0;
-    color: #555;
-    border: none;
-    border-radius: 8px;
-    font-size: 0;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  .logout-button:before {
-    content: "⟲";
-    position: absolute;
-    left: 0;
-    right: 0;
-    font-size: 18px;
-    line-height: 40px;
-    text-align: center;
-  }
-  
-  .sidebar:hover .logout-button {
-    width: 100%;
-    font-size: 14px;
-  }
-  
-  .sidebar:hover .logout-button:before {
-    content: "";
-  }
-  
-  /* Main Content */
-  .main-content {
-    flex: 1;
-    padding: 30px;
-    overflow-y: auto;
-  }
-  
-  .welcome-section {
-    margin-bottom: 40px;
-  }
-  
-  .welcome-title {
-    font-size: 28px;
-    font-weight: 500;
-    margin-bottom: 10px;
-    color: #333;
-  }
-  
-  .welcome-subtitle {
-    color: #666;
-    font-size: 16px;
-  }
-  
-  .metrics-container {
-    display: flex;
-    gap: 20px;
-    margin-top: 30px;
-  }
-  
-  .metric-card {
-    flex: 1;
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  }
-  
-  .metric-title {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-  
-  .metric-value {
-    font-size: 32px;
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .metric-card.primary {
-    border-left: 4px solid #0894d8;
-  }
-  
-  .metric-card.secondary {
-    border-left: 4px solid #25D366;
-  }
-  
-  .page-title {
-    font-size: 24px;
-    font-weight: 500;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    color: #333;
-  }
-  
-  .page-title-icon {
-    margin-right: 10px;
-    width: 24px;
-    height: 24px;
-  }
+  display: flex;
+  background-color: #f5f5f5;
+  color: #333;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.sidebar {
+  width: 70px;
+  background-color: #ffffff;
+  padding: 20px 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+
+.sidebar:hover {
+  width: 240px;
+}
+
+.logo-sidebar {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 0 10px;
+}
+
+.logo-sidebar img {
+  width: 40px;
+  height: auto;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  color: #555;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+  color: #0894d8;
+}
+
+.menu-item.active {
+  background-color: #e6f7ff;
+  color: #0894d8;
+  border-left: 4px solid #0894d8;
+}
+
+.menu-item-icon {
+  margin-right: 12px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.menu-item-text {
+  font-size: 15px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar:hover .menu-item-text {
+  opacity: 1;
+}
+
+.user-section {
+  margin-top: auto;
+  padding: 15px;
+  border-top: 1px solid #eaeaea;
+  overflow: hidden;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #0894d8;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar:hover .user-name {
+  opacity: 1;
+}
+
+.logout-button {
+  display: block;
+  width: 40px;
+  height: 40px;
+  background-color: #f0f0f0;
+  color: #555;
+  border: none;
+  border-radius: 8px;
+  font-size: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.logout-button:before {
+  content: "⟲";
+  position: absolute;
+  left: 0;
+  right: 0;
+  font-size: 18px;
+  line-height: 40px;
+  text-align: center;
+}
+
+.sidebar:hover .logout-button {
+  width: 100%;
+  font-size: 14px;
+}
+
+.sidebar:hover .logout-button:before {
+  content: "";
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.welcome-section {
+  margin-bottom: 40px;
+}
+
+.welcome-title {
+  font-size: 28px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.welcome-subtitle {
+  color: #666;
+  font-size: 16px;
+}
+
+.metrics-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.metric-card {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.metric-title {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+}
+
+.metric-card.primary {
+  border-left: 4px solid #0894d8;
+}
+
+.metric-card.secondary {
+  border-left: 4px solid #25D366;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  color: #333;
+}
+
+.page-title-icon {
+  margin-right: 10px;
+  width: 24px;
+  height: 24px;
+}

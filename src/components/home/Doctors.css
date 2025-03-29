@@ -1,0 +1,146 @@
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .add-button {
+    background-color: #0894d8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+  }
+  
+  .add-button:hover {
+    background-color: #0783c0;
+  }
+  
+  .add-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+  }
+  
+  .search-container {
+    margin-bottom: 30px;
+  }
+  
+  .search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #0894d8;
+    box-shadow: 0 0 0 2px rgba(8, 148, 216, 0.2);
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: #777;
+  }
+  
+  .doctors-grid {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  
+  .doctors-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .doctors-table th,
+  .doctors-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  .doctors-table th {
+    background-color: #f9f9f9;
+    font-weight: 600;
+    color: #444;
+    font-size: 14px;
+  }
+  
+  .doctors-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .doctors-table tr:hover {
+    background-color: #f5f9ff;
+  }
+  
+  .actions-cell {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .action-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .action-button svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .edit-button {
+    background-color: #e6f7ff;
+    color: #0894d8;
+  }
+  
+  .edit-button:hover {
+    background-color: #cceeff;
+  }
+  
+  .delete-button {
+    background-color: #ffebee;
+    color: #f44336;
+  }
+  
+  .delete-button:hover {
+    background-color: #ffcdd2;
+  }
+  
+  .no-data {
+    text-align: center;
+    color: #888;
+    padding: 30px !important;
+    font-style: italic;
+  }
