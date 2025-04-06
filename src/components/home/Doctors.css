@@ -492,3 +492,94 @@
   color: #d32f2f;
 }
 
+/* Estilos para o componente de alerta */
+.alert-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  max-width: 400px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  animation: slideIn 0.3s forwards;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  background-color: #fff;
+  padding: 16px;
+}
+
+.alert-error {
+  border-left: 4px solid #d32f2f;
+}
+
+.alert-icon {
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.alert-content {
+  flex-grow: 1;
+}
+
+.alert-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.alert-content p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.alert-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+  padding: 0 8px;
+  margin-left: 8px;
+}
+
+.alert-close:hover {
+  color: #333;
+}
+
+.alert-progress {
+  height: 4px;
+  background-color: #f0f0f0;
+  width: 100%;
+}
+
+.alert-progress-track {
+  height: 100%;
+  width: 100%;
+  background-color: #d32f2f;
+  animation: shrink 5s linear forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

@@ -28,7 +28,7 @@ const Doctors = () => {
     if (errorMessage) {
       const timer = setTimeout(() => {
         setErrorMessage('');
-      }, 10000); 
+      }, 6700); 
       return () => clearTimeout(timer);
     }
   }, [errorMessage]);
@@ -708,41 +708,29 @@ const Doctors = () => {
 
        {/* Modal de Erro */}
        {errorMessage && (
-      <div className="modal-overlay">
-        <div className="modal-popup error-modal">
-          <div className="modal-popup-header">
-            <h3>Erro na Operação</h3>
-            <button 
-              className="modal-popup-close"
-              onClick={() => setErrorMessage('')}
-            >
-              &times;
-            </button>
-          </div>
-          <div className="modal-popup-body">
-            <div className="error-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2">
-                <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <p>{errorMessage}</p>
-            <div className="progress-bar">
-              <div className="progress-track"></div>
-            </div>
-          </div>
-          <div className="modal-popup-footer">
-            <button 
-              className="modal-popup-btn primary"
-              onClick={() => setErrorMessage('')}
-            >
-              Entendi
-            </button>
-          </div>
+      <div className="alert-container">
+      <div className="alert alert-error">
+        <div className="alert-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2">
+            <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
         </div>
+        <div className="alert-content">
+          <h4>Ocorreu um Erro</h4>
+          <p>{errorMessage}</p>
+        </div>
+        <button className="alert-close" onClick={() => setErrorMessage('')}>
+          &times;
+        </button>
       </div>
+      <div className="alert-progress">
+        <div className="alert-progress-track"></div>
+      </div>
+    </div>
     )}
   </div>
   );
-};
+};             
+
 
 export default Doctors;
