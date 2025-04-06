@@ -25,6 +25,15 @@ const Doctors = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage('');
+      }, 10000); 
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
+  useEffect(() => {
     fetchDoctors();
     
     const fetchUserData = async () => {
@@ -658,59 +667,81 @@ const Doctors = () => {
         </div>
       )}
 
-      {/* Modal de exclui*/}
-      {showDeleteModal && (
-        <div className="modal-overlay">
-          <div className="modal-container delete-modal">
-            <div className="modal-header">
-              <h2 className="modal-title">Confirmar Exclusão</h2>
-              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-            <div className="modal-body">
-              <p>Tem certeza que deseja excluir este médico?</p>
-              <div className="modal-footer">
-                <button className="cancel-button" onClick={() => setShowDeleteModal(false)}>
-                  Cancelar
-                </button>
-                <button className="delete-confirm-button" onClick={confirmDelete}>
-                  Confirmar Exclusão
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* modal do Erru */}
-      {errorMessage && (
+       {/* Modal de Confirmação de Exclusão */}
+    {showDeleteModal && (
       <div className="modal-overlay">
-        <div className="modal-container error-modal">
-          <div className="modal-header">
-            <h2 className="modal-title">Erro</h2>
-            <button className="modal-close" onClick={() => setErrorMessage('')}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+        <div className="modal-popup delete-modal">
+          <div className="modal-popup-header">
+            <h3>Excluir Médico</h3>
+            <button 
+              className="modal-popup-close"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              &times;
             </button>
           </div>
-          <div className="modal-body">
-            <p>{errorMessage}</p>
-            <div className="modal-footer">
-              <button className="confirm-button" onClick={() => setErrorMessage('')}>
-                OK
-              </button>
+          <div className="modal-popup-body">
+            <div className="warning-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
             </div>
+            <p>Tem certeza que deseja excluir permanentemente este médico?</p>
+          </div>
+          <div className="modal-popup-footer">
+            <button 
+              className="modal-popup-btn secondary"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              Cancelar
+            </button>
+            <button 
+              className="modal-popup-btn danger"
+              onClick={confirmDelete}
+            >
+              Excluir
+            </button>
           </div>
         </div>
       </div>
-      )}
-    </div>
+    )}
+
+       {/* Modal de Erro */}
+       {errorMessage && (
+      <div className="modal-overlay">
+        <div className="modal-popup error-modal">
+          <div className="modal-popup-header">
+            <h3>Erro na Operação</h3>
+            <button 
+              className="modal-popup-close"
+              onClick={() => setErrorMessage('')}
+            >
+              &times;
+            </button>
+          </div>
+          <div className="modal-popup-body">
+            <div className="error-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2">
+                <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <p>{errorMessage}</p>
+            <div className="progress-bar">
+              <div className="progress-track"></div>
+            </div>
+          </div>
+          <div className="modal-popup-footer">
+            <button 
+              className="modal-popup-btn primary"
+              onClick={() => setErrorMessage('')}
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
   );
 };
 
