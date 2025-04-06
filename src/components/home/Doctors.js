@@ -251,7 +251,6 @@ const Doctors = () => {
     if (!validateForm()) {
       return;
     }
-    
     setIsSubmitting(true);
     
     try {
@@ -360,7 +359,7 @@ const Doctors = () => {
         email: medico.email || '',
         telefone: formattedPhone,
         documentoFederal: formattedCPF,
-        id: medico.id 
+        id: medico.codigo 
       });
       
       setErrors({});

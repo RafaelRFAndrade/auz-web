@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { data } from 'react-router-dom';
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -55,14 +56,15 @@ export const medicoService = {
 
   updateMedico: async (id, medicoData) => {
     try {
-      const response = await medicoClient.put(`/Medico/${id}`, {
-        nome: medicoData.nome,
-        crm: medicoData.crm,
-        email: medicoData.email,
-        telefone: medicoData.telefone,
-        documentoFederal: medicoData.documentoFederal
+      await medicoClient.put(`/Medico`, { 
+        Codigo: id,
+        Nome: medicoData.nome,
+        CRM: medicoData.crm,
+        Email: medicoData.email,
+        Telefone: medicoData.telefone,
+        DocumentoFederal: medicoData.documentoFederal
       });
-      return response.data;
+
     } catch (error) {
       throw error;
     }
