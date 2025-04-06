@@ -28,12 +28,9 @@ const Doctors = () => {
     const fetchUserData = async () => {
       try {
         if (!usuarioService.isAuthenticated()) {
-          // Apenas para desenvolvimento, não redireciona se não estiver autenticado
-          // Em prod precisamos descomentar estas linhas
-          // navigate('/login');
-          // return;
+            navigate('/login');
+            return;
         } else {
-          // Se estiver autenticado, busca os dados do usuário
           const homeData = await usuarioService.getHome();
           setUserData({ name: homeData.nomeUsuario });
         }
@@ -249,14 +246,14 @@ const Doctors = () => {
     setIsSubmitting(true);
     
     try {
-  const medicoData = {
-    nome: formData.nome,
-    crm: formData.crm.toUpperCase().replace('-', '/'), 
-    email: formData.email,
-    telefone: formData.telefone.replace(/\D/g, ''), 
-    documentoFederal: formData.documentoFederal.replace(/\D/g, ''),
-    especialidade: formData.specialty
-  };
+      const medicoData = {
+        nome: formData.nome,
+        crm: formData.crm.toUpperCase().replace('-', '/'), 
+        email: formData.email,
+        telefone: formData.telefone.replace(/\D/g, ''), 
+        documentoFederal: formData.documentoFederal.replace(/\D/g, ''),
+        especialidade: formData.specialty
+      };
       
       if (formData.id) {
         await medicoService.updateMedico(formData.id, medicoData);
@@ -373,7 +370,8 @@ const Doctors = () => {
         await medicoService.deleteMedico(id);
         await fetchDoctors();
       } catch (error) {
-        console.error('Erro ao excluir médico:', error);
+        console.log(error)
+        alert(error.response.data.mensagem);
       }
     }
   };

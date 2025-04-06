@@ -72,8 +72,14 @@ export const medicoService = {
 
   deleteMedico: async (id) => {
     try {
-      const response = await medicoClient.delete(`/Medico/${id}`);
-      return response.data;
+      await medicoClient.delete(`/Medico`, {
+        data: {  
+          CodigoMedico: id
+        },
+        headers: {
+          'Content-Type': 'application/json' 
+        }
+      });
     } catch (error) {
       throw error;
     }
