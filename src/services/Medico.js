@@ -30,8 +30,7 @@ export const medicoService = {
         crm: medicoData.crm,
         email: medicoData.email,
         telefone: medicoData.telefone,
-        documentoFederal: medicoData.documentoFederal,
-        especialidade: medicoData.especialidade
+        documentoFederal: medicoData.documentoFederal
       });
       return response.data;
     } catch (error) {
@@ -61,8 +60,7 @@ export const medicoService = {
         crm: medicoData.crm,
         email: medicoData.email,
         telefone: medicoData.telefone,
-        documentoFederal: medicoData.documentoFederal,
-        especialidade: medicoData.especialidade
+        documentoFederal: medicoData.documentoFederal
       });
       return response.data;
     } catch (error) {

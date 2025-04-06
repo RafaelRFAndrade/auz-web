@@ -16,7 +16,6 @@ const Doctors = () => {
     email: '',
     telefone: '',
     documentoFederal: '',
-    specialty: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,7 +55,7 @@ const Doctors = () => {
         const mappedDoctors = response.listaMedicos.map(doc => ({
           id: doc.codigo, 
           name: doc.nome,
-          specialty: doc.especialidade || 'Não informada',
+          email: doc.email || 'Não informada',
           crm: doc.crm,
           phone: doc.telefone
         }));
@@ -67,7 +66,7 @@ const Doctors = () => {
         const mappedDoctors = response.map(doc => ({
           id: doc.codigo || doc.id,
           name: doc.nome,
-          specialty: doc.especialidade || 'Não informada',
+          email: doc.email || 'Não informada',
           crm: doc.crm,
           phone: doc.telefone
         }));
@@ -120,7 +119,6 @@ const Doctors = () => {
 
   const filteredDoctors = doctors.filter(doctor => 
     doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
     doctor.crm.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -131,7 +129,6 @@ const Doctors = () => {
       email: '',
       telefone: '',
       documentoFederal: '',
-      specialty: ''
     });
     setErrors({});
     setShowModal(true);
@@ -251,8 +248,7 @@ const Doctors = () => {
         crm: formData.crm.toUpperCase().replace('-', '/'), 
         email: formData.email,
         telefone: formData.telefone.replace(/\D/g, ''), 
-        documentoFederal: formData.documentoFederal.replace(/\D/g, ''),
-        especialidade: formData.specialty
+        documentoFederal: formData.documentoFederal.replace(/\D/g, '')
       };
       
       if (formData.id) {
@@ -270,7 +266,6 @@ const Doctors = () => {
         email: '',
         telefone: '',
         documentoFederal: '',
-        specialty: ''
       });
       
     } catch (error) {
@@ -353,7 +348,6 @@ const Doctors = () => {
         email: medico.email || '',
         telefone: formattedPhone,
         documentoFederal: formattedCPF,
-        specialty: medico.especialidade || '',
         id: medico.id 
       });
       
@@ -495,7 +489,7 @@ const Doctors = () => {
             <thead>
               <tr>
                 <th>Nome</th>
-                <th>Especialidade</th>
+                <th>Email</th>
                 <th>CRM</th>
                 <th>Telefone</th>
                 <th>Ações</th>
@@ -506,7 +500,7 @@ const Doctors = () => {
                 filteredDoctors.map(doctor => (
                   <tr key={doctor.id}>
                     <td>{doctor.name}</td>
-                    <td>{doctor.specialty}</td>
+                    <td>{doctor.email}</td>
                     <td>{doctor.crm}</td>
                     <td>{doctor.phone}</td>
                     <td className="actions-cell">
@@ -635,12 +629,12 @@ const Doctors = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label htmlFor="specialty">Especialidade</label>
+                  <label htmlFor="email">Email</label>
                   <input
                     type="text"
-                    id="specialty"
-                    name="specialty"
-                    value={formData.specialty}
+                    id="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
                   />
                 </div>
