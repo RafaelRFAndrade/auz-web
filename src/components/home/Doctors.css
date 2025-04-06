@@ -337,3 +337,63 @@
   border-color: #e53935 !important;
 }
 
+/* Delete Confirmation Modal */
+.delete-modal .modal-header {
+  background-color: #ffebee;
+  border-color: #ffcdd2;
+}
+
+.delete-modal .modal-title {
+  color: #d32f2f;
+}
+
+.delete-confirm-button {
+  background-color: #d32f2f !important;
+  color: white !important;
+  border: none;
+  padding: 10px 20px;
+}
+
+.delete-confirm-button:hover {
+  background-color: #b71c1c !important;
+}
+
+/* Error Modal */
+.error-modal .modal-header {
+  background-color: #ffebee;
+  border-color: #ffcdd2;
+}
+
+.error-modal .modal-title {
+  color: #d32f2f;
+}
+
+.error-modal .modal-body {
+  color: #d32f2f;
+}
+
+.confirm-button {
+  background-color: #d32f2f !important;
+  color: white !important;
+  border: none;
+  padding: 10px 20px;
+}
+
+.confirm-button:hover {
+  background-color: #b71c1c !important;
+}
+
+/* Modal Footer Adjustments */
+.modal-footer {
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.cancel-button {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}

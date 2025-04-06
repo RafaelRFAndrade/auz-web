@@ -20,6 +20,9 @@ const Doctors = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [doctorToDelete, setDoctorToDelete] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     fetchDoctors();
@@ -359,14 +362,18 @@ const Doctors = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Tem certeza que deseja excluir este médico?')) {
-      try {
-        await medicoService.deleteMedico(id);
-        await fetchDoctors();
-      } catch (error) {
-        console.log(error)
-        alert(error.response.data.mensagem);
-      }
+    setDoctorToDelete(id);
+    setShowDeleteModal(true);
+  };
+  
+  const confirmDelete = async () => {
+    try {
+      await medicoService.deleteMedico(doctorToDelete);
+      await fetchDoctors();
+      setShowDeleteModal(false);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.mensagem || 'Erro ao excluir médico');
+      setShowDeleteModal(false);
     }
   };
 
@@ -649,6 +656,59 @@ const Doctors = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de exclui*/}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-container delete-modal">
+            <div className="modal-header">
+              <h2 className="modal-title">Confirmar Exclusão</h2>
+              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Tem certeza que deseja excluir este médico?</p>
+              <div className="modal-footer">
+                <button className="cancel-button" onClick={() => setShowDeleteModal(false)}>
+                  Cancelar
+                </button>
+                <button className="delete-confirm-button" onClick={confirmDelete}>
+                  Confirmar Exclusão
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* modal do Erru */}
+      {errorMessage && (
+      <div className="modal-overlay">
+        <div className="modal-container error-modal">
+          <div className="modal-header">
+            <h2 className="modal-title">Erro</h2>
+            <button className="modal-close" onClick={() => setErrorMessage('')}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div className="modal-body">
+            <p>{errorMessage}</p>
+            <div className="modal-footer">
+              <button className="confirm-button" onClick={() => setErrorMessage('')}>
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       )}
     </div>
   );
