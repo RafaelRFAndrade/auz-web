@@ -5,8 +5,10 @@ import './Home.css';
 
 const Home = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
-  const [appointments, setAppointments] = useState(12); 
-  const [scheduledToday, setScheduledToday] = useState(5); 
+  const [appointments, setAppointments] = useState(0);
+  const [scheduledToday, setScheduledToday] = useState(0);
+  const [appointmentsList, setAppointmentsList] = useState([]);
+  const [scheduledList, setScheduledList] = useState([]);
   const [activePage, setActivePage] = useState('home');
   const navigate = useNavigate();
 
@@ -18,8 +20,12 @@ const Home = () => {
           return;
         }
 
-        const homeData = await usuarioService.getHome(); 
-        setUserData({ name: homeData.nomeUsuario }); 
+        const homeData = await usuarioService.getHome();
+        setUserData({ name: homeData.nomeUsuario });
+        setAppointments(homeData.atendimentos.length);
+        setScheduledToday(homeData.agendamentos.length);
+        setAppointmentsList(homeData.atendimentos);
+        setScheduledList(homeData.agendamentos);
 
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -46,10 +52,8 @@ const Home = () => {
   };
 
   const handleNavigation = (page) => {
-    // Atualiza o estado active para o botão clicado
     setActivePage(page);
     
-    // Navega para a página correspondente
     if (page === 'home') {
       navigate('/');
     } else if (page === 'doctors') {
@@ -59,6 +63,21 @@ const Home = () => {
     } else if (page === 'requests') {
       navigate('/requests');
     }
+  };
+
+  const formatDate = (dateString) => {
+    const options = { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    };
+    return new Date(dateString).toLocaleDateString('pt-BR', options);
+  };
+
+  const getSituacao = (situacao) => {
+    return situacao === 0 ? 'Agendado' : 'Desconhecido';
   };
 
   return (
@@ -119,7 +138,7 @@ const Home = () => {
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span className="menu-item-text">Solicitações</span>
+          <span className="menu-item-text">Atendimentos</span>
         </a>
         
         <div className="user-section">
@@ -156,16 +175,61 @@ const Home = () => {
           </div>
         </div>
         
-        <div className="page-title">
-          <svg className="page-title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-          Atividades Recentes
+        <div className="recent-activities-container">
+          <h2 className="page-title">
+            <svg className="page-title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Atividades Recentes
+          </h2>
+
+          <div className="activities-grids">
+            <div className="activity-column">
+              <h3>Atendimentos em andamento</h3>
+              <div className="activity-list">
+                {appointmentsList.map((atendimento, index) => (
+                  <div key={index} className="activity-card">
+                    <div className="activity-header">
+                      <span className="activity-title">{atendimento.nomeAtendimento}</span>
+                      <span className="activity-date">{formatDate(atendimento.dtInclusao)}</span>
+                    </div>
+                    <div className="activity-details">
+                      <div><strong>Médico:</strong> {atendimento.nomeMedico}</div>
+                      <div><strong>Paciente:</strong> {atendimento.nomePaciente}</div>
+                    </div>
+                  </div>
+                ))}
+                {appointmentsList.length === 0 && (
+                  <div className="no-activities">Nenhum atendimento recente</div>
+                )}
+              </div>
+            </div>
+
+            <div className="activity-column">
+              <h3>Agendamentos para hoje</h3>
+              <div className="activity-list">
+                {scheduledList.map((agendamento, index) => (
+                  <div key={index} className="activity-card">
+                    <div className="activity-header">
+                      <span className="activity-title">{agendamento.nomeAgendamento}</span>
+                      <span className="activity-status">{getSituacao(agendamento.situacao)}</span>
+                    </div>
+                    <div className="activity-details">
+                      <div><strong>Médico:</strong> {agendamento.nomeMedico}</div>
+                      <div><strong>Paciente:</strong> {agendamento.nomePaciente}</div>
+                    </div>
+                  </div>
+                ))}
+                {scheduledList.length === 0 && (
+                  <div className="no-activities">Nenhum agendamento recente</div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-        {/* se a gente quiser implementar mais é aqui */}
       </div>
     </div>
   );

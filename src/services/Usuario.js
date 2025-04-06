@@ -9,7 +9,6 @@ const usuarioClient = axios.create({
   },
 });
 
-// Interceptor criado pra gente  adicionar o token em todas as requisições(tenho que testar ainda)
 usuarioClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('authToken');
@@ -23,7 +22,6 @@ usuarioClient.interceptors.request.use(
   }
 );
 
-// Autenticação
 export const usuarioService = {
   login: async (email, senha) => {
     try {
@@ -68,13 +66,24 @@ export const usuarioService = {
   getHome: async () => {
     try {
       const response = await usuarioClient.get('/Usuario/Home');
-      console.log(response)
-      return response.data;
+      return response.data; 
     } catch (error) {
       throw error;
     }
   },
-  // a gente pode colocar mais metodos relacionados ao usuario se precisar aqui
+
+  getUserId: () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return null;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.userId; 
+    } catch (e) {
+      console.error('Error decoding token:', e);
+      return null;
+    }
+  }
 };
 
 export default usuarioClient;

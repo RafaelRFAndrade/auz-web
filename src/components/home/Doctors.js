@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usuarioService } from '../../services/Usuario';
+import { medicoService } from '../../services/Medico';
 import './Doctors.css';
 
 const Doctors = () => {
@@ -8,24 +9,27 @@ const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activePage, setActivePage] = useState('doctors');
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    nome: '',
+    crm: '',
+    email: '',
+    telefone: '',
+    documentoFederal: '',
+    specialty: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const mockDoctors = [
-    { id: 1, name: 'Dr. João Silva', specialty: 'Cardiologia', crm: '12345-SC', phone: '(11) 98765-4321' },
-    { id: 2, name: 'Dra. Maria Oliveira', specialty: 'Pediatria', crm: '54321-SP', phone: '(11) 91234-5678' },
-    { id: 3, name: 'Dr. Carlos Santos', specialty: 'Ortopedia', crm: '67890-BA', phone: '(11) 92345-6789' },
-    { id: 4, name: 'Dra. Emmanuel Arrombus', specialty: 'Psicologia', crm: '09876-RS', phone: '(11) 93456-7890' },
-    { id: 5, name: 'Dr. Pedro Almeida', specialty: 'Dermatologia', crm: '34567-RJ', phone: '(11) 94567-8901' },
-  ];
-
   useEffect(() => {
-    setDoctors(mockDoctors);
+    fetchDoctors();
     
     const fetchUserData = async () => {
       try {
         if (!usuarioService.isAuthenticated()) {
           // Apenas para desenvolvimento, não redireciona se não estiver autenticado
-          // Em prod precismoas descomentar estas linhas
+          // Em prod precisamos descomentar estas linhas
           // navigate('/login');
           // return;
         } else {
@@ -44,6 +48,48 @@ const Doctors = () => {
 
     fetchUserData();
   }, [navigate]);
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await medicoService.getAllMedicos();
+      
+      console.log('Resposta do serviço de médicos:', response);
+      
+      if (response && response.listaMedicos && Array.isArray(response.listaMedicos)) {
+        const mappedDoctors = response.listaMedicos.map(doc => ({
+          id: doc.codigo, 
+          name: doc.nome,
+          specialty: doc.especialidade || 'Não informada',
+          crm: doc.crm,
+          phone: doc.telefone
+        }));
+        
+        setDoctors(mappedDoctors);
+      } 
+      else if (Array.isArray(response)) {
+        const mappedDoctors = response.map(doc => ({
+          id: doc.codigo || doc.id,
+          name: doc.nome,
+          specialty: doc.especialidade || 'Não informada',
+          crm: doc.crm,
+          phone: doc.telefone
+        }));
+        
+        setDoctors(mappedDoctors);
+      }
+      else {
+        console.error('Formato de resposta inesperado:', response);
+        setDoctors([]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar médicos:', error);
+      if (error.response && error.response.status === 401) {
+        usuarioService.logout();
+        navigate('/login');
+      }
+      setDoctors([]);
+    }
+  };
 
   const handleLogout = () => {
     usuarioService.logout();
@@ -82,17 +128,253 @@ const Doctors = () => {
   );
 
   const handleNewDoctor = () => {
-    console.log('Cadastrar novo médico');
+    setFormData({
+      nome: '',
+      crm: '',
+      email: '',
+      telefone: '',
+      documentoFederal: '',
+      specialty: ''
+    });
+    setErrors({});
+    setShowModal(true);
   };
 
-  const handleEdit = (id) => {
-    console.log('Editar médico', id);
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
-  const handleDelete = (id) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: null
+      });
+    }
+  };
+
+  const validateCPF = (cpf) => {
+    cpf = cpf.replace(/[^\d]/g, '');
+    
+    if (cpf.length !== 11) return false;
+    
+    if (/^(\d)\1+$/.test(cpf)) return false;
+    
+    let sum = 0;
+    let remainder;
+    
+    for (let i = 1; i <= 9; i++) {
+      sum += parseInt(cpf.substring(i-1, i)) * (11 - i);
+    }
+    
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpf.substring(9, 10))) return false;
+    
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+      sum += parseInt(cpf.substring(i-1, i)) * (12 - i);
+    }
+    
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+    
+    return true;
+  };
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  const validatePhone = (phone) => {
+    const phoneNumber = phone.replace(/[^\d]/g, '');
+    return phoneNumber.length >= 10 && phoneNumber.length <= 11;
+  };
+
+  const validateCRM = (crm) => {
+    const re = /^\d{4,6}[-/][A-Za-z]{2}$/;
+    return re.test(String(crm).toUpperCase());
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.nome.trim()) {
+      newErrors.nome = 'Nome é obrigatório';
+    }
+    
+    if (!formData.crm.trim()) {
+      newErrors.crm = 'CRM é obrigatório';
+    } else if (!validateCRM(formData.crm)) {
+      newErrors.crm = 'CRM inválido. Use o formato XXXXX-UF (ex: 12345-SP)';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email é obrigatório';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Email inválido';
+    }
+    
+    if (!formData.telefone.trim()) {
+      newErrors.telefone = 'Telefone é obrigatório';
+    } else if (!validatePhone(formData.telefone)) {
+      newErrors.telefone = 'Telefone inválido. Use o formato (XX) XXXXX-XXXX';
+    }
+    
+    if (!formData.documentoFederal.trim()) {
+      newErrors.documentoFederal = 'CPF é obrigatório';
+    } else if (!validateCPF(formData.documentoFederal)) {
+      newErrors.documentoFederal = 'CPF inválido';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+  const medicoData = {
+    nome: formData.nome,
+    crm: formData.crm.toUpperCase().replace('-', '/'), 
+    email: formData.email,
+    telefone: formData.telefone.replace(/\D/g, ''), 
+    documentoFederal: formData.documentoFederal.replace(/\D/g, ''),
+    especialidade: formData.specialty
+  };
+      
+      if (formData.id) {
+        await medicoService.updateMedico(formData.id, medicoData);
+      } else {
+        await medicoService.createMedico(medicoData);
+      }
+      
+      setShowModal(false);
+      await fetchDoctors();
+      
+      setFormData({
+        nome: '',
+        crm: '',
+        email: '',
+        telefone: '',
+        documentoFederal: '',
+        specialty: ''
+      });
+      
+    } catch (error) {
+      console.error('Erro ao cadastrar/atualizar médico:', error);
+      
+      if (error.response && error.response.data) {
+        setErrors({
+          ...errors,
+          general: error.response.data.message || 'Erro ao processar a solicitação'
+        });
+      } else {
+        setErrors({
+          ...errors,
+          general: 'Erro ao conectar com o servidor'
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const formatCPF = (value) => {
+    const cpf = value.replace(/\D/g, '');
+    if (cpf.length <= 3) return cpf;
+    if (cpf.length <= 6) return `${cpf.slice(0, 3)}.${cpf.slice(3)}`;
+    if (cpf.length <= 9) return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6)}`;
+    return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9, 11)}`;
+  };
+
+  const formatPhone = (value) => {
+    const phone = value.replace(/\D/g, '');
+    if (phone.length <= 2) return phone;
+    if (phone.length <= 7) return `(${phone.slice(0, 2)}) ${phone.slice(2)}`;
+    return `(${phone.slice(0, 2)}) ${phone.slice(2, 7)}-${phone.slice(7)}`;
+  };
+
+  const handleCPFChange = (e) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    const formattedValue = formatCPF(rawValue);
+    setFormData({
+      ...formData,
+      documentoFederal: formattedValue
+    });
+    
+    if (errors.documentoFederal) {
+      setErrors({
+        ...errors,
+        documentoFederal: null
+      });
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    const formattedValue = formatPhone(rawValue);
+    setFormData({
+      ...formData,
+      telefone: formattedValue
+    });
+    
+    if (errors.telefone) {
+      setErrors({
+        ...errors,
+        telefone: null
+      });
+    }
+  };
+
+  const handleEdit = async (id) => {
+    try {
+      const medico = await medicoService.getMedicoById(id);
+      
+      // Formatar CPF e telefone para exibição
+      const formattedCPF = formatCPF(medico.documentoFederal || '');
+      const formattedPhone = formatPhone(medico.telefone || '');
+      
+      setFormData({
+        nome: medico.nome || '',
+        crm: medico.crm || '',
+        email: medico.email || '',
+        telefone: formattedPhone,
+        documentoFederal: formattedCPF,
+        specialty: medico.especialidade || '',
+        id: medico.id 
+      });
+      
+      setErrors({});
+      setShowModal(true);
+    } catch (error) {
+      console.error('Erro ao buscar dados do médico:', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir este médico?')) {
-      console.log('Excluir médico', id);
-      setDoctors(doctors.filter(doctor => doctor.id !== id));
+      try {
+        await medicoService.deleteMedico(id);
+        await fetchDoctors();
+      } catch (error) {
+        console.error('Erro ao excluir médico:', error);
+      }
     }
   };
 
@@ -154,7 +436,7 @@ const Doctors = () => {
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span className="menu-item-text">Solicitações</span>
+          <span className="menu-item-text">Atendimentos</span>
         </a>
         
         <div className="user-section">
@@ -264,6 +546,118 @@ const Doctors = () => {
           </table>
         </div>
       </div>
+
+      {/* Modal de Cadastro/Edição de Médico */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h2 className="modal-title">{formData.id ? 'Editar Médico' : 'Cadastrar Médico'}</h2>
+              <button className="modal-close" onClick={handleCloseModal}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={handleSubmit}>
+                {errors.general && (
+                  <div className="error-message general-error">{errors.general}</div>
+                )}
+                
+                <div className="form-group">
+                  <label htmlFor="nome">Nome*</label>
+                  <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    value={formData.nome}
+                    onChange={handleChange}
+                    className={errors.nome ? 'input-error' : ''}
+                  />
+                  {errors.nome && <div className="error-message">{errors.nome}</div>}
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="crm">CRM*</label>
+                  <input
+                    type="text"
+                    id="crm"
+                    name="crm"
+                    value={formData.crm}
+                    onChange={handleChange}
+                    placeholder="12345-UF"
+                    className={errors.crm ? 'input-error' : ''}
+                  />
+                  {errors.crm && <div className="error-message">{errors.crm}</div>}
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="email">Email*</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={errors.email ? 'input-error' : ''}
+                  />
+                  {errors.email && <div className="error-message">{errors.email}</div>}
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="telefone">Telefone*</label>
+                  <input
+                    type="text"
+                    id="telefone"
+                    name="telefone"
+                    value={formData.telefone}
+                    onChange={handlePhoneChange}
+                    placeholder="(XX) XXXXX-XXXX"
+                    className={errors.telefone ? 'input-error' : ''}
+                    maxLength={15}
+                  />
+                  {errors.telefone && <div className="error-message">{errors.telefone}</div>}
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="documentoFederal">CPF*</label>
+                  <input
+                    type="text"
+                    id="documentoFederal"
+                    name="documentoFederal"
+                    value={formData.documentoFederal}
+                    onChange={handleCPFChange}
+                    placeholder="XXX.XXX.XXX-XX"
+                    className={errors.documentoFederal ? 'input-error' : ''}
+                    maxLength={14}
+                  />
+                  {errors.documentoFederal && <div className="error-message">{errors.documentoFederal}</div>}
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="specialty">Especialidade</label>
+                  <input
+                    type="text"
+                    id="specialty"
+                    name="specialty"
+                    value={formData.specialty}
+                    onChange={handleChange}
+                  />
+                </div>
+                
+                <div className="modal-footer">
+                  <button type="button" className="cancel-button" onClick={handleCloseModal}>Cancelar</button>
+                  <button type="submit" className="submit-button" disabled={isSubmitting}>
+                    {isSubmitting ? 'Salvando...' : 'Salvar'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
