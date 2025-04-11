@@ -51,7 +51,11 @@ export const usuarioService = {
   },
 
   isAuthenticated: () => {
-    return localStorage.getItem('authToken') !== null;
+    const token = localStorage.getItem('authToken');
+  
+    if (!token) return false;
+  
+    return true;
   },
 
   getCurrentUser: async () => {

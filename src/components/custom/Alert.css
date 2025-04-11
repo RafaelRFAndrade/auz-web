@@ -1,0 +1,131 @@
+/* Alert.css */
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 400px;
+    min-width: 300px;
+    z-index: 9999;
+    animation: slide-in 0.3s ease-out;
+  }
+  
+  @keyframes slide-in {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .alert {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    padding: 16px;
+    position: relative;
+  }
+  
+  .alert-icon {
+    display: flex;
+    align-items: flex-start;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  
+  .alert-content {
+    flex: 1;
+  }
+  
+  .alert-content h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+  }
+  
+  .alert-content p {
+    font-size: 14px;
+    margin: 0;
+    color: #555;
+    line-height: 1.4;
+  }
+  
+  .alert-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 0;
+    position: absolute;
+    right: 12px;
+    top: 12px;
+  }
+  
+  .alert-close:hover {
+    color: #555;
+  }
+  
+  /* Cores dos alertas */
+  .alert-error {
+    border-left: 4px solid #d32f2f;
+  }
+  
+  .alert-success {
+    border-left: 4px solid #388e3c;
+  }
+  
+  .alert-warning {
+    border-left: 4px solid #f57c00;
+  }
+  
+  .alert-info {
+    border-left: 4px solid #0288d1;
+  }
+  
+  /* Barra de progresso */
+  .alert-progress {
+    width: 100%;
+    height: 4px;
+    background-color: #f0f0f0;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+  }
+  
+  .alert-progress-track {
+    height: 100%;
+    width: 100%;
+    transform-origin: left;
+    animation-name: progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+  
+  @keyframes progress {
+    0% {
+      transform: scaleX(1);
+    }
+    100% {
+      transform: scaleX(0);
+    }
+  }
+  
+  .alert-progress-error {
+    background-color: #d32f2f;
+  }
+  
+  .alert-progress-success {
+    background-color: #388e3c;
+  }
+  
+  .alert-progress-warning {
+    background-color: #f57c00;
+  }
+  
+  .alert-progress-info {
+    background-color: #0288d1;
+  }

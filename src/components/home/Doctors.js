@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { usuarioService } from '../../services/Usuario';
 import { medicoService } from '../../services/Medico';
 import './Doctors.css';
+import Alert from '../../components/custom/Alert'; // kk se liga na brabo
+
 
 const Doctors = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -22,16 +24,29 @@ const Doctors = () => {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [doctorToDelete, setDoctorToDelete] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [alert, setAlert] = useState({
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  });
 
-  useEffect(() => {
-    if (errorMessage) {
-      const timer = setTimeout(() => {
-        setErrorMessage('');
-      }, 6700); 
-      return () => clearTimeout(timer);
-    }
-  }, [errorMessage]);
+  const showAlert = (type, title, message) => {
+    setAlert({
+      show: true,
+      type,
+      title,
+      message
+    });
+  };
+
+  // Função para fechar o alerta
+  const closeAlert = () => {
+    setAlert(prev => ({
+      ...prev,
+      show: false
+    }));
+  };
 
   useEffect(() => {
     fetchDoctors();
@@ -279,20 +294,20 @@ const Doctors = () => {
         documentoFederal: '',
       });
       
+        showAlert(
+          'success', 
+          'Médico Salvo', 
+          formData.id ? 'Médico atualizado com sucesso!' : 'Médico cadastrado com sucesso!'
+        );
+
     } catch (error) {
       console.error('Erro ao cadastrar/atualizar médico:', error);
       
-      if (error.response && error.response.data) {
-        setErrors({
-          ...errors,
-          general: error.response.data.message || 'Erro ao processar a solicitação'
-        });
-      } else {
-        setErrors({
-          ...errors,
-          general: 'Erro ao conectar com o servidor'
-        });
-      }
+      showAlert(
+        'error',
+        'Erro ao Salvar',
+        error.response?.data?.message || 'Erro ao processar a solicitação'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -379,11 +394,17 @@ const Doctors = () => {
       await medicoService.deleteMedico(doctorToDelete);
       await fetchDoctors();
       setShowDeleteModal(false);
+      showAlert('success', 'Sucesso', 'Médico excluído com sucesso!');
     } catch (error) {
-      setErrorMessage(error.response?.data?.mensagem || 'Erro ao excluir médico');
+      showAlert(
+        'error', 
+        'Ocorreu um Erro', 
+        error.response?.data?.mensagem || 'Erro ao excluir médico'
+      );
       setShowDeleteModal(false);
     }
   };
+
 
   return (
     <div className="home-container">
@@ -705,28 +726,15 @@ const Doctors = () => {
       </div>
     )}
 
-       {/* Modal de Erro */}
-       {errorMessage && (
-      <div className="alert-container">
-      <div className="alert alert-error">
-        <div className="alert-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2">
-            <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-        <div className="alert-content">
-          <h4>Ocorreu um Erro</h4>
-          <p>{errorMessage}</p>
-        </div>
-        <button className="alert-close" onClick={() => setErrorMessage('')}>
-          &times;
-        </button>
-      </div>
-      <div className="alert-progress">
-        <div className="alert-progress-track"></div>
-      </div>
-    </div>
-    )}
+       {/* alerta de Erro */}
+       <Alert
+        show={alert.show}
+        type={alert.type}
+        title={alert.title}
+        message={alert.message}
+        onClose={closeAlert}
+        duration={7000} // 7 segundos
+      />
   </div>
   );
 };             
