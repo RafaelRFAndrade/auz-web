@@ -40,7 +40,6 @@ const Doctors = () => {
     });
   };
 
-  // Função para fechar o alerta
   const closeAlert = () => {
     setAlert(prev => ({
       ...prev,
@@ -410,7 +409,7 @@ const Doctors = () => {
     <div className="home-container">
       <div className="sidebar">
         <div className="logo-sidebar">
-          <img src="/logo.svg" alt="AUZ" />
+          <img src="/logo.png" alt="AUZ" />
         </div>
         
         <a 

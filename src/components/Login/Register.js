@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css'; 
-import epicLogo from '../../logo.svg';
+import epicLogo from '../../logo.png';
 import { usuarioService } from '../../services/Usuario';
 import Alert from '../../components/custom/Alert'; 
 

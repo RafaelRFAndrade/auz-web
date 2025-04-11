@@ -84,7 +84,7 @@ const Home = () => {
     <div className="home-container">
       <div className="sidebar">
         <div className="logo-sidebar">
-          <img src="/logo.svg" alt="AUZ" />
+          <img src="/logo.png" alt="AUZ" />
         </div>
         
         <a 
