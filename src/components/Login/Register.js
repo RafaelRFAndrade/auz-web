@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Login.css'; 
 import epicLogo from '../../logo.svg';
 import { usuarioService } from '../../services/Usuario';
+import Alert from '../../components/custom/Alert'; 
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -10,48 +11,60 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [nameError, setNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [registerError, setRegisterError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [alert, setAlert] = useState({
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  });
 
   const validateEmail = (email) => {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
   };
 
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const showAlert = (type, title, message) => {
+    setAlert({
+      show: true,
+      type,
+      title,
+      message
+    });
+  };
+
+  const closeAlert = () => {
+    setAlert(prev => ({
+      ...prev,
+      show: false
+    }));
+  };
+
   const validateInputs = () => {
     let isValid = true;
 
     if (!name.trim()) {
-      setNameError('Por favor, insira seu nome.');
+      showAlert('warning', 'Aviso', 'Por favor, insira seu nome.');
       isValid = false;
-    } else {
-      setNameError('');
     }
 
     if (!validateEmail(email)) {
-      setEmailError('Por favor, insira um email válido.');
+      showAlert('warning', 'Aviso', 'Por favor, insira um email válido.');
       isValid = false;
-    } else {
-      setEmailError('');
     }
 
     if (password.length < 6) {
-      setPasswordError('A senha deve ter pelo menos 6 caracteres.');
+      showAlert('warning', 'Aviso', 'A senha deve ter pelo menos 6 caracteres.');
       isValid = false;
-    } else {
-      setPasswordError('');
     }
 
     if (password !== confirmPassword) {
-      setConfirmPasswordError('As senhas não coincidem.');
+      showAlert('error', 'Erro', 'Senha incorreta');
       isValid = false;
-    } else {
-      setConfirmPasswordError('');
     }
 
     return isValid;
@@ -67,16 +80,16 @@ const Register = () => {
       try {
         await usuarioService.register(name, email, password);
         console.log('Registration successful');
+        await sleep(2000);
+
         navigate('/login');
       } catch (error) {
         console.error('Registration error:', error);
-        if (error.response) {
-          setRegisterError(`Erro: ${error.response.data || 'Ocorreu um erro no servidor.'}`);
-        } else if (error.request) {
-          setRegisterError('Servidor não respondeu. Verifique sua conexão.');
-        } else {
-          setRegisterError('Erro ao processar o cadastro. Tente novamente.');
-        }
+        showAlert(
+          'error',
+          'Erro ao registrar',
+          error.response?.data?.mensagem || 'Ocorreu um erro na requisição.'
+        );
       } finally {
         setIsLoading(false);
       }
@@ -93,6 +106,17 @@ const Register = () => {
   };
 
   return (
+    <>
+  {alert.show && (
+    <Alert
+      show={alert.show}
+      type={alert.type}
+      title={alert.title}
+      message={alert.message}
+      onClose={closeAlert}
+      duration={7000}
+    />
+  )}
     <div className="login-container">
       <div className="logo-container">
         <img src={epicLogo} alt="ERP Logo" className="logo" />
@@ -111,7 +135,6 @@ const Register = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          {nameError && <div className="error-message">{nameError}</div>}
         </div>
         
         <div className="input-group">
@@ -122,7 +145,6 @@ const Register = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {emailError && <div className="error-message">{emailError}</div>}
         </div>
         
         <div className="input-group">
@@ -153,7 +175,6 @@ const Register = () => {
               )}
             </button>
           </div>
-          {passwordError && <div className="error-message">{passwordError}</div>}
         </div>
         
         <div className="input-group">
@@ -164,7 +185,6 @@ const Register = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          {confirmPasswordError && <div className="error-message">{confirmPasswordError}</div>}
         </div>
         
         <button 
@@ -180,6 +200,7 @@ const Register = () => {
         <a href="#" onClick={handleLogin}>Já tem uma conta? Entrar</a>
       </div>
     </div>
+    </>
   );
 };
 

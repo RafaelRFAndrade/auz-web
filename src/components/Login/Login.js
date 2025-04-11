@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import epicLogo from '../../logo.svg'; 
 import { usuarioService } from '../../services/Usuario';
+import Alert from '../../components/custom/Alert'; 
 
 const ForgotPasswordModal = ({ onClose, isVisible }) => {
 
@@ -49,33 +50,50 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
+  const [alert, setAlert] = useState({
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  });
 
   const validateEmail = (email) => {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
   };
 
+  const showAlert = (type, title, message) => {
+    setAlert({
+      show: true,
+      type,
+      title,
+      message
+    });
+  };
+
+  const closeAlert = () => {
+    setAlert(prev => ({
+      ...prev,
+      show: false
+    }));
+  };
+
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
   const validateInputs = () => {
     let isValid = true;
 
     if (!validateEmail(email)) {
-      setEmailError('Por favor, insira um email válido.');
+      showAlert('warning', 'Aviso', 'Por favor, insira um email válido.');
       isValid = false;
-    } else {
-      setEmailError('');
-    }
+    } 
 
     if (password.length < 6) {
-      setPasswordError('A senha deve ter pelo menos 6 caracteres.');
+      showAlert('warning', 'Aviso', 'Senha precisa de pelo menos 6 caracteres.');
       isValid = false;
-    } else {
-      setPasswordError('');
     }
 
     return isValid;
@@ -86,25 +104,22 @@ const Login = () => {
     
     if (validateInputs()) {
       setIsLoading(true);
-      setLoginError('');
       
       try {
         await usuarioService.login(email, password);
         console.log('Login successful');
+        showAlert('success', 'Sucesso', 'Login efetuado com sucesso!');
+        await sleep(2000);
+
         navigate('/home');
       } catch (error) {
         console.error('Login error:', error);
-        if (error.response) {
-          if (error.response.status === 401) {
-            setLoginError('Email ou senha incorretos.');
-          } else {
-            setLoginError(`Erro: ${error.response.data || 'Ocorreu um erro no servidor.'}`);
-          }
-        } else if (error.request) {
-          setLoginError('Servidor não respondeu. Verifique sua conexão.');
-        } else {
-          setLoginError('Erro ao processar o login. Tente novamente.');
-        }
+        showAlert(
+          'error',
+          'Erro ao logar',
+          error.response?.data?.mensagem || 'Ocorreu um erro na requisição.'
+        );
+        
       } finally {
         setIsLoading(false);
       }
@@ -137,9 +152,7 @@ const Login = () => {
         </div>
         
         <h1>Login</h1>
-        
-        {loginError && <div className="error-message login-error">{loginError}</div>}
-        
+                
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="email">Endereço de E-mail</label>
@@ -149,7 +162,6 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            {emailError && <div className="error-message">{emailError}</div>}
           </div>
           
           <div className="input-group">
@@ -180,7 +192,6 @@ const Login = () => {
                 )}
               </button>
             </div>
-            {passwordError && <div className="error-message">{passwordError}</div>}
             <a href="#" className="forgot-password" onClick={handleForgotPassword}>
               Esqueceu sua senha?
             </a>
@@ -201,6 +212,15 @@ const Login = () => {
       <ForgotPasswordModal 
         isVisible={showForgotPassword}
         onClose={closeForgotPassword}
+      />
+
+      <Alert
+        show={alert.show}
+        type={alert.type}
+        title={alert.title}
+        message={alert.message}
+        onClose={closeAlert}
+        duration={7000} // 7 segundos
       />
     </>
   );
