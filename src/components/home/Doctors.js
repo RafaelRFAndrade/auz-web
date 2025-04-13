@@ -663,17 +663,6 @@ const Doctors = () => {
                   {errors.documentoFederal && <div className="error-message">{errors.documentoFederal}</div>}
                 </div>
                 
-                <div className="form-group">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    type="text"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                
                 <div className="modal-footer">
                   <button type="button" className="cancel-button" onClick={handleCloseModal}>Cancelar</button>
                   <button type="submit" className="submit-button" disabled={isSubmitting}>
