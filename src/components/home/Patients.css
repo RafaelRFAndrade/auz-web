@@ -64,37 +64,37 @@
     color: #777;
   }
   
-  .doctors-grid {
+  .patients-grid {
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     overflow: hidden;
   }
   
-  .doctors-table {
+  .patients-table {
     width: 100%;
     border-collapse: collapse;
   }
   
-  .doctors-table th,
-  .doctors-table td {
+  .patients-table th,
+  .patients-table td {
     padding: 15px 20px;
     text-align: left;
     border-bottom: 1px solid #eaeaea;
   }
   
-  .doctors-table th {
+  .patients-table th {
     background-color: #f9f9f9;
     font-weight: 600;
     color: #444;
     font-size: 14px;
   }
   
-  .doctors-table tr:last-child td {
+  .patients-table tr:last-child td {
     border-bottom: none;
   }
   
-  .doctors-table tr:hover {
+  .patients-table tr:hover {
     background-color: #f5f9ff;
   }
   

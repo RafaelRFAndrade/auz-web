@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usuarioService } from '../../services/Usuario';
 import './Home.css';
+import logo from '../../logo.png'; 
 
 const Home = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -84,7 +85,7 @@ const Home = () => {
     <div className="home-container">
       <div className="sidebar">
         <div className="logo-sidebar">
-          <img src="/logo.png" alt="AUZ" />
+          <img src={logo} alt="AUZ" className="logo-img" />
         </div>
         
         <a 

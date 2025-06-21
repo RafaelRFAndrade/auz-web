@@ -5,6 +5,7 @@ import Register from './components/Login/Register';
 import Home from './components/home/Home'; 
 import Doctors from './components/home/Doctors';
 import { usuarioService } from './services/Usuario';
+import Patients from './components/home/Patients';
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -43,6 +44,15 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/patients" 
+          element={
+            <ProtectedRoute>
+              <Patients />
+            </ProtectedRoute>
+          } 
+        />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
