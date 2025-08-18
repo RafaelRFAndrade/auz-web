@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login/Login';
-import Register from './components/Login/Register';
-import Home from './components/home/Home';
-import Doctors from './components/home/Doctors';
-import Patients from './components/home/Patients';
-import Appointments from './components/home/Appointments'; // Novo componente
-import Sidebar from './components/Sidebar'; // Novo componente
+import Loading from './components/custom/Loading';
 import { usuarioService } from './services/Usuario';
+
+// Lazy loading dos componentes
+const Login = lazy(() => import('./components/Login/Login'));
+const Register = lazy(() => import('./components/Login/Register'));
+const Home = lazy(() => import('./components/home/Home'));
+const Doctors = lazy(() => import('./components/home/Doctors'));
+const Patients = lazy(() => import('./components/home/Patients'));
+const Appointments = lazy(() => import('./components/home/Appointments'));
+const Sidebar = lazy(() => import('./components/Sidebar'));
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -28,7 +31,9 @@ function App() {
   const AuthenticatedLayout = ({ children }) => {
     return (
       <div className="flex h-screen bg-gray-100">
-        <Sidebar />
+        <Suspense fallback={<Loading size="small" text="Carregando menu..." />}>
+          <Sidebar />
+        </Suspense>
         <main className="flex-1 overflow-y-auto">
           <div className="p-6">
             {children}
@@ -40,87 +45,103 @@ function App() {
 
   return (
     <Router>
-      <Routes>
-        {/* Rotas públicas - sem sidebar */}
-        <Route 
-          path="/login" 
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } 
-        />
-        <Route 
-          path="/register" 
-          element={
-            <PublicRoute>
-              <Register />
-            </PublicRoute>
-          } 
-        />
+      <Suspense fallback={<Loading overlay={true} text="Carregando aplicação..." />}>
+        <Routes>
+          {/* Rotas públicas - sem sidebar */}
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <Suspense fallback={<Loading overlay={true} text="Carregando login..." />}>
+                  <Login />
+                </Suspense>
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              <PublicRoute>
+                <Suspense fallback={<Loading overlay={true} text="Carregando cadastro..." />}>
+                  <Register />
+                </Suspense>
+              </PublicRoute>
+            } 
+          />
 
-        {/* Rotas protegidas - com sidebar */}
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <AuthenticatedLayout>
-                <Home />
-              </AuthenticatedLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/home" 
-          element={
-            <ProtectedRoute>
-              <AuthenticatedLayout>
-                <Home />
-              </AuthenticatedLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/doctors" 
-          element={
-            <ProtectedRoute>
-              <AuthenticatedLayout>
-                <Doctors />
-              </AuthenticatedLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/patients" 
-          element={
-            <ProtectedRoute>
-              <AuthenticatedLayout>
-                <Patients />
-              </AuthenticatedLayout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/appointments" 
-          element={
-            <ProtectedRoute>
-              <AuthenticatedLayout>
-                <Appointments />
-              </AuthenticatedLayout>
-            </ProtectedRoute>
-          } 
-        />
+          {/* Rotas protegidas - com sidebar */}
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando página inicial..." />}>
+                    <Home />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/home" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando página inicial..." />}>
+                    <Home />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/doctors" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando médicos..." />}>
+                    <Doctors />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patients" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando pacientes..." />}>
+                    <Patients />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/appointments" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando atendimentos..." />}>
+                    <Appointments />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
 
-        {/* Rota catch-all */}
-        <Route 
-          path="*" 
-          element={
-            usuarioService.isAuthenticated() 
-              ? <Navigate to="/home" replace />
-              : <Navigate to="/login" replace />
-          } 
-        />
-      </Routes>
+          {/* Rota catch-all */}
+          <Route 
+            path="*" 
+            element={
+              usuarioService.isAuthenticated() 
+                ? <Navigate to="/home" replace />
+                : <Navigate to="/login" replace />
+            } 
+          />
+        </Routes>
+      </Suspense>
     </Router>
   );
 }

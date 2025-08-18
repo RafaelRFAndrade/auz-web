@@ -54,6 +54,20 @@ input {
   box-sizing: border-box;
 }
 
+input:focus {
+  outline: 2px solid #0894d8;
+  outline-offset: 2px;
+  border-color: #0894d8;
+}
+
+input[aria-invalid="true"] {
+  border-color: #ff4d4d;
+}
+
+input[aria-invalid="true"]:focus {
+  outline-color: #ff4d4d;
+}
+
 .password-input {
   position: relative;
 }
@@ -66,10 +80,21 @@ input {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 4px;
+}
+
+.eye-button:focus {
+  outline: 2px solid #0894d8;
+  outline-offset: 2px;
+  background-color: rgba(8, 148, 216, 0.1);
+}
+
+.eye-button:hover {
+  background-color: rgba(8, 148, 216, 0.1);
 }
 
 .eye-icon {
@@ -85,6 +110,18 @@ input {
   margin-top: 10px;
   font-size: 14px;
   text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.forgot-password:hover,
+.forgot-password:focus {
+  text-decoration: underline;
+  outline: 2px solid #0894d8;
+  outline-offset: 2px;
 }
 
 .login-button {
@@ -111,15 +148,33 @@ input {
   opacity: 0.7;
 }
 
+.login-button:focus {
+  outline: 2px solid #0894d8;
+  outline-offset: 2px;
+}
+
 .create-account {
   text-align: center;
   margin-top: 40px;
 }
 
-.create-account a {
+.create-account a,
+.create-account-link {
   color: #0894d8; 
   text-decoration: none;
   font-size: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.create-account-link:hover,
+.create-account-link:focus {
+  text-decoration: underline;
+  outline: 2px solid #0894d8;
+  outline-offset: 2px;
 }
 
 .privacy-policy {
@@ -232,4 +287,50 @@ body {
 
 .whatsapp-icon {
   color: white;
+}
+
+/* Classes para acessibilidade */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Melhorias de foco para modal */
+.forgot-password-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.forgot-password-container {
+  position: relative;
+  z-index: 1001;
+  transform: none;
+  top: auto;
+  left: auto;
+}
+
+.close-button:focus {
+  outline: 2px solid #0894d8;
+  outline-offset: 2px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.whatsapp-button:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
