@@ -1,8 +1,14 @@
 .page-header {
     display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .page-title-section {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
   }
   
   .add-button {

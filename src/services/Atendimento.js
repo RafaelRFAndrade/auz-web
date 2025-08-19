@@ -46,5 +46,49 @@ export const atendimentoService = {
       throw error;
     }
   },
+
+  // Criar novo atendimento
+  createAtendimento: async (atendimentoData) => {
+    try {
+      const response = await atendimentoClient.post('/Atendimento/Cadastrar', atendimentoData);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao criar atendimento:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  // Buscar atendimento por ID
+  getAtendimentoById: async (id) => {
+    try {
+      const response = await atendimentoClient.get(`/Atendimento/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar atendimento:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  // Atualizar atendimento
+  updateAtendimento: async (id, atendimentoData) => {
+    try {
+      const response = await atendimentoClient.put(`/Atendimento/${id}`, atendimentoData);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao atualizar atendimento:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  // Deletar atendimento
+  deleteAtendimento: async (id) => {
+    try {
+      const response = await atendimentoClient.delete(`/Atendimento/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao deletar atendimento:', error.response?.data || error.message);
+      throw error;
+    }
+  }
 };
 export default atendimentoClient;

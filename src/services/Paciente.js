@@ -74,6 +74,15 @@ export const pacienteService = {
     throw error;
   }
  },
+
+  getPacienteByCpf: async (cpf) => {
+    try {
+      const response = await pacienteClient.get(`/Paciente/BuscarPorCpf/${cpf}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
 export default pacienteClient;

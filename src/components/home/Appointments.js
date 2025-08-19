@@ -5,6 +5,7 @@ import { usuarioService } from '../../services/Usuario';
 import { atendimentoService } from '../../services/Atendimento';
 import './Appointments.css';
 import Alert from '../../components/custom/Alert';
+import AppointmentForm from './AppointmentForm';
 import logo from '../../logo.png';
 
 const Atendimentos = () => {
@@ -15,6 +16,7 @@ const Atendimentos = () => {
   const [totalItens, setTotalItens] = useState(0);
   const [alert, setAlert] = useState({ show: false, type: 'info', title: '', message: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const navigate = useNavigate();
 
   const showAlert = (type, title, message) => setAlert({ show: true, type, title, message });
@@ -47,13 +49,13 @@ const Atendimentos = () => {
   
       let response = await atendimentoService.getAtendimentos(pagina, 25);
   
-      setAtendimentos(response.Atendimentos || []);
-      setTotalPaginas(response.TotalPaginas || 1);
-      setTotalItens(response.Itens || 0);
+      setAtendimentos(response.atendimentos || []);
+      setTotalPaginas(response.totalPaginas || 1);
+      setTotalItens(response.itens || 0);
       setPaginaAtual(pagina);
     } catch (error) {
       console.error('Erro ao buscar atendimentos:', error);
-      showAlert('error', 'Erro', JSON.stringify(error));
+      showAlert('error', 'Erro', 'Erro ao carregar atendimentos: ' + (error.response?.data?.message || error.message));
     } finally {
       setIsLoading(false);
     }
@@ -91,55 +93,88 @@ const Atendimentos = () => {
 
   const renderPaginationButtons = () => {
     const buttons = [];
-    const maxVisibleButtons = 5;
+    const maxVisibleButtons = 7;
     
-    // Calcular o range de botões a serem exibidos
-    let startPage = Math.max(1, paginaAtual - Math.floor(maxVisibleButtons / 2));
-    let endPage = Math.min(totalPaginas, startPage + maxVisibleButtons - 1);
-    
-    // Ajustar o início se necessário
-    if (endPage - startPage + 1 < maxVisibleButtons) {
-      startPage = Math.max(1, endPage - maxVisibleButtons + 1);
-    }
-
-    // Botão "Primeira página"
-    if (startPage > 1) {
+    if (totalPaginas <= maxVisibleButtons) {
+      // Se há poucas páginas, mostrar todas
+      for (let i = 1; i <= totalPaginas; i++) {
+        buttons.push(
+          <button
+            key={i}
+            onClick={() => handlePageChange(i)}
+            className={`pagination-btn ${paginaAtual === i ? 'active' : ''}`}
+          >
+            {i}
+          </button>
+        );
+      }
+    } else {
+      // Sempre mostrar primeira página
       buttons.push(
-        <button key="first" onClick={() => handlePageChange(1)} className="pagination-btn">
+        <button
+          key={1}
+          onClick={() => handlePageChange(1)}
+          className={`pagination-btn ${paginaAtual === 1 ? 'active' : ''}`}
+        >
           1
         </button>
       );
-      if (startPage > 2) {
+
+      if (paginaAtual > 4) {
         buttons.push(<span key="dots1" className="pagination-dots">...</span>);
       }
-    }
 
-    // Botões do range atual
-    for (let i = startPage; i <= endPage; i++) {
-      buttons.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={`pagination-btn ${paginaAtual === i ? 'active' : ''}`}
-        >
-          {i}
-        </button>
-      );
-    }
+      // Páginas ao redor da atual
+      const start = Math.max(2, paginaAtual - 1);
+      const end = Math.min(totalPaginas - 1, paginaAtual + 1);
+      
+      for (let i = start; i <= end; i++) {
+        if (i !== 1 && i !== totalPaginas) {
+          buttons.push(
+            <button
+              key={i}
+              onClick={() => handlePageChange(i)}
+              className={`pagination-btn ${paginaAtual === i ? 'active' : ''}`}
+            >
+              {i}
+            </button>
+          );
+        }
+      }
 
-    // Botão "Última página"
-    if (endPage < totalPaginas) {
-      if (endPage < totalPaginas - 1) {
+      if (paginaAtual < totalPaginas - 3) {
         buttons.push(<span key="dots2" className="pagination-dots">...</span>);
       }
-      buttons.push(
-        <button key="last" onClick={() => handlePageChange(totalPaginas)} className="pagination-btn">
-          {totalPaginas}
-        </button>
-      );
+
+      // Sempre mostrar última página
+      if (totalPaginas > 1) {
+        buttons.push(
+          <button
+            key={totalPaginas}
+            onClick={() => handlePageChange(totalPaginas)}
+            className={`pagination-btn ${paginaAtual === totalPaginas ? 'active' : ''}`}
+          >
+            {totalPaginas}
+          </button>
+        );
+      }
     }
 
     return buttons;
+  };
+
+  // Funções para controlar o formulário de cadastro
+  const handleOpenAppointmentForm = () => {
+    setShowAppointmentForm(true);
+  };
+
+  const handleCloseAppointmentForm = () => {
+    setShowAppointmentForm(false);
+  };
+
+  const handleAppointmentSuccess = (message) => {
+    showAlert('success', 'Sucesso', message);
+    fetchAtendimentos(paginaAtual); // Recarregar a lista de atendimentos na página atual
   };
 
   return (
@@ -172,7 +207,16 @@ const Atendimentos = () => {
 
       <div className="main-content">
         <div className="page-header">
-          <div className="page-title">Atendimentos</div>
+          <div className="page-title-section">
+            <div className="page-title">Atendimentos</div>
+            <button className="add-button" onClick={handleOpenAppointmentForm}>
+              <svg className="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Cadastrar Atendimento
+            </button>
+          </div>
           {totalItens > 0 && (
             <div className="page-subtitle">
               Total de {totalItens} atendimento{totalItens !== 1 ? 's' : ''}
@@ -199,36 +243,47 @@ const Atendimentos = () => {
               <tbody>
                 {atendimentos.length > 0 ? (
                   atendimentos.map(item => (
-                    <tr key={item.CodigoAtendimento}>
-                      <td className="description-cell">{item.Descricao}</td>
-                      <td className="patient-name">{item.NomePaciente}</td>
-                      <td className="doctor-name">{item.NomeMedico}</td>
-                      <td>{formatDate(item.DtInclusao)}</td>
-                      <td>{formatDate(item.DtSituacao)}</td>
+                    <tr key={item.codigoAtendimento}>
+                      <td className="description-cell">{item.descricao || 'N/A'}</td>
+                      <td className="patient-name">{item.nomePaciente || 'N/A'}</td>
+                      <td className="doctor-name">{item.nomeMedico || 'N/A'}</td>
+                      <td>{formatDate(item.dtInclusao)}</td>
+                      <td>{formatDate(item.dtSituacao)}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="no-data">
-                      Nenhum atendimento encontrado
+                    <td colSpan="5" className="no-data">
+                      {isLoading ? 'Carregando...' : `Nenhum atendimento encontrado. Total de itens: ${totalItens}`}
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
 
-            {totalPaginas > 1 && (
+            {totalItens > 25 && totalPaginas > 1 && (
               <div className="pagination-container">
                 <div className="pagination-info">
-                  Página {paginaAtual} de {totalPaginas}
+                  <span>Mostrando página {paginaAtual} de {totalPaginas}</span>
+                  <span className="total-items">Total: {totalItens} atendimentos</span>
                 </div>
                 <div className="pagination">
+                  <button
+                    onClick={() => handlePageChange(1)}
+                    disabled={paginaAtual === 1}
+                    className="pagination-btn pagination-first"
+                    title="Primeira página"
+                  >
+                    ⟪
+                  </button>
+                  
                   <button
                     onClick={() => handlePageChange(paginaAtual - 1)}
                     disabled={paginaAtual === 1}
                     className="pagination-btn pagination-nav"
+                    title="Página anterior"
                   >
-                    ← Anterior
+                    ‹
                   </button>
                   
                   {renderPaginationButtons()}
@@ -237,8 +292,18 @@ const Atendimentos = () => {
                     onClick={() => handlePageChange(paginaAtual + 1)}
                     disabled={paginaAtual === totalPaginas}
                     className="pagination-btn pagination-nav"
+                    title="Próxima página"
                   >
-                    Próxima →
+                    ›
+                  </button>
+                  
+                  <button
+                    onClick={() => handlePageChange(totalPaginas)}
+                    disabled={paginaAtual === totalPaginas}
+                    className="pagination-btn pagination-last"
+                    title="Última página"
+                  >
+                    ⟫
                   </button>
                 </div>
               </div>
@@ -255,6 +320,13 @@ const Atendimentos = () => {
         onClose={closeAlert} 
         duration={7000} 
       />
+
+      {showAppointmentForm && (
+        <AppointmentForm 
+          onClose={handleCloseAppointmentForm}
+          onSuccess={handleAppointmentSuccess}
+        />
+      )}
     </div>
   );
 };

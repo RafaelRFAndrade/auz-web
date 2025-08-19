@@ -91,6 +91,15 @@ export const medicoService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  getMedicoByCpf: async (cpf) => {
+    try {
+      const response = await medicoClient.get(`/Medico/BuscarPorCpf/${cpf}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 

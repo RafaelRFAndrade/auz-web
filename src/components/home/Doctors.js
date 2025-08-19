@@ -484,23 +484,25 @@ const Doctors = () => {
       
       <div className="main-content">
         <div className="page-header">
-          <div className="page-title">
-            <svg className="page-title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
-              <path d="M8 3v4"></path>
-              <path d="M16 3v4"></path>
-              <path d="M12 11v6"></path>
-              <path d="M9 14h6"></path>
-            </svg>
-            Médicos
+          <div className="page-title-section">
+            <div className="page-title">
+              <svg className="page-title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
+                <path d="M8 3v4"></path>
+                <path d="M16 3v4"></path>
+                <path d="M12 11v6"></path>
+                <path d="M9 14h6"></path>
+              </svg>
+              Médicos
+            </div>
+            <button className="add-button" onClick={handleNewDoctor}>
+              <svg className="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Cadastrar Médico
+            </button>
           </div>
-          <button className="add-button" onClick={handleNewDoctor}>
-            <svg className="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Cadastrar Médico
-          </button>
         </div>
         
         <div className="search-container">
