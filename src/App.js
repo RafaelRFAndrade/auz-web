@@ -10,6 +10,8 @@ const Home = lazy(() => import('./components/home/Home'));
 const Doctors = lazy(() => import('./components/home/Doctors'));
 const Patients = lazy(() => import('./components/home/Patients'));
 const Appointments = lazy(() => import('./components/home/Appointments'));
+const Scheduling = lazy(() => import('./components/home/Scheduling'));
+const Calendar = lazy(() => import('./components/home/Calendar'));
 const Sidebar = lazy(() => import('./components/Sidebar'));
 
 function App() {
@@ -125,6 +127,42 @@ function App() {
                 <AuthenticatedLayout>
                   <Suspense fallback={<Loading text="Carregando atendimentos..." />}>
                     <Appointments />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/scheduling" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando agendamento..." />}>
+                    <Scheduling />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/scheduling/:codigoAtendimento" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando agendamento..." />}>
+                    <Scheduling />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/agenda" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando agenda..." />}>
+                    <Calendar />
                   </Suspense>
                 </AuthenticatedLayout>
               </ProtectedRoute>

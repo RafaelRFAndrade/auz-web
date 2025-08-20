@@ -223,9 +223,7 @@ const Login = () => {
         <div className="logo-container">
           <img src={epicLogo} alt="Logo do Sistema Médico" className="logo" />
         </div>
-        
-        <h1>Login no Sistema</h1>
-                
+                        
         <form onSubmit={handleSubmit} noValidate>
           <div className="input-group">
             <label htmlFor="email">Endereço de E-mail *</label>

@@ -13,7 +13,8 @@ const Sidebar = () => {
     { path: '/home', icon: '🏠', label: 'Início' },
     { path: '/doctors', icon: '👨‍⚕️', label: 'Médicos' },
     { path: '/patients', icon: '👥', label: 'Pacientes' },
-    { path: '/appointments', icon: '📅', label: 'Atendimentos' }
+    { path: '/appointments', icon: '📅', label: 'Atendimentos' },
+    { path: '/agenda', icon: '📆', label: 'Agenda' }
   ];
 
   const isActive = (path) => location.pathname === path;
