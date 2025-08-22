@@ -97,17 +97,27 @@ const Calendar = () => {
   };
 
   const formatTime = (dateString) => {
-    return new Date(dateString).toLocaleTimeString('pt-BR', {
+    const date = new Date(dateString);
+    // Ajustar para horário de Brasília (UTC-3)
+    const brasiliaDate = new Date(date.getTime() - (3 * 60 * 60 * 1000));
+    return brasiliaDate.toLocaleTimeString('pt-BR', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'America/Sao_Paulo'
     });
   };
 
   const getAgendamentosForDate = (day) => {
     const dateToCheck = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     return agendamentos.filter(agendamento => {
+      // Converter para horário de Brasília (UTC-3)
       const agendamentoDate = new Date(agendamento.dtAgendamento);
-      return agendamentoDate.toDateString() === dateToCheck.toDateString();
+      const brasiliaDate = new Date(agendamentoDate.getTime() - (3 * 60 * 60 * 1000));
+      
+      // Comparar apenas ano, mês e dia no horário de Brasília
+      return brasiliaDate.getFullYear() === dateToCheck.getFullYear() &&
+             brasiliaDate.getMonth() === dateToCheck.getMonth() &&
+             brasiliaDate.getDate() === dateToCheck.getDate();
     });
   };
 
@@ -130,7 +140,11 @@ const Calendar = () => {
     // Dias do mês
     for (let day = 1; day <= daysInMonth; day++) {
       const dayAgendamentos = getAgendamentosForDate(day);
-      const isToday = new Date().toDateString() === new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString();
+      const today = new Date();
+      const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      const isToday = today.getFullYear() === dayDate.getFullYear() &&
+                      today.getMonth() === dayDate.getMonth() &&
+                      today.getDate() === dayDate.getDate();
       
       days.push(
         <div 

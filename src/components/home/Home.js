@@ -161,7 +161,6 @@ const Home = () => {
       <div className="main-content">
         <div className="welcome-section">
           <h1 className="welcome-title">Bem-vindo, {userData.name}</h1>
-          <p className="welcome-subtitle">Aqui está um resumo da sua atividade atual</p>
           
           <div className="metrics-container">
             <div className="metric-card primary">

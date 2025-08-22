@@ -82,11 +82,30 @@ const Scheduling = () => {
     setLoading(true);
     
     try {
-      // Preparar dados para envio
+      // Preparar dados para envio conforme esperado pelo backend C#
+      console.log('Data do formulário:', formData.dtAgendamento);
+      
+      // Validar se a data foi preenchida
+      if (!formData.dtAgendamento) {
+        throw new Error('Data do agendamento é obrigatória');
+      }
+      
+      // O input datetime-local retorna formato YYYY-MM-DDTHH:mm
+      // Criar data diretamente do valor do datetime-local
+      const selectedDate = new Date(formData.dtAgendamento);
+      
+      console.log('Data criada:', selectedDate);
+      
+      // Validar se a data é válida
+      if (isNaN(selectedDate.getTime())) {
+        console.error('Data inválida:', formData.dtAgendamento);
+        throw new Error('Por favor, selecione uma data e hora válidas');
+      }
+      
       const agendamentoData = {
-        codigoAtendimento: formData.codigoAtendimento,
-        descricao: formData.descricao,
-        dtAgendamento: new Date(formData.dtAgendamento).toISOString()
+        CodigoAtendimento: formData.codigoAtendimento, // GUID como string
+        Descricao: formData.descricao,
+        DtAgendamento: selectedDate.toISOString() // DateTime no formato ISO
       };
       
       // Chamar API para criar agendamento

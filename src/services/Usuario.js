@@ -92,9 +92,9 @@ export const usuarioService = {
     delete usuarioClient.defaults.headers.common['Authorization'];
   },
 
-  register: async (nome, email, senha, tipoPermissao = 0) => {
+  register: async (nome, email, senha, nomeParceiro, tipoPermissao = 0) => {
     try {
-      const response = await usuarioClient.post('/Usuario', { nome, email, senha, tipoPermissao });
+      const response = await usuarioClient.post('/Usuario', { nome, email, senha, nomeParceiro, tipoPermissao });
       return response.data;
     } catch (error) {
       throw error;

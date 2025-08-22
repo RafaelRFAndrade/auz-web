@@ -7,6 +7,7 @@ import Alert from '../../components/custom/Alert';
 
 const Register = () => {
   const [name, setName] = useState('');
+  const [partnerName, setPartnerName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -81,6 +82,12 @@ const Register = () => {
       newErrors.name = 'Nome deve ter pelo menos 2 caracteres';
     }
     
+    if (!partnerName.trim()) {
+      newErrors.partnerName = 'Nome do parceiro é obrigatório';
+    } else if (partnerName.trim().length < 2) {
+      newErrors.partnerName = 'Nome do parceiro deve ter pelo menos 2 caracteres';
+    }
+    
     if (!email.trim()) {
       newErrors.email = 'E-mail é obrigatório';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -114,34 +121,38 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await usuarioService.register(name, email, password);
+      const response = await usuarioService.register(name, email, password, partnerName);
+      console.log('Resposta da API:', response);
       
-      if (response.success) {
-        setAlert({
-          show: true,
-          type: 'success',
-          title: 'Conta criada com sucesso!',
-          message: 'Redirecionando para o login...'
-        });
-        
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      } else {
-        setAlert({
-          show: true,
-          type: 'error',
-          title: 'Erro no cadastro',
-          message: response.message || 'Erro ao criar conta. Tente novamente.'
-        });
-      }
+      // Se chegou até aqui sem erro, o cadastro foi bem-sucedido
+      setAlert({
+        show: true,
+        type: 'success',
+        title: 'Conta criada com sucesso!',
+        message: 'Redirecionando para o login...'
+      });
+      
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (error) {
       console.error('Erro no registro:', error);
+      
+      let errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
+      
+      if (error.response && error.response.data) {
+        if (error.response.data.mensagem) {
+          errorMessage = error.response.data.mensagem;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      
       setAlert({
         show: true,
         type: 'error',
         title: 'Erro no cadastro',
-        message: 'Ocorreu um erro inesperado. Tente novamente.'
+        message: errorMessage
       });
     } finally {
       setIsLoading(false);
@@ -184,7 +195,7 @@ const Register = () => {
         
         <form onSubmit={handleSubmit} noValidate>
           <div className="input-group">
-            <label htmlFor="name">Nome Completo *</label>
+            <label htmlFor="name">Nome *</label>
             <input 
               type="text" 
               id="name" 
@@ -204,6 +215,31 @@ const Register = () => {
             {errors.name && (
               <div id="name-error" className="error-message" role="alert">
                 {errors.name}
+              </div>
+            )}
+          </div>
+          
+          <div className="input-group">
+            <label htmlFor="partnerName">Nome do Parceiro *</label>
+            <input 
+              type="text" 
+              id="partnerName" 
+              value={partnerName}
+              onChange={(e) => {
+                setPartnerName(e.target.value);
+                if (errors.partnerName) {
+                  setErrors(prev => ({ ...prev, partnerName: '' }));
+                }
+              }}
+              aria-invalid={errors.partnerName ? 'true' : 'false'}
+              aria-describedby={errors.partnerName ? 'partner-name-error' : undefined}
+              required
+              autoComplete="organization"
+              minLength={2}
+            />
+            {errors.partnerName && (
+              <div id="partner-name-error" className="error-message" role="alert">
+                {errors.partnerName}
               </div>
             )}
           </div>
