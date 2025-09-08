@@ -5,6 +5,7 @@ import agendamentoService from '../../services/Agendamento';
 import './Calendar.css';
 import Alert from '../custom/Alert';
 import logo from '../../logo.png';
+import NewAppointmentModal from './NewAppointmentModal';
 
 const Calendar = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -13,7 +14,13 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [alert, setAlert] = useState({ show: false, type: 'info', title: '', message: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
+
+  const handleDayClick = (day) => {
+    setSelectedDate(day);
+    setShowModal(true);
+  };
 
   const showAlert = (type, title, message) => setAlert({ show: true, type, title, message });
   const closeAlert = () => setAlert(prev => ({ ...prev, show: false }));
@@ -131,12 +138,12 @@ const Calendar = () => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
     const days = [];
-
+  
     // Dias vazios do início do mês
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
     }
-
+  
     // Dias do mês
     for (let day = 1; day <= daysInMonth; day++) {
       const dayAgendamentos = getAgendamentosForDate(day);
@@ -145,12 +152,11 @@ const Calendar = () => {
       const isToday = today.getFullYear() === dayDate.getFullYear() &&
                       today.getMonth() === dayDate.getMonth() &&
                       today.getDate() === dayDate.getDate();
-      
       days.push(
         <div 
           key={day} 
           className={`calendar-day ${isToday ? 'today' : ''} ${dayAgendamentos.length > 0 ? 'has-events' : ''}`}
-          onClick={() => setSelectedDate(day)}
+          onClick={() => handleDayClick(day)}
         >
           <span className="day-number">{day}</span>
           {dayAgendamentos.length > 0 && (
@@ -161,7 +167,6 @@ const Calendar = () => {
         </div>
       );
     }
-
     return days;
   };
 
@@ -280,6 +285,13 @@ const Calendar = () => {
         onClose={closeAlert} 
         duration={7000} 
       />
+      {showModal && (
+        <NewAppointmentModal 
+          date={selectedDate ? new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate) : null}
+          onClose={() => setShowModal(false)}
+          onSuccess={() => { setShowModal(false); fetchAgendamentos(); }}
+        />
+      )}
     </div>
   );
 };
