@@ -74,6 +74,20 @@ usuarioClient.interceptors.response.use(
 );
 
 export const usuarioService = {
+  obterUsuariosPorParceiro: async (pagina = 1, itens = 25) => {
+    try {
+      const response = await usuarioClient.get('/Usuario/ObterUsuariosPorParceiro', {
+        params: {
+          pagina,
+          itens
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   login: async (email, senha) => {
     try {
       const response = await usuarioClient.post('/Usuario/Login', { email, senha });

@@ -13,6 +13,7 @@ const Appointments = lazy(() => import('./components/home/Appointments'));
 const Scheduling = lazy(() => import('./components/home/Scheduling'));
 const Calendar = lazy(() => import('./components/home/Calendar'));
 const Sidebar = lazy(() => import('./components/Sidebar'));
+const UsuariosParceiro = lazy(() => import('./components/parceiro/UsuariosParceiro'));
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -163,6 +164,18 @@ function App() {
                 <AuthenticatedLayout>
                   <Suspense fallback={<Loading text="Carregando agenda..." />}>
                     <Calendar />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/parceiro/usuarios" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando usuários do parceiro..." />}>
+                    <UsuariosParceiro />
                   </Suspense>
                 </AuthenticatedLayout>
               </ProtectedRoute>

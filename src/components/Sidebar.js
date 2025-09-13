@@ -14,7 +14,8 @@ const Sidebar = () => {
     { path: '/doctors', icon: '👨‍⚕️', label: 'Médicos' },
     { path: '/patients', icon: '👥', label: 'Pacientes' },
     { path: '/appointments', icon: '📅', label: 'Atendimentos' },
-    { path: '/agenda', icon: '📆', label: 'Agenda' }
+    { path: '/agenda', icon: '📆', label: 'Agenda' },
+    { path: '/parceiro/usuarios', icon: '👤', label: 'Parceiro' }
   ];
 
   const isActive = (path) => location.pathname === path;
