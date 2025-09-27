@@ -6,7 +6,6 @@ import { atendimentoService } from '../../services/Atendimento';
 import './Appointments.css';
 import Alert from '../../components/custom/Alert';
 import AppointmentForm from './AppointmentForm';
-import logo from '../../logo.png';
 
 const Atendimentos = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -67,20 +66,6 @@ const Atendimentos = () => {
     }
   };
 
-  const getFirstLetters = (name) => {
-    if (!name) return 'U';
-    const parts = name.split(' ');
-    return (parts[0].charAt(0) + (parts[1]?.charAt(0) || '')).toUpperCase();
-  };
-
-  const handleLogout = () => {
-    usuarioService.logout();
-    navigate('/login');
-  };
-
-  const handleNavigation = (page) => {
-    navigate(`/${page}`);
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return '---';
@@ -203,39 +188,21 @@ const Atendimentos = () => {
   };
 
   return (
-    <div className="home-container">
-      <div className="sidebar">
-        <div className="logo-sidebar">
-          <img src={logo} alt="AUZ" className="logo-img" />
-        </div>
-
-        <a href="#" className={`menu-item`} onClick={(e) => { e.preventDefault(); handleNavigation('home'); }}>
-          <span className="menu-item-text">Início</span>
-        </a>
-
-        <a href="#" className={`menu-item`} onClick={(e) => { e.preventDefault(); handleNavigation('patients'); }}>
-          <span className="menu-item-text">Pacientes</span>
-        </a>
-
-        <a href="#" className={`menu-item active`} onClick={(e) => { e.preventDefault(); handleNavigation('atendimentos'); }}>
-          <span className="menu-item-text">Atendimentos</span>
-        </a>
-
-        <div className="user-section">
-          <div className="user-info">
-            <div className="user-avatar">{getFirstLetters(userData.name)}</div>
-            <div className="user-name">{userData.name}</div>
-          </div>
-          <button className="logout-button" onClick={handleLogout} title="Sair">Sair</button>
-        </div>
-      </div>
-
+    <div className="appointments-container">
       <div className="main-content">
-        <div className="page-header">
-          <div className="page-title-section">
-            <div className="page-title">Atendimentos</div>
+        {/* Header Section */}
+        <div className="dashboard-header">
+          <div className="header-content">
+            <div className="welcome-section">
+              <h1 className="welcome-title">
+                <span className="highlight">Atendimentos</span> 📋
+              </h1>
+              <p className="welcome-subtitle">
+                Gerencie os atendimentos da clínica
+              </p>
+            </div>
             <div className="header-actions">
-              <button className="add-button" onClick={handleOpenAppointmentForm}>
+              <button className="modern-add-button" onClick={handleOpenAppointmentForm}>
                 <svg className="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -244,75 +211,91 @@ const Atendimentos = () => {
               </button>
             </div>
           </div>
-          {totalItens > 0 && (
-            <div className="stats-container">
+        </div>
+
+        {/* Stats Section */}
+        {totalItens > 0 && (
+          <div className="stats-container">
+            <div className="stat-card">
+              <div className="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14,2 14,8 20,8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10,9 9,9 8,9"></polyline>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-number">{totalItens}</div>
+                <div className="stat-label">Atendimento{totalItens !== 1 ? 's' : ''}</div>
+              </div>
+            </div>
+            {totalPaginas > 1 && (
               <div className="stat-card">
                 <div className="stat-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14,2 14,8 20,8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10,9 9,9 8,9"></polyline>
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
                   </svg>
                 </div>
                 <div className="stat-content">
-                  <div className="stat-number">{totalItens}</div>
-                  <div className="stat-label">Atendimento{totalItens !== 1 ? 's' : ''}</div>
+                  <div className="stat-number">{totalPaginas}</div>
+                  <div className="stat-label">Página{totalPaginas !== 1 ? 's' : ''}</div>
                 </div>
               </div>
-              {totalPaginas > 1 && (
-                <div className="stat-card">
-                  <div className="stat-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="9" y1="9" x2="15" y2="15"></line>
-                      <line x1="15" y1="9" x2="9" y2="15"></line>
-                    </svg>
-                  </div>
-                  <div className="stat-content">
-                    <div className="stat-number">{totalPaginas}</div>
-                    <div className="stat-label">Página{totalPaginas !== 1 ? 's' : ''}</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {isLoading ? (
-          <div className="loading-container">
-            <div className="loading-spinner">Carregando...</div>
+            )}
           </div>
-        ) : (
-          <div className="patients-grid">
-            <table className="patients-table">
-              <thead>
-                <tr>
-                  <th>Descrição</th>
-                  <th>Paciente</th>
-                  <th>Médico</th>
-                  <th>Data Inclusão</th>
-                  <th>Data Situação</th>
-                  <th className="actions-column">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {atendimentos.length > 0 ? (
-                  atendimentos.map(item => (
-                    <tr key={item.codigoAtendimento}>
-                      <td className="description-cell">{item.descricao || 'N/A'}</td>
-                      <td className="patient-name">{item.nomePaciente || 'N/A'}</td>
-                      <td className="doctor-name">{item.nomeMedico || 'N/A'}</td>
-                      <td>{formatDate(item.dtInclusao)}</td>
-                      <td>{formatDate(item.dtSituacao)}</td>
-                      <td className="actions-cell">
+        )}
+
+        {/* Appointments Section */}
+        <div className="appointments-section">
+          <div className="section-header">
+            <div className="section-title">
+              <svg className="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14,2 14,8 20,8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10,9 9,9 8,9"></polyline>
+              </svg>
+              Lista de Atendimentos
+            </div>
+            <div className="section-count">
+              {atendimentos.length} atendimento{atendimentos.length !== 1 ? 's' : ''}
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div className="loading-container">
+              <div className="loading-spinner">Carregando...</div>
+            </div>
+          ) : (
+            <div className="appointments-grid">
+              {atendimentos.length > 0 ? (
+                atendimentos.map(item => (
+                  <div key={item.codigoAtendimento} className="appointment-card">
+                    <div className="card-header">
+                      <div className="appointment-avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14,2 14,8 20,8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                          <polyline points="10,9 9,9 8,9"></polyline>
+                        </svg>
+                      </div>
+                      <div className="appointment-info">
+                        <h3 className="appointment-title">{item.descricao || 'N/A'}</h3>
+                      </div>
+                      <div className="card-actions">
                         <button 
-                          className="schedule-btn"
+                          className="action-btn schedule-btn" 
                           onClick={() => navigate(`/scheduling/${item.codigoAtendimento}`)}
                           title="Agendar para este atendimento"
                         >
-                          <svg className="schedule-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
                             <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -322,79 +305,132 @@ const Atendimentos = () => {
                           </svg>
                         </button>
                         <button 
-                          className="delete-btn"
+                          className="action-btn delete-btn" 
                           onClick={() => handleDeleteAtendimento(item.codigoAtendimento, item.descricao)}
                           title="Excluir atendimento"
                         >
-                          <svg className="delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3,6 5,6 21,6"></polyline>
-                            <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             <line x1="10" y1="11" x2="10" y2="17"></line>
                             <line x1="14" y1="11" x2="14" y2="17"></line>
                           </svg>
                         </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="no-data">
-                      {isLoading ? 'Carregando...' : `Nenhum atendimento encontrado. Total de itens: ${totalItens}`}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                      </div>
+                    </div>
+                    <div className="card-content">
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span className="info-label">Paciente:</span>
+                        <span className="info-value">{item.nomePaciente || 'N/A'}</span>
+                      </div>
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
+                          <path d="M8 3v4"></path>
+                          <path d="M16 3v4"></path>
+                          <path d="M12 11v6"></path>
+                          <path d="M9 14h6"></path>
+                        </svg>
+                        <span className="info-label">Médico:</span>
+                        <span className="info-value">{item.nomeMedico || 'N/A'}</span>
+                      </div>
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12,6 12,12 16,14"></polyline>
+                        </svg>
+                        <span className="info-label">Data Inclusão:</span>
+                        <span className="info-value">{formatDate(item.dtInclusao)}</span>
+                      </div>
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12,6 12,12 16,14"></polyline>
+                        </svg>
+                        <span className="info-label">Data Situação:</span>
+                        <span className="info-value">{formatDate(item.dtSituacao)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14,2 14,8 20,8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                      <polyline points="10,9 9,9 8,9"></polyline>
+                    </svg>
+                  </div>
+                  <h3 className="empty-title">Nenhum atendimento encontrado</h3>
+                  <p className="empty-description">
+                    {isLoading ? 'Carregando atendimentos...' : 'Cadastre o primeiro atendimento da clínica'}
+                  </p>
+                  {!isLoading && (
+                    <button className="empty-action" onClick={handleOpenAppointmentForm}>
+                      Cadastrar Primeiro Atendimento
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
-            {totalItens > 25 && totalPaginas > 1 && (
-              <div className="pagination-container">
-                <div className="pagination-info">
-                  <span>Mostrando página {paginaAtual} de {totalPaginas}</span>
-                  <span className="total-items">Total: {totalItens} atendimentos</span>
-                </div>
-                <div className="pagination">
-                  <button
-                    onClick={() => handlePageChange(1)}
-                    disabled={paginaAtual === 1}
-                    className="pagination-btn pagination-first"
-                    title="Primeira página"
-                  >
-                    ⟪
-                  </button>
-                  
-                  <button
-                    onClick={() => handlePageChange(paginaAtual - 1)}
-                    disabled={paginaAtual === 1}
-                    className="pagination-btn pagination-nav"
-                    title="Página anterior"
-                  >
-                    ‹
-                  </button>
-                  
-                  {renderPaginationButtons()}
-                  
-                  <button
-                    onClick={() => handlePageChange(paginaAtual + 1)}
-                    disabled={paginaAtual === totalPaginas}
-                    className="pagination-btn pagination-nav"
-                    title="Próxima página"
-                  >
-                    ›
-                  </button>
-                  
-                  <button
-                    onClick={() => handlePageChange(totalPaginas)}
-                    disabled={paginaAtual === totalPaginas}
-                    className="pagination-btn pagination-last"
-                    title="Última página"
-                  >
-                    ⟫
-                  </button>
-                </div>
+          {/* Pagination */}
+          {totalItens > 25 && totalPaginas > 1 && (
+            <div className="pagination-container">
+              <div className="pagination-info">
+                <span>Mostrando página {paginaAtual} de {totalPaginas}</span>
+                <span className="total-items">Total: {totalItens} atendimentos</span>
               </div>
-            )}
-          </div>
-        )}
+              <div className="pagination">
+                <button
+                  onClick={() => handlePageChange(1)}
+                  disabled={paginaAtual === 1}
+                  className="pagination-btn pagination-first"
+                  title="Primeira página"
+                >
+                  ⟪
+                </button>
+                
+                <button
+                  onClick={() => handlePageChange(paginaAtual - 1)}
+                  disabled={paginaAtual === 1}
+                  className="pagination-btn pagination-nav"
+                  title="Página anterior"
+                >
+                  ‹
+                </button>
+                
+                {renderPaginationButtons()}
+                
+                <button
+                  onClick={() => handlePageChange(paginaAtual + 1)}
+                  disabled={paginaAtual === totalPaginas}
+                  className="pagination-btn pagination-nav"
+                  title="Próxima página"
+                >
+                  ›
+                </button>
+                
+                <button
+                  onClick={() => handlePageChange(totalPaginas)}
+                  disabled={paginaAtual === totalPaginas}
+                  className="pagination-btn pagination-last"
+                  title="Última página"
+                >
+                  ⟫
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <Alert 

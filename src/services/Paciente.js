@@ -62,18 +62,18 @@ export const pacienteService = {
   },
 
   updatePaciente: async (pacienteData) => {
-  try {
-    await pacienteClient.put(`/Paciente`, { 
-      codigoPaciente: pacienteData.codigoPaciente,
-      nome: pacienteData.nome,
-      email: pacienteData.email,
-      telefone: pacienteData.telefone,
-      documentoFederal: pacienteData.documentoFederal
-    });
-  } catch (error) {
-    throw error;
-  }
- },
+    try {
+      await pacienteClient.put(`/Paciente`, { 
+        codigoPaciente: pacienteData.codigoPaciente,
+        nome: pacienteData.nome,
+        email: pacienteData.email,
+        telefone: pacienteData.telefone,
+        documentoFederal: pacienteData.documentoFederal
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
 
   getPacienteByCpf: async (cpf) => {
     try {

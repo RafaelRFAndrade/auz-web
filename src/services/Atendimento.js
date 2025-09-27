@@ -27,7 +27,6 @@ atendimentoClient.interceptors.request.use(
 );
 
 
-// services/Atendimento.js
 export const atendimentoService = {
   // Método para listar atendimentos do médico (usando o endpoint correto)
   getAtendimentos: async (pagina = 1, itensPorPagina = 25, filtro = '') => {

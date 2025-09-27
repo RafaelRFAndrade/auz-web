@@ -26,8 +26,7 @@ agendamentoClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Serviços de Agendamento
-const agendamentoService = {
+export const agendamentoService = {
   // Criar novo agendamento
   createAgendamento: async (agendamentoData) => {
     try {

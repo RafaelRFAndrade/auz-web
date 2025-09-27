@@ -63,7 +63,6 @@ export const medicoService = {
         Telefone: medicoData.telefone,
         DocumentoFederal: medicoData.documentoFederal
       });
-
     } catch (error) {
       throw error;
     }

@@ -4,13 +4,11 @@ import { usuarioService } from '../../services/Usuario';
 import { medicoService } from '../../services/Medico';
 import './Doctors.css';
 import Alert from '../../components/custom/Alert'; // kk se liga na brabo
-import logo from '../../logo.png'; 
 
 const Doctors = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
   const [doctors, setDoctors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activePage, setActivePage] = useState('doctors');
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
@@ -113,31 +111,6 @@ const Doctors = () => {
     }
   };
 
-  const handleLogout = () => {
-    usuarioService.logout();
-    navigate('/login');
-  };
-
-  const getFirstLetters = (name) => {
-    if (!name) return 'U';
-    const parts = name.split(' ');
-    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-  };
-
-  const handleNavigation = (page) => {
-    setActivePage(page);
-    
-    if (page === 'home') {
-      navigate('/');
-    } else if (page === 'doctors') {
-      navigate('/doctors');
-    } else if (page === 'patients') {
-      navigate('/patients');
-    } else if (page === 'requests') {
-      navigate('/requests');
-    }
-  };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -406,143 +379,86 @@ const Doctors = () => {
 
 
   return (
-    <div className="home-container">
-      <div className="sidebar">
-        <div className="logo-sidebar">
-          <img src={logo} alt="AUZ" className="logo-img" />
-        </div>
-        
-        <a 
-          href="#" 
-          className={`menu-item ${activePage === 'home' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); handleNavigation('home'); }}
-        >
-          <svg className="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          <span className="menu-item-text">Início</span>
-        </a>
-        
-        <a 
-          href="#" 
-          className={`menu-item ${activePage === 'doctors' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); handleNavigation('doctors'); }}
-        >
-          <svg className="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
-            <path d="M8 3v4"></path>
-            <path d="M16 3v4"></path>
-            <path d="M12 11v6"></path>
-            <path d="M9 14h6"></path>
-          </svg>
-          <span className="menu-item-text">Médicos</span>
-        </a>
-        
-        <a 
-          href="#" 
-          className={`menu-item ${activePage === 'patients' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); handleNavigation('patients'); }}
-        >
-          <svg className="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          <span className="menu-item-text">Pacientes</span>
-        </a>
-        
-        <a 
-          href="#" 
-          className={`menu-item ${activePage === 'requests' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); handleNavigation('requests'); }}
-        >
-          <svg className="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-          <span className="menu-item-text">Atendimentos</span>
-        </a>
-        
-        <div className="user-section">
-          <div className="user-info">
-            <div className="user-avatar">
-              {getFirstLetters(userData.name)}
-            </div>
-            <div className="user-name">{userData.name}</div>
-          </div>
-          <button 
-            className="logout-button" 
-            onClick={handleLogout}
-            title="Sair">
-            Sair
-          </button>
-        </div>
-      </div>
-      
+    <div className="doctors-container">
       <div className="main-content">
-        <div className="page-header">
-          <div className="page-title-section">
-            <div className="page-title">
-              <svg className="page-title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {/* Header Section */}
+        <div className="dashboard-header">
+          <div className="header-content">
+            <div className="welcome-section">
+              <h1 className="welcome-title">
+                <span className="highlight">Operadores</span> 
+              </h1>
+              <p className="welcome-subtitle">
+                Gerencie o cadastro de operadores da clínica
+              </p>
+            </div>
+            <div className="header-actions">
+              <button className="modern-add-button" onClick={handleNewDoctor}>
+                <svg className="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Cadastrar Médico
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Search Section */}
+        <div className="search-section">
+          <div className="search-container">
+            <div className="search-wrapper">
+              <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input 
+                type="text" 
+                className="modern-search-input" 
+                placeholder="Buscar médicos por nome ou CRM..." 
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Doctors Grid */}
+        <div className="doctors-section">
+          <div className="section-header">
+            <div className="section-title">
+              <svg className="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
                 <path d="M8 3v4"></path>
                 <path d="M16 3v4"></path>
                 <path d="M12 11v6"></path>
                 <path d="M9 14h6"></path>
               </svg>
-              Médicos
+              Lista de Médicos
             </div>
-            <button className="add-button" onClick={handleNewDoctor}>
-              <svg className="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              Cadastrar Médico
-            </button>
+            <div className="section-count">
+              {filteredDoctors.length} médico{filteredDoctors.length !== 1 ? 's' : ''}
+            </div>
           </div>
-        </div>
-        
-        <div className="search-container">
-          <div className="search-wrapper">
-            <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input 
-              type="text" 
-              className="search-input" 
-              placeholder="Buscar médicos..." 
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </div>
-        </div>
 
-        <div className="doctors-grid">
-          <table className="doctors-table">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>CRM</th>
-                <th>Telefone</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredDoctors.length > 0 ? (
-                filteredDoctors.map(doctor => (
-                  <tr key={doctor.id}>
-                    <td>{doctor.name}</td>
-                    <td>{doctor.email}</td>
-                    <td>{doctor.crm}</td>
-                    <td>{doctor.phone}</td>
-                    <td className="actions-cell">
+          <div className="doctors-grid">
+            {filteredDoctors.length > 0 ? (
+              filteredDoctors.map(doctor => (
+                <div key={doctor.id} className="doctor-card">
+                  <div className="card-header">
+                    <div className="doctor-avatar">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </div>
+                    <div className="doctor-info">
+                      <h3 className="doctor-name">{doctor.name}</h3>
+                      <p className="doctor-crm">CRM: {doctor.crm}</p>
+                    </div>
+                    <div className="card-actions">
                       <button 
-                        className="action-button edit-button" 
+                        className="action-btn edit-btn" 
                         onClick={() => handleEdit(doctor.id)}
                         title="Editar"
                       >
@@ -552,7 +468,7 @@ const Doctors = () => {
                         </svg>
                       </button>
                       <button 
-                        className="action-button delete-button" 
+                        className="action-btn delete-btn" 
                         onClick={() => handleDelete(doctor.id)}
                         title="Excluir"
                       >
@@ -563,16 +479,47 @@ const Doctors = () => {
                           <line x1="14" y1="11" x2="14" y2="17"></line>
                         </svg>
                       </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="no-data">Nenhum médico encontrado</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    </div>
+                  </div>
+                  <div className="card-content">
+                    <div className="info-row">
+                      <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                      <span className="info-label">Email:</span>
+                      <span className="info-value">{doctor.email}</span>
+                    </div>
+                    <div className="info-row">
+                      <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                      </svg>
+                      <span className="info-label">Telefone:</span>
+                      <span className="info-value">{doctor.phone}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                <h3 className="empty-title">Nenhum médico encontrado</h3>
+                <p className="empty-description">
+                  {searchTerm ? 'Tente ajustar os termos de busca' : 'Cadastre o primeiro médico da clínica'}
+                </p>
+                {!searchTerm && (
+                  <button className="empty-action" onClick={handleNewDoctor}>
+                    Cadastrar Primeiro Médico
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

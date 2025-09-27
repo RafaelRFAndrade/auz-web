@@ -83,148 +83,220 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      <div className="sidebar">
-        <div className="logo-sidebar">
-          <img src={logo} alt="AUZ" className="logo-img" />
-        </div>
-        
-        <a 
-          href="#" 
-          className={`menu-item ${activePage === 'home' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); handleNavigation('home'); }}
-        >
-          <svg className="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          <span className="menu-item-text">Início</span>
-        </a>
-        
-        <a 
-          href="#" 
-          className={`menu-item ${activePage === 'doctors' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); handleNavigation('doctors'); }}
-        >
-          <svg className="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
-            <path d="M8 3v4"></path>
-            <path d="M16 3v4"></path>
-            <path d="M12 11v6"></path>
-            <path d="M9 14h6"></path>
-          </svg>
-          <span className="menu-item-text">Médicos</span>
-        </a>
-        
-        <a 
-          href="#" 
-          className={`menu-item ${activePage === 'patients' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); handleNavigation('patients'); }}
-        >
-          <svg className="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          <span className="menu-item-text">Pacientes</span>
-        </a>
-        
-        <a 
-          href="#" 
-          className={`menu-item ${activePage === 'requests' ? 'active' : ''}`}
-          onClick={(e) => { e.preventDefault(); handleNavigation('requests'); }}
-        >
-          <svg className="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-          <span className="menu-item-text">Atendimentos</span>
-        </a>
-        
-        <div className="user-section">
-          <div className="user-info">
-            <div className="user-avatar">
-              {getFirstLetters(userData.name)}
-            </div>
-            <div className="user-name">{userData.name}</div>
-          </div>
-          <button 
-            className="logout-button" 
-            onClick={handleLogout}
-            title="Sair">
-            Sair
-          </button>
-        </div>
-      </div>
-      
       <div className="main-content">
-        <div className="welcome-section">
-          <h1 className="welcome-title">Bem-vindo, {userData.name}</h1>
-          
-          <div className="metrics-container">
-            <div className="metric-card primary">
+        {/* Header Section */}
+        <div className="dashboard-header">
+          <div className="header-content">
+            <div className="welcome-section">
+              <h1 className="welcome-title">
+                Olá, <span className="highlight">{userData.name}</span>
+              </h1>
+              <p className="welcome-subtitle">
+                Aqui está um resumo das suas atividades de hoje
+              </p>
+            </div>
+            <div className="header-actions">
+              <div className="quick-stats">
+                <div className="quick-stat">
+                  <span className="stat-number">{appointments}</span>
+                  <span className="stat-label">Atendimentos</span>
+                </div>
+                <div className="quick-stat">
+                  <span className="stat-number">{scheduledToday}</span>
+                  <span className="stat-label">Agendamentos</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Metrics Cards */}
+        <div className="metrics-grid">
+          <div className="metric-card primary-card">
+            <div className="metric-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg>
+            </div>
+            <div className="metric-content">
               <div className="metric-title">Atendimentos em Andamento</div>
               <div className="metric-value">{appointments}</div>
+              <div className="metric-trend">
+                <span className="trend-indicator positive">+12%</span>
+                <span className="trend-text">vs ontem</span>
+              </div>
             </div>
-            
-            <div className="metric-card secondary">
+          </div>
+          
+          <div className="metric-card secondary-card">
+            <div className="metric-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div className="metric-content">
               <div className="metric-title">Agendamentos Hoje</div>
               <div className="metric-value">{scheduledToday}</div>
+              <div className="metric-trend">
+                <span className="trend-indicator neutral">0%</span>
+                <span className="trend-text">vs ontem</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="metric-card success-card">
+            <div className="metric-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 12l2 2 4-4"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+              </svg>
+            </div>
+            <div className="metric-content">
+              <div className="metric-title">Taxa de Sucesso</div>
+              <div className="metric-value">94%</div>
+              <div className="metric-trend">
+                <span className="trend-indicator positive">+2%</span>
+                <span className="trend-text">vs mês passado</span>
+              </div>
             </div>
           </div>
         </div>
         
-        <div className="recent-activities-container">
-          <h2 className="page-title">
-            <svg className="page-title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            Atividades Recentes
-          </h2>
+        {/* Activities Section */}
+        <div className="activities-section">
+          <div className="section-header">
+            <h2 className="section-title">
+              <svg className="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Atividades Recentes
+            </h2>
 
-          <div className="activities-grids">
+          </div>
+
+          <div className="activities-grid">
             <div className="activity-column">
-              <h3>Atendimentos em andamento</h3>
+              <div className="column-header">
+                <h3 className="column-title">
+                  <div className="title-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                  </div>
+                  Atendimentos em Andamento
+                </h3>
+                <span className="column-count">{appointmentsList.length}</span>
+              </div>
               <div className="activity-list">
                 {appointmentsList.map((atendimento, index) => (
-                  <div key={index} className="activity-card">
-                    <div className="activity-header">
-                      <span className="activity-title">{atendimento.nomeAtendimento}</span>
-                      <span className="activity-date">{formatDate(atendimento.dtInclusao)}</span>
+                  <div key={index} className="activity-card modern-card">
+                    <div className="card-header">
+                      <div className="card-title">{atendimento.nomeAtendimento}</div>
+                      <div className="card-badge status-active">Em Andamento</div>
                     </div>
-                    <div className="activity-details">
-                      <div><strong>Médico:</strong> {atendimento.nomeMedico}</div>
-                      <div><strong>Paciente:</strong> {atendimento.nomePaciente}</div>
+                    <div className="card-content">
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span className="info-label">Médico:</span>
+                        <span className="info-value">{atendimento.nomeMedico}</span>
+                      </div>
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span className="info-label">Paciente:</span>
+                        <span className="info-value">{atendimento.nomePaciente}</span>
+                      </div>
+                    </div>
+                    <div className="card-footer">
+                      <span className="card-date">{formatDate(atendimento.dtInclusao)}</span>
                     </div>
                   </div>
                 ))}
                 {appointmentsList.length === 0 && (
-                  <div className="no-activities">Nenhum atendimento recente</div>
+                  <div className="empty-state">
+                    <div className="empty-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                      </svg>
+                    </div>
+                    <div className="empty-title">Nenhum atendimento em andamento</div>
+                    <div className="empty-subtitle">Os novos atendimentos aparecerão aqui</div>
+                  </div>
                 )}
               </div>
             </div>
 
             <div className="activity-column">
-              <h3>Agendamentos para hoje</h3>
+              <div className="column-header">
+                <h3 className="column-title">
+                  <div className="title-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                  </div>
+                  Agendamentos para Hoje
+                </h3>
+                <span className="column-count">{scheduledList.length}</span>
+              </div>
               <div className="activity-list">
                 {scheduledList.map((agendamento, index) => (
-                  <div key={index} className="activity-card">
-                    <div className="activity-header">
-                      <span className="activity-title">{agendamento.nomeAgendamento}</span>
-                      <span className="activity-status">{getSituacao(agendamento.situacao)}</span>
+                  <div key={index} className="activity-card modern-card">
+                    <div className="card-header">
+                      <div className="card-title">{agendamento.nomeAgendamento}</div>
+                      <div className="card-badge status-scheduled">{getSituacao(agendamento.situacao)}</div>
                     </div>
-                    <div className="activity-details">
-                      <div><strong>Médico:</strong> {agendamento.nomeMedico}</div>
-                      <div><strong>Paciente:</strong> {agendamento.nomePaciente}</div>
+                    <div className="card-content">
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span className="info-label">Médico:</span>
+                        <span className="info-value">{agendamento.nomeMedico}</span>
+                      </div>
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span className="info-label">Paciente:</span>
+                        <span className="info-value">{agendamento.nomePaciente}</span>
+                      </div>
+                    </div>
+                    <div className="card-footer">
+                      <span className="card-date">Hoje</span>
                     </div>
                   </div>
                 ))}
                 {scheduledList.length === 0 && (
-                  <div className="no-activities">Nenhum agendamento recente</div>
+                  <div className="empty-state">
+                    <div className="empty-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                    </div>
+                    <div className="empty-title">Nenhum agendamento para hoje</div>
+                    <div className="empty-subtitle">Os agendamentos aparecerão aqui</div>
+                  </div>
                 )}
               </div>
             </div>
