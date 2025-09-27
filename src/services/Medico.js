@@ -100,6 +100,15 @@ export const medicoService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  buscarDocumentosMedico: async (documento) => {
+    try {
+      const response = await medicoClient.get(`/Medico/BuscarDocumentos/${documento}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 

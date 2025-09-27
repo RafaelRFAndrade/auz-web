@@ -13,7 +13,11 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
   });
 
   const [medicoData, setMedicoData] = useState(null);
+  const [medicoSuggestions, setMedicoSuggestions] = useState([]);
+  const [showMedicoSuggestions, setShowMedicoSuggestions] = useState(false);
   const [pacienteData, setPacienteData] = useState(null);
+  const [pacienteSuggestions, setPacienteSuggestions] = useState([]);
+  const [showPacienteSuggestions, setShowPacienteSuggestions] = useState(false);
   const [createNewPatient, setCreateNewPatient] = useState(false);
   const [newPatientData, setNewPatientData] = useState({
     nome: '',
@@ -33,73 +37,95 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
     paciente: null
   });
 
-  // Função para buscar médico por CPF
-  const searchMedico = async (cpf) => {
-    if (!cpf || cpf.length < 11) {
-      setMedicoData(null);
+  // Função para buscar sugestões de médicos
+  const searchMedicoSuggestions = async (documento) => {
+    if (!documento || documento.length < 3) {
+      setMedicoSuggestions([]);
+      setShowMedicoSuggestions(false);
       return;
     }
 
     setLoading(prev => ({ ...prev, medico: true }));
     try {
-      // Assumindo que existe um endpoint para buscar médico por CPF
-      const response = await medicoService.getMedicoByCpf(cpf);
-      setMedicoData(response);
+      const response = await medicoService.buscarDocumentosMedico(documento);
+      setMedicoSuggestions(response || []);
+      setShowMedicoSuggestions(true);
       setErrors(prev => ({ ...prev, medico: null }));
     } catch (error) {
-      setMedicoData(null);
-      setErrors(prev => ({ ...prev, medico: 'Médico não encontrado' }));
+      setMedicoSuggestions([]);
+      setShowMedicoSuggestions(false);
+      setErrors(prev => ({ ...prev, medico: 'Erro ao buscar médicos' }));
     } finally {
       setLoading(prev => ({ ...prev, medico: false }));
     }
   };
 
-  // Função para buscar paciente por CPF
-  const searchPaciente = async (cpf) => {
-    if (!cpf || cpf.length < 11) {
-      setPacienteData(null);
+  // Função para selecionar um médico das sugestões
+  const selectMedico = (medico) => {
+    setMedicoData(medico);
+    setFormData(prev => ({ ...prev, documentoFederalMedico: medico.documentoFederal }));
+    setMedicoSuggestions([]);
+    setShowMedicoSuggestions(false);
+    setErrors(prev => ({ ...prev, medico: null }));
+  };
+
+  // Função para buscar sugestões de pacientes
+  const searchPacienteSuggestions = async (documento) => {
+    if (!documento || documento.length < 3) {
+      setPacienteSuggestions([]);
+      setShowPacienteSuggestions(false);
       return;
     }
 
     setLoading(prev => ({ ...prev, paciente: true }));
     try {
-      // Assumindo que existe um endpoint para buscar paciente por CPF
-      const response = await pacienteService.getPacienteByCpf(cpf);
-      setPacienteData(response);
-      setCreateNewPatient(false);
+      const response = await pacienteService.buscarDocumentosPaciente(documento);
+      setPacienteSuggestions(response || []);
+      setShowPacienteSuggestions(true);
       setErrors(prev => ({ ...prev, paciente: null }));
     } catch (error) {
-      setPacienteData(null);
-      setErrors(prev => ({ ...prev, paciente: 'Paciente não encontrado' }));
+      setPacienteSuggestions([]);
+      setShowPacienteSuggestions(false);
+      setErrors(prev => ({ ...prev, paciente: 'Erro ao buscar pacientes' }));
     } finally {
       setLoading(prev => ({ ...prev, paciente: false }));
     }
   };
 
+  // Função para selecionar um paciente das sugestões
+  const selectPaciente = (paciente) => {
+    setPacienteData(paciente);
+    setFormData(prev => ({ ...prev, documentoFederalPaciente: paciente.documentoFederal }));
+    setPacienteSuggestions([]);
+    setShowPacienteSuggestions(false);
+    setCreateNewPatient(false);
+    setErrors(prev => ({ ...prev, paciente: null }));
+  };
+
   // Debounce para as buscas
-  const handleMedicoSearch = (cpf) => {
-    setFormData(prev => ({ ...prev, documentoFederalMedico: cpf }));
+  const handleMedicoSearch = (documento) => {
+    setFormData(prev => ({ ...prev, documentoFederalMedico: documento }));
     
     if (searchTimeouts.medico) {
       clearTimeout(searchTimeouts.medico);
     }
 
     const timeout = setTimeout(() => {
-      searchMedico(cpf);
+      searchMedicoSuggestions(documento);
     }, 500);
 
     setSearchTimeouts(prev => ({ ...prev, medico: timeout }));
   };
 
-  const handlePacienteSearch = (cpf) => {
-    setFormData(prev => ({ ...prev, documentoFederalPaciente: cpf }));
+  const handlePacienteSearch = (documento) => {
+    setFormData(prev => ({ ...prev, documentoFederalPaciente: documento }));
     
     if (searchTimeouts.paciente) {
       clearTimeout(searchTimeouts.paciente);
     }
 
     const timeout = setTimeout(() => {
-      searchPaciente(cpf);
+      searchPacienteSuggestions(documento);
     }, 500);
 
     setSearchTimeouts(prev => ({ ...prev, paciente: timeout }));
@@ -251,20 +277,48 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
                 type="text"
                 value={formatCPF(formData.documentoFederalMedico)}
                 onChange={(e) => handleMedicoSearch(e.target.value.replace(/\D/g, ''))}
-                placeholder="000.000.000-00"
+                onFocus={() => {
+                  if (medicoSuggestions.length > 0) {
+                    setShowMedicoSuggestions(true);
+                  }
+                }}
+                onBlur={() => {
+                  // Delay para permitir clique nas sugestões
+                  setTimeout(() => setShowMedicoSuggestions(false), 300);
+                }}
+                placeholder="Digite o CPF ou nome do médico..."
                 maxLength={14}
                 className={errors.medico ? 'error' : ''}
               />
               {loading.medico && <Loading size="small" />}
+              
+              {/* Dropdown de sugestões */}
+              {showMedicoSuggestions && medicoSuggestions.length > 0 && (
+                <div className="suggestions-dropdown">
+                  {medicoSuggestions.map((medico, index) => (
+                    <div
+                      key={index}
+                      className="suggestion-item"
+                      onClick={() => selectMedico(medico)}
+                    >
+                      <div className="suggestion-name">{medico.nome}</div>
+                      <div className="suggestion-details">
+                        CPF: {formatCPF(medico.documentoFederal)} | Email: {medico.email}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             {errors.medico && <span className="error-message">{errors.medico}</span>}
             
+            
             {medicoData && (
               <div className="search-result">
-                <div className="result-header">✓ Médico encontrado:</div>
+                <div className="result-header">✓ Médico selecionado:</div>
                 <div className="result-info">
                   <strong>{medicoData.nome}</strong><br />
-                  CRM: {medicoData.crm}<br />
+                  CPF: {formatCPF(medicoData.documentoFederal)}<br />
                   Email: {medicoData.email}
                 </div>
               </div>
@@ -280,17 +334,45 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
                 type="text"
                 value={formatCPF(formData.documentoFederalPaciente)}
                 onChange={(e) => handlePacienteSearch(e.target.value.replace(/\D/g, ''))}
-                placeholder="000.000.000-00"
+                onFocus={() => {
+                  if (pacienteSuggestions.length > 0) {
+                    setShowPacienteSuggestions(true);
+                  }
+                }}
+                onBlur={() => {
+                  // Delay para permitir clique nas sugestões
+                  setTimeout(() => setShowPacienteSuggestions(false), 300);
+                }}
+                placeholder="Digite o CPF ou nome do paciente..."
                 maxLength={14}
                 className={errors.paciente ? 'error' : ''}
               />
               {loading.paciente && <Loading size="small" />}
+              
+              {/* Dropdown de sugestões */}
+              {showPacienteSuggestions && pacienteSuggestions.length > 0 && (
+                <div className="suggestions-dropdown">
+                  {pacienteSuggestions.map((paciente, index) => (
+                    <div
+                      key={index}
+                      className="suggestion-item"
+                      onClick={() => selectPaciente(paciente)}
+                    >
+                      <div className="suggestion-name">{paciente.nome}</div>
+                      <div className="suggestion-details">
+                        CPF: {formatCPF(paciente.documentoFederal)} | Email: {paciente.email}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             {errors.paciente && <span className="error-message">{errors.paciente}</span>}
             
+            
             {pacienteData && (
               <div className="search-result">
-                <div className="result-header">✓ Paciente encontrado:</div>
+                <div className="result-header">✓ Paciente selecionado:</div>
                 <div className="result-info">
                   <strong>{pacienteData.nome}</strong><br />
                   CPF: {formatCPF(pacienteData.documentoFederal)}<br />

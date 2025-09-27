@@ -82,6 +82,15 @@ export const pacienteService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  buscarDocumentosPaciente: async (documento) => {
+    try {
+      const response = await pacienteClient.get(`/Paciente/BuscarDocumentos/${documento}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
