@@ -393,12 +393,9 @@ const Doctors = () => {
               </p>
             </div>
             <div className="header-actions">
-              <button className="modern-add-button" onClick={handleNewDoctor}>
-                <svg className="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Cadastrar Médico
+              <button className="btn-primary" onClick={handleNewDoctor}>
+                <span className="btn-icon">➕</span>
+                Cadastrar Operador
               </button>
             </div>
           </div>
@@ -415,7 +412,7 @@ const Doctors = () => {
               <input 
                 type="text" 
                 className="modern-search-input" 
-                placeholder="Buscar médicos por nome ou CRM..." 
+                placeholder="Buscar operadores por nome ou CRM..." 
                 value={searchTerm}
                 onChange={handleSearch}
               />
@@ -434,7 +431,7 @@ const Doctors = () => {
                 <path d="M12 11v6"></path>
                 <path d="M9 14h6"></path>
               </svg>
-              Lista de Médicos
+              Lista de Operadores
             </div>
             <div className="section-count">
               {filteredDoctors.length} médico{filteredDoctors.length !== 1 ? 's' : ''}
@@ -458,26 +455,18 @@ const Doctors = () => {
                     </div>
                     <div className="card-actions">
                       <button 
-                        className="action-btn edit-btn" 
+                        className="btn-edit" 
                         onClick={() => handleEdit(doctor.id)}
-                        title="Editar"
+                        title="Editar operador"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
+                        ✏️
                       </button>
                       <button 
-                        className="action-btn delete-btn" 
+                        className="btn-delete" 
                         onClick={() => handleDelete(doctor.id)}
-                        title="Excluir"
+                        title="Excluir operador"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6"></polyline>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                          <line x1="10" y1="11" x2="10" y2="17"></line>
-                          <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
+                        🗑️
                       </button>
                     </div>
                   </div>
@@ -508,13 +497,14 @@ const Doctors = () => {
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
                 </div>
-                <h3 className="empty-title">Nenhum médico encontrado</h3>
+                <h3 className="empty-title">Nenhum operador encontrado</h3>
                 <p className="empty-description">
                   {searchTerm ? 'Tente ajustar os termos de busca' : 'Cadastre o primeiro médico da clínica'}
                 </p>
                 {!searchTerm && (
-                  <button className="empty-action" onClick={handleNewDoctor}>
-                    Cadastrar Primeiro Médico
+                  <button className="btn-primary" onClick={handleNewDoctor}>
+                    <span className="btn-icon">➕</span>
+                    Cadastrar Primeiro Operador
                   </button>
                 )}
               </div>
@@ -529,11 +519,8 @@ const Doctors = () => {
           <div className="modal-container">
             <div className="modal-header">
               <h2 className="modal-title">{formData.id ? 'Editar Médico' : 'Cadastrar Médico'}</h2>
-              <button className="modal-close" onClick={handleCloseModal}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+              <button className="btn-close" onClick={handleCloseModal}>
+                ✕
               </button>
             </div>
             <div className="modal-body">
@@ -613,8 +600,12 @@ const Doctors = () => {
                 </div>
                 
                 <div className="modal-footer">
-                  <button type="button" className="cancel-button" onClick={handleCloseModal}>Cancelar</button>
-                  <button type="submit" className="submit-button" disabled={isSubmitting}>
+                  <button type="button" className="btn-secondary" onClick={handleCloseModal}>
+                    <span className="btn-icon">✕</span>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                    <span className="btn-icon">{isSubmitting ? '⏳' : '💾'}</span>
                     {isSubmitting ? 'Salvando...' : 'Salvar'}
                   </button>
                 </div>
@@ -631,10 +622,10 @@ const Doctors = () => {
           <div className="modal-popup-header">
             <h3>Excluir Médico</h3>
             <button 
-              className="modal-popup-close"
+              className="btn-close"
               onClick={() => setShowDeleteModal(false)}
             >
-              &times;
+              ✕
             </button>
           </div>
           <div className="modal-popup-body">
@@ -643,19 +634,21 @@ const Doctors = () => {
                 <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               </svg>
             </div>
-            <p>Tem certeza que deseja excluir permanentemente este médico?</p>
+            <p>Tem certeza que deseja excluir permanentemente este operador?</p>
           </div>
           <div className="modal-popup-footer">
             <button 
-              className="modal-popup-btn secondary"
+              className="btn-secondary"
               onClick={() => setShowDeleteModal(false)}
             >
+              <span className="btn-icon">✕</span>
               Cancelar
             </button>
             <button 
-              className="modal-popup-btn danger"
+              className="btn-danger"
               onClick={confirmDelete}
             >
+              <span className="btn-icon">🗑️</span>
               Excluir
             </button>
           </div>
