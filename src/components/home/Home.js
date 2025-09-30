@@ -7,7 +7,7 @@ import logo from '../../logo.png';
 const Home = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
   const [appointments, setAppointments] = useState(0);
-  const [scheduledToday, setScheduledToday] = useState(0);
+  const [scheduledWeek, setScheduledWeek] = useState(0);
   const [appointmentsList, setAppointmentsList] = useState([]);
   const [scheduledList, setScheduledList] = useState([]);
   const [activePage, setActivePage] = useState('home');
@@ -24,7 +24,7 @@ const Home = () => {
         const homeData = await usuarioService.getHome();
         setUserData({ name: homeData.nomeUsuario });
         setAppointments(homeData.atendimentos.length);
-        setScheduledToday(homeData.agendamentos.length);
+        setScheduledWeek(homeData.agendamentos.length);
         setAppointmentsList(homeData.atendimentos);
         setScheduledList(homeData.agendamentos);
 
@@ -102,7 +102,7 @@ const Home = () => {
                   <span className="stat-label">Atendimentos</span>
                 </div>
                 <div className="quick-stat">
-                  <span className="stat-number">{scheduledToday}</span>
+                  <span className="stat-number">{scheduledWeek}</span>
                   <span className="stat-label">Agendamentos</span>
                 </div>
               </div>
@@ -138,11 +138,11 @@ const Home = () => {
               </svg>
             </div>
             <div className="metric-content">
-              <div className="metric-title">Agendamentos Hoje</div>
-              <div className="metric-value">{scheduledToday}</div>
+              <div className="metric-title">Agendamentos da Semana</div>
+              <div className="metric-value">{scheduledWeek}</div>
               <div className="metric-trend">
                 <span className="trend-indicator neutral">0%</span>
-                <span className="trend-text">vs ontem</span>
+                <span className="trend-text">vs semana passada</span>
               </div>
             </div>
           </div>
@@ -250,7 +250,7 @@ const Home = () => {
                       <line x1="3" y1="10" x2="21" y2="10"></line>
                     </svg>
                   </div>
-                  Agendamentos para Hoje
+                  Agendamentos da Semana
                 </h3>
                 <span className="column-count">{scheduledList.length}</span>
               </div>
@@ -280,7 +280,7 @@ const Home = () => {
                       </div>
                     </div>
                     <div className="card-footer">
-                      <span className="card-date">Hoje</span>
+                      <span className="card-date">{formatDate(agendamento.dtAgendamento)}</span>
                     </div>
                   </div>
                 ))}
@@ -294,8 +294,8 @@ const Home = () => {
                         <line x1="3" y1="10" x2="21" y2="10"></line>
                       </svg>
                     </div>
-                    <div className="empty-title">Nenhum agendamento para hoje</div>
-                    <div className="empty-subtitle">Os agendamentos aparecerão aqui</div>
+                    <div className="empty-title">Nenhum agendamento para esta semana</div>
+                    <div className="empty-subtitle">Os agendamentos da semana aparecerão aqui</div>
                   </div>
                 )}
               </div>
