@@ -41,13 +41,13 @@ export const medicoService = {
   getAllMedicos: async (filtro = '', pagina = 0, itensPorPagina = 100) => {
     try {
       const response = await medicoClient.get('/Medico/Listar', {
-        data: {
+        params: {
           filtro: filtro,
           pagina: pagina,
           itensPorPagina: itensPorPagina
         }
       });
-      return response.data.listaMedicos || [];
+      return response.data;
     } catch (error) {
       throw error;
     }

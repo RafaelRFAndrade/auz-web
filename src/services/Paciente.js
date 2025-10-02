@@ -40,13 +40,13 @@ export const pacienteService = {
   getAllPacientes: async (filtro = '', pagina = 0, itensPorPagina = 100) => {
     try {
       const response = await pacienteClient.get('/Paciente/Listar', {
-        data: {
+        params: {
           filtro: filtro,
           pagina: pagina,
           itensPorPagina: itensPorPagina
         }
       });
-      return response.data.listaPacientes || [];
+      return response.data;
     } catch (error) {
       throw error;
     }

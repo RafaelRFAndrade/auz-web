@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usuarioService } from '../../services/Usuario';
 import { medicoService } from '../../services/Medico';
 import './Doctors.css';
-import Alert from '../../components/custom/Alert'; // kk se liga na brabo
+import Alert from '../../components/custom/Alert';
 
 const Doctors = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -19,6 +19,7 @@ const Doctors = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [doctorToDelete, setDoctorToDelete] = useState(null);
@@ -45,33 +46,19 @@ const Doctors = () => {
     }));
   };
 
-  useEffect(() => {
-    fetchDoctors();
-    
-    const fetchUserData = async () => {
-      try {
-        if (!usuarioService.isAuthenticated()) {
-            navigate('/login');
-            return;
-        } else {
-          const homeData = await usuarioService.getHome();
-          setUserData({ name: homeData.nomeUsuario });
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        if (error.response && error.response.status === 401) {
-          usuarioService.logout();
-          // navigate('/login'); // Comentado para teste mock
-        }
-      }
+  // Debounce para busca
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
     };
+  };
 
-    fetchUserData();
-  }, [navigate]);
-
-  const fetchDoctors = async () => {
+  const fetchDoctors = useCallback(async (filtro = '') => {
     try {
-      const response = await medicoService.getAllMedicos();
+      setIsLoading(true);
+      const response = await medicoService.getAllMedicos(filtro, 0, 100);
       
       console.log('Resposta do serviço de médicos:', response);
       
@@ -108,18 +95,49 @@ const Doctors = () => {
         navigate('/login');
       }
       setDoctors([]);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [navigate]);
 
+  // Função de busca com debounce
+  const debouncedSearch = useCallback(
+    debounce((searchValue) => {
+      fetchDoctors(searchValue);
+    }, 500),
+    [fetchDoctors]
+  );
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        if (!usuarioService.isAuthenticated()) {
+            navigate('/login');
+            return;
+        } else {
+          const homeData = await usuarioService.getHome();
+          setUserData({ name: homeData.nomeUsuario });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        if (error.response && error.response.status === 401) {
+          usuarioService.logout();
+        }
+      }
+    };
+
+    fetchUserData();
+    fetchDoctors(); // Carrega todos os médicos inicialmente
+  }, [navigate, fetchDoctors]);
+
+  // Busca quando o termo de pesquisa muda
+  useEffect(() => {
+    debouncedSearch(searchTerm);
+  }, [searchTerm, debouncedSearch]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
-
-  const filteredDoctors = doctors.filter(doctor => 
-    doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.crm.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleNewDoctor = () => {
     setFormData({
@@ -256,7 +274,7 @@ const Doctors = () => {
       }
       
       setShowModal(false);
-      await fetchDoctors();
+      await fetchDoctors(searchTerm); // Recarrega com o filtro atual
       
       setFormData({
         nome: '',
@@ -364,7 +382,7 @@ const Doctors = () => {
   const confirmDelete = async () => {
     try {
       await medicoService.deleteMedico(doctorToDelete);
-      await fetchDoctors();
+      await fetchDoctors(searchTerm); // Recarrega com o filtro atual
       setShowDeleteModal(false);
       showAlert('success', 'Sucesso', 'Médico excluído com sucesso!');
     } catch (error) {
@@ -376,7 +394,6 @@ const Doctors = () => {
       setShowDeleteModal(false);
     }
   };
-
 
   return (
     <div className="doctors-container">
@@ -416,6 +433,11 @@ const Doctors = () => {
                 value={searchTerm}
                 onChange={handleSearch}
               />
+              {isLoading && (
+                <div className="search-loading">
+                  <div className="loading-spinner-small"></div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -434,82 +456,88 @@ const Doctors = () => {
               Lista de Operadores
             </div>
             <div className="section-count">
-              {filteredDoctors.length} médico{filteredDoctors.length !== 1 ? 's' : ''}
+              {doctors.length} médico{doctors.length !== 1 ? 's' : ''}
             </div>
           </div>
 
-          <div className="doctors-grid">
-            {filteredDoctors.length > 0 ? (
-              filteredDoctors.map(doctor => (
-                <div key={doctor.id} className="doctor-card">
-                  <div className="card-header">
-                    <div className="doctor-avatar">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                      </svg>
+          {isLoading ? (
+            <div className="loading-container">
+              <div className="loading-spinner">Carregando operadores...</div>
+            </div>
+          ) : (
+            <div className="doctors-grid">
+              {doctors.length > 0 ? (
+                doctors.map(doctor => (
+                  <div key={doctor.id} className="doctor-card">
+                    <div className="card-header">
+                      <div className="doctor-avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                      </div>
+                      <div className="doctor-info">
+                        <h3 className="doctor-name">{doctor.name}</h3>
+                        <p className="doctor-crm">CRM: {doctor.crm}</p>
+                      </div>
+                      <div className="card-actions">
+                        <button 
+                          className="btn-edit" 
+                          onClick={() => handleEdit(doctor.id)}
+                          title="Editar operador"
+                        >
+                          ✏️
+                        </button>
+                        <button 
+                          className="btn-delete" 
+                          onClick={() => handleDelete(doctor.id)}
+                          title="Excluir operador"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
-                    <div className="doctor-info">
-                      <h3 className="doctor-name">{doctor.name}</h3>
-                      <p className="doctor-crm">CRM: {doctor.crm}</p>
-                    </div>
-                    <div className="card-actions">
-                      <button 
-                        className="btn-edit" 
-                        onClick={() => handleEdit(doctor.id)}
-                        title="Editar operador"
-                      >
-                        ✏️
-                      </button>
-                      <button 
-                        className="btn-delete" 
-                        onClick={() => handleDelete(doctor.id)}
-                        title="Excluir operador"
-                      >
-                        🗑️
-                      </button>
+                    <div className="card-content">
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                          <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <span className="info-label">Email:</span>
+                        <span className="info-value">{doctor.email}</span>
+                      </div>
+                      <div className="info-row">
+                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <span className="info-label">Telefone:</span>
+                        <span className="info-value">{doctor.phone}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="card-content">
-                    <div className="info-row">
-                      <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
-                      </svg>
-                      <span className="info-label">Email:</span>
-                      <span className="info-value">{doctor.email}</span>
-                    </div>
-                    <div className="info-row">
-                      <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                      </svg>
-                      <span className="info-label">Telefone:</span>
-                      <span className="info-value">{doctor.phone}</span>
-                    </div>
+                ))
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
                   </div>
+                  <h3 className="empty-title">Nenhum operador encontrado</h3>
+                  <p className="empty-description">
+                    {searchTerm ? 'Tente ajustar os termos de busca' : 'Cadastre o primeiro médico da clínica'}
+                  </p>
+                  {!searchTerm && (
+                    <button className="btn-primary" onClick={handleNewDoctor}>
+                      <span className="btn-icon">➕</span>
+                      Cadastrar Primeiro Operador
+                    </button>
+                  )}
                 </div>
-              ))
-            ) : (
-              <div className="empty-state">
-                <div className="empty-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                </div>
-                <h3 className="empty-title">Nenhum operador encontrado</h3>
-                <p className="empty-description">
-                  {searchTerm ? 'Tente ajustar os termos de busca' : 'Cadastre o primeiro médico da clínica'}
-                </p>
-                {!searchTerm && (
-                  <button className="btn-primary" onClick={handleNewDoctor}>
-                    <span className="btn-icon">➕</span>
-                    Cadastrar Primeiro Operador
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
