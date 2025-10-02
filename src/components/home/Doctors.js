@@ -130,9 +130,11 @@ const Doctors = () => {
     fetchDoctors(); // Carrega todos os médicos inicialmente
   }, [navigate, fetchDoctors]);
 
-  // Busca quando o termo de pesquisa muda
+  // Busca quando o termo de pesquisa muda (apenas se não for a primeira carga)
   useEffect(() => {
-    debouncedSearch(searchTerm);
+    if (searchTerm !== '') {
+      debouncedSearch(searchTerm);
+    }
   }, [searchTerm, debouncedSearch]);
 
   const handleSearch = (e) => {
