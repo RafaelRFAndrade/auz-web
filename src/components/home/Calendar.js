@@ -4,7 +4,6 @@ import { usuarioService } from '../../services/Usuario';
 import agendamentoService from '../../services/Agendamento';
 import './Calendar.css';
 import Alert from '../custom/Alert';
-import NewAppointmentModal from './NewAppointmentModal';
 
 const Calendar = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -13,17 +12,14 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [alert, setAlert] = useState({ show: false, type: 'info', title: '', message: '' });
   const [isLoading, setIsLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   const handleDayClick = (day) => {
     setSelectedDate(day);
-    setShowModal(true);
   };
 
   const showAlert = (type, title, message) => setAlert({ show: true, type, title, message });
   const closeAlert = () => setAlert(prev => ({ ...prev, show: false }));
-
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -49,15 +45,29 @@ const Calendar = () => {
   const fetchAgendamentos = async () => {
     try {
       setIsLoading(true);
-      const response = await agendamentoService.getAllAgendamentos();
-      setAgendamentos(response || []);
+      const mes = currentDate.getMonth() + 1; // getMonth() retorna 0-11, precisamos 1-12
+      const ano = currentDate.getFullYear();
+      
+      const response = await agendamentoService.getAgendamentosByMonth(mes, ano);
+      
+      if (response.sucesso && response.agendamentos) {
+        setAgendamentos(response.agendamentos);
+      } else {
+        setAgendamentos([]);
+      }
     } catch (error) {
       console.error('Erro ao buscar agendamentos:', error);
       showAlert('error', 'Erro', 'Erro ao carregar agendamentos');
+      setAgendamentos([]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Recarregar agendamentos quando o mês/ano mudar
+  useEffect(() => {
+    fetchAgendamentos();
+  }, [currentDate]);
 
   // Funções do calendário
   const getDaysInMonth = (date) => {
@@ -77,26 +87,21 @@ const Calendar = () => {
 
   const formatTime = (dateString) => {
     const date = new Date(dateString);
-    // Ajustar para horário de Brasília (UTC-3)
-    const brasiliaDate = new Date(date.getTime() - (3 * 60 * 60 * 1000));
-    return brasiliaDate.toLocaleTimeString('pt-BR', {
+    return date.toLocaleTimeString('pt-BR', {
       hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'America/Sao_Paulo'
+      minute: '2-digit'
     });
   };
 
   const getAgendamentosForDate = (day) => {
     const dateToCheck = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     return agendamentos.filter(agendamento => {
-      // Converter para horário de Brasília (UTC-3)
       const agendamentoDate = new Date(agendamento.dtAgendamento);
-      const brasiliaDate = new Date(agendamentoDate.getTime() - (3 * 60 * 60 * 1000));
       
-      // Comparar apenas ano, mês e dia no horário de Brasília
-      return brasiliaDate.getFullYear() === dateToCheck.getFullYear() &&
-             brasiliaDate.getMonth() === dateToCheck.getMonth() &&
-             brasiliaDate.getDate() === dateToCheck.getDate();
+      // Comparar apenas ano, mês e dia
+      return agendamentoDate.getFullYear() === dateToCheck.getFullYear() &&
+             agendamentoDate.getMonth() === dateToCheck.getMonth() &&
+             agendamentoDate.getDate() === dateToCheck.getDate();
     });
   };
 
@@ -156,7 +161,13 @@ const Calendar = () => {
             {dayAgendamentos.map(agendamento => (
               <div key={agendamento.codigoAgendamento} className="event-item">
                 <div className="event-time">{formatTime(agendamento.dtAgendamento)}</div>
-                <div className="event-description">{agendamento.descricao}</div>
+                <div className="event-description">
+                  <strong>{agendamento.nomeAgendamento}</strong>
+                  <br />
+                  <small>Dr(a). {agendamento.nomeMedico} - {agendamento.crm}</small>
+                  <br />
+                  <small>Paciente: {agendamento.nomePaciente}</small>
+                </div>
               </div>
             ))}
           </div>
@@ -263,13 +274,6 @@ const Calendar = () => {
         onClose={closeAlert} 
         duration={7000} 
       />
-      {showModal && (
-        <NewAppointmentModal 
-          date={selectedDate ? new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate) : null}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => { setShowModal(false); fetchAgendamentos(); }}
-        />
-      )}
     </div>
   );
 };

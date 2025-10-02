@@ -108,6 +108,22 @@ export const agendamentoService = {
       console.error('Erro ao buscar todos os agendamentos:', error);
       throw error;
     }
+  },
+
+  // Buscar agendamentos por mês e ano
+  getAgendamentosByMonth: async (mes, ano) => {
+    try {
+      const response = await agendamentoClient.get('/Agendamento', {
+        params: {
+          Mes: mes,
+          Ano: ano
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar agendamentos por mês:', error);
+      throw error;
+    }
   }
 };
 
