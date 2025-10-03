@@ -121,10 +121,6 @@ const Home = () => {
             <div className="metric-content">
               <div className="metric-title">Atendimentos em Andamento</div>
               <div className="metric-value">{appointments}</div>
-              <div className="metric-trend">
-                <span className="trend-indicator positive">+12%</span>
-                <span className="trend-text">vs ontem</span>
-              </div>
             </div>
           </div>
           
@@ -140,10 +136,6 @@ const Home = () => {
             <div className="metric-content">
               <div className="metric-title">Agendamentos da Semana</div>
               <div className="metric-value">{scheduledWeek}</div>
-              <div className="metric-trend">
-                <span className="trend-indicator neutral">0%</span>
-                <span className="trend-text">vs semana passada</span>
-              </div>
             </div>
           </div>
 
@@ -157,10 +149,6 @@ const Home = () => {
             <div className="metric-content">
               <div className="metric-title">Taxa de Sucesso</div>
               <div className="metric-value">94%</div>
-              <div className="metric-trend">
-                <span className="trend-indicator positive">+2%</span>
-                <span className="trend-text">vs mês passado</span>
-              </div>
             </div>
           </div>
         </div>

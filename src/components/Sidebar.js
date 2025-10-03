@@ -6,17 +6,56 @@ const Sidebar = () => {
   const location = useLocation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [userPermission, setUserPermission] = useState(null);
   const sidebarRef = useRef(null);
   const menuItemsRef = useRef([]);
 
-  const menuItems = [
+  // Função para verificar permissão do usuário
+  const checkUserPermission = () => {
+    try {
+      const tokenInfo = usuarioService.getTokenInfo();
+      
+      if (tokenInfo) {
+        // Verifica se tem a claim Role (que contém "Admin" ou "Standard")
+        const role = tokenInfo.role || tokenInfo.Role;
+        
+        if (role) {
+          // Se é "Admin", permite acesso; se é "Standard", não permite
+          const isAdmin = role === "Admin";
+          setUserPermission(isAdmin ? 0 : 1); // 0 = Admin, 1 = Standard
+          return isAdmin;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Erro ao verificar permissão:', error);
+      return false;
+    }
+  };
+
+  // Verificar permissão na inicialização
+  useEffect(() => {
+    checkUserPermission();
+  }, []);
+
+  // Menu base com todos os itens
+  const allMenuItems = [
     { path: '/home', icon: '🏠', label: 'Início' },
     { path: '/doctors', icon: '👨‍⚕️', label: 'Médicos' },
     { path: '/patients', icon: '👥', label: 'Pacientes' },
     { path: '/appointments', icon: '📅', label: 'Atendimentos' },
     { path: '/agenda', icon: '📆', label: 'Agenda' },
-    { path: '/parceiro/usuarios', icon: '👤', label: 'Parceiro' }
+    { path: '/parceiro/usuarios', icon: '👤', label: 'Parceiro', requiresAdmin: true }
   ];
+
+  // Filtrar menu baseado na permissão do usuário
+  const menuItems = allMenuItems.filter(item => {
+    if (item.requiresAdmin) {
+      // Só mostra se o usuário é Admin (userPermission = 0)
+      return userPermission === 0;
+    }
+    return true;
+  });
 
   const isActive = (path) => location.pathname === path;
 

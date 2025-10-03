@@ -212,10 +212,13 @@ export const usuarioService = {
     
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
+      
       return {
         userId: payload.userId || payload.sub || payload.id,
         email: payload.email,
         name: payload.name,
+        role: payload.role || payload.Role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'], // Múltiplas possibilidades
+        parceiroId: payload.ParceiroId, // ParceiroId claim do backend
         exp: payload.exp,
         iat: payload.iat,
         isExpired: payload.exp ? Math.floor(Date.now() / 1000) >= payload.exp : false
