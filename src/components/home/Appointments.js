@@ -288,6 +288,13 @@ const Atendimentos = () => {
                       </div>
                       <div className="card-actions">
                         <button 
+                          className="btn-view" 
+                          onClick={() => navigate(`/appointment-details/${item.codigoAtendimento}`)}
+                          title="Ver detalhes do atendimento"
+                        >
+                          👁️
+                        </button>
+                        <button 
                           className="btn-schedule" 
                           onClick={() => navigate(`/scheduling/${item.codigoAtendimento}`)}
                           title="Agendar para este atendimento"

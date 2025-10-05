@@ -68,6 +68,21 @@ export const atendimentoService = {
     }
   },
 
+  // Buscar detalhes completos do atendimento (com documentos e agendamentos)
+  getAtendimentoDetails: async (codigo) => {
+    try {
+      const response = await atendimentoClient.get('/Atendimento', {
+        params: {
+          codigo: codigo
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do atendimento:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
   // Atualizar atendimento
   updateAtendimento: async (id, atendimentoData) => {
     try {
