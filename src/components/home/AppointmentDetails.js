@@ -83,6 +83,43 @@ const AppointmentDetails = () => {
     }
   };
 
+  const handleDownloadDocumento = async (codigoDocumento, nomeArquivo) => {
+    try {
+      if (!codigoDocumento) {
+        showAlert('error', 'Erro', 'Código do documento não encontrado');
+        return;
+      }
+      
+      setIsLoading(true);
+      const response = await atendimentoService.downloadDocumento(codigoDocumento);
+      
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nomeArquivo || 'documento';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpar
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      showAlert('success', 'Sucesso', 'Documento baixado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao baixar documento:', error);
+      if (error.response?.status === 401) {
+        usuarioService.logout();
+        navigate('/login');
+      } else {
+        showAlert('error', 'Erro', 'Erro ao baixar documento: ' + (error.response?.data?.message || error.message));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="appointment-details-container">
@@ -289,6 +326,16 @@ const AppointmentDetails = () => {
                             <span className="documento-tamanho">{formatFileSize(documento.tamanhoBytes)}</span>
                             <span className="documento-data">{formatDate(documento.dataUpload)}</span>
                           </div>
+                        </div>
+                        <div className="documento-actions">
+                          <button 
+                            className="btn-download"
+                            onClick={() => handleDownloadDocumento(documento.codigo, documento.nomeArquivo)}
+                            title="Baixar documento"
+                            disabled={isLoading}
+                          >
+                            {isLoading ? '⏳' : '⬇️'} Download
+                          </button>
                         </div>
                       </div>
                     </div>

@@ -103,6 +103,22 @@ export const atendimentoService = {
       console.error('Erro ao deletar atendimento:', error.response?.data || error.message);
       throw error;
     }
+  },
+
+  // Download de documento
+  downloadDocumento: async (codigoDocumento) => {
+    try {
+      const response = await atendimentoClient.get('/Atendimento/Documento', {
+        params: {
+          codigoDocumento: codigoDocumento
+        },
+        responseType: 'blob' 
+      });
+      return response;
+    } catch (error) {
+      console.error('Erro ao baixar documento:', error.response?.data || error.message);
+      throw error;
+    }
   }
 };
 export default atendimentoClient;
