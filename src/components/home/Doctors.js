@@ -484,6 +484,13 @@ const Doctors = () => {
                       </div>
                       <div className="card-actions">
                         <button 
+                          className="btn-details" 
+                          onClick={() => navigate(`/medico-details/${doctor.id}`)}
+                          title="Ver detalhes"
+                        >
+                          👁️
+                        </button>
+                        <button 
                           className="btn-edit" 
                           onClick={() => handleEdit(doctor.id)}
                           title="Editar operador"

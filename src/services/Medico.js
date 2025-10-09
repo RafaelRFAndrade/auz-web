@@ -108,6 +108,21 @@ export const medicoService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  // Buscar detalhes completos do médico (com atendimentos)
+  getMedicoDetalhado: async (codigoMedico) => {
+    try {
+      const response = await medicoClient.get('/Medico/Detalhado', {
+        params: {
+          codigoMedico: codigoMedico
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do médico:', error.response?.data || error.message);
+      throw error;
+    }
   }
 };
 
