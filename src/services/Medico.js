@@ -123,6 +123,28 @@ export const medicoService = {
       console.error('Erro ao buscar detalhes do médico:', error.response?.data || error.message);
       throw error;
     }
+  },
+
+  // Atualizar médico completo
+  updateMedicoCompleto: async (medicoData) => {
+    try {
+      const response = await medicoClient.put('/Medico/Completo', {
+        codigo: medicoData.codigo,
+        nome: medicoData.nome,
+        crm: medicoData.crm,
+        email: medicoData.email,
+        telefone: medicoData.telefone,
+        documentoFederal: medicoData.documentoFederal,
+        especialidade: medicoData.especialidade,
+        diasAtendimento: medicoData.diasAtendimento,
+        tipoContrato: medicoData.tipoContrato,
+        valorConsulta: medicoData.valorConsulta
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao atualizar médico:', error.response?.data || error.message);
+      throw error;
+    }
   }
 };
 

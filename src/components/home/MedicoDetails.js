@@ -10,10 +10,134 @@ const MedicoDetails = () => {
   const navigate = useNavigate();
   const [medicoData, setMedicoData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editedData, setEditedData] = useState({});
   const [alert, setAlert] = useState({ show: false, type: 'info', title: '', message: '' });
 
   const showAlert = (type, title, message) => setAlert({ show: true, type, title, message });
   const closeAlert = () => setAlert(prev => ({ ...prev, show: false }));
+
+  const handleEdit = () => {
+    if (medicoData && medicoData.medico) {
+      setEditedData({
+        codigo: medicoData.medico.codigo,
+        nome: medicoData.medico.nome || '',
+        crm: medicoData.medico.crm || '',
+        email: medicoData.medico.email || '',
+        telefone: medicoData.medico.telefone || '',
+        documentoFederal: medicoData.medico.documentoFederal || '',
+        especialidade: medicoData.medico.especialidade || '',
+        diasAtendimento: medicoData.medico.diasAtendimento || 0,
+        diasSelecionados: getDiasSelecionados(medicoData.medico.diasAtendimento || 0),
+        tipoContrato: medicoData.medico.tipoContrato || '',
+        valorConsulta: medicoData.medico.valorConsulta || 0
+      });
+      setIsEditing(true);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedData({});
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditedData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleDiaChange = (dia, isChecked) => {
+    setEditedData(prev => {
+      let novosDias = [...(prev.diasSelecionados || [])];
+      
+      if (isChecked) {
+        // Adicionar dia se não estiver na lista
+        if (!novosDias.find(d => d.key === dia.key)) {
+          novosDias.push(dia);
+        }
+      } else {
+        // Remover dia da lista
+        novosDias = novosDias.filter(d => d.key !== dia.key);
+      }
+      
+      const novoValor = getValorDias(novosDias);
+      
+      return {
+        ...prev,
+        diasSelecionados: novosDias,
+        diasAtendimento: novoValor
+      };
+    });
+  };
+
+  const validateForm = () => {
+    const errors = [];
+    
+    if (!editedData.nome || editedData.nome.trim() === '') {
+      errors.push('Nome é obrigatório');
+    }
+    
+    if (!editedData.crm || editedData.crm.trim() === '') {
+      errors.push('CRM é obrigatório');
+    }
+    
+    if (!editedData.email || editedData.email.trim() === '') {
+      errors.push('Email é obrigatório');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editedData.email)) {
+      errors.push('Email deve ter um formato válido');
+    }
+    
+    if (!editedData.documentoFederal || editedData.documentoFederal.trim() === '') {
+      errors.push('CPF é obrigatório');
+    } else if (!/^\d{11}$/.test(editedData.documentoFederal.replace(/\D/g, ''))) {
+      errors.push('CPF deve ter 11 dígitos');
+    }
+    
+    if (!editedData.telefone || editedData.telefone.trim() === '') {
+      errors.push('Telefone é obrigatório');
+    }
+    
+    if (editedData.valorConsulta < 0) {
+      errors.push('Valor da consulta não pode ser negativo');
+    }
+    
+    return errors;
+  };
+
+  const handleSave = async () => {
+    const validationErrors = validateForm();
+    
+    if (validationErrors.length > 0) {
+      showAlert('error', 'Erro de Validação', validationErrors.join(', '));
+      return;
+    }
+    
+    try {
+      setIsSaving(true);
+      await medicoService.updateMedicoCompleto(editedData);
+      
+      // Atualizar os dados locais
+      setMedicoData(prev => ({
+        ...prev,
+        medico: {
+          ...prev.medico,
+          ...editedData
+        }
+      }));
+      
+      setIsEditing(false);
+      setEditedData({});
+      showAlert('success', 'Sucesso', 'Dados do médico atualizados com sucesso!');
+    } catch (error) {
+      console.error('Erro ao atualizar médico:', error);
+      showAlert('error', 'Erro', 'Erro ao atualizar dados do médico: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   useEffect(() => {
     const fetchMedicoDetails = async () => {
@@ -95,6 +219,32 @@ const MedicoDetails = () => {
     }
   };
 
+  // Helper functions for DiasAtendimento enum flags
+  const diasSemana = [
+    { key: 'segunda', label: 'Segunda', value: 1 << 0 }, // 1
+    { key: 'terca', label: 'Terça', value: 1 << 1 },     // 2
+    { key: 'quarta', label: 'Quarta', value: 1 << 2 },   // 4
+    { key: 'quinta', label: 'Quinta', value: 1 << 3 },   // 8
+    { key: 'sexta', label: 'Sexta', value: 1 << 4 },     // 16
+    { key: 'sabado', label: 'Sábado', value: 1 << 5 },   // 32
+    { key: 'domingo', label: 'Domingo', value: 1 << 6 }  // 64
+  ];
+
+  const getDiasSelecionados = (valor) => {
+    if (!valor || valor === 0) return [];
+    return diasSemana.filter(dia => (valor & dia.value) === dia.value);
+  };
+
+  const getValorDias = (diasSelecionados) => {
+    return diasSelecionados.reduce((total, dia) => total + dia.value, 0);
+  };
+
+  const formatDiasAtendimento = (valor) => {
+    const dias = getDiasSelecionados(valor);
+    if (dias.length === 0) return 'Nenhum dia';
+    return dias.map(dia => dia.label).join(', ');
+  };
+
   if (isLoading) {
     return (
       <div className="medico-details-container">
@@ -149,6 +299,34 @@ const MedicoDetails = () => {
               <div className={`status-badge ${getSituacaoClass(medico.situacao)}`}>
                 {getSituacaoText(medico.situacao)}
               </div>
+              {!isEditing ? (
+                <button 
+                  className="btn-edit" 
+                  onClick={handleEdit}
+                  title="Editar dados do médico"
+                >
+                  ✏️ Editar
+                </button>
+              ) : (
+                <div className="edit-actions">
+                  <button 
+                    className="btn-save" 
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    title="Salvar alterações"
+                  >
+                    {isSaving ? '💾 Salvando...' : '💾 Salvar'}
+                  </button>
+                  <button 
+                    className="btn-cancel" 
+                    onClick={handleCancel}
+                    disabled={isSaving}
+                    title="Cancelar edição"
+                  >
+                    ❌ Cancelar
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -167,23 +345,73 @@ const MedicoDetails = () => {
               <div className="info-grid">
                 <div className="info-item">
                   <label>Nome:</label>
-                  <span>{medico.nome || 'N/A'}</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedData.nome || ''}
+                      onChange={(e) => handleInputChange('nome', e.target.value)}
+                      className="edit-input"
+                      placeholder="Nome do médico"
+                    />
+                  ) : (
+                    <span>{medico.nome || 'N/A'}</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>CRM:</label>
-                  <span>{medico.crm || 'N/A'}</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedData.crm || ''}
+                      onChange={(e) => handleInputChange('crm', e.target.value)}
+                      className="edit-input"
+                      placeholder="CRM do médico"
+                    />
+                  ) : (
+                    <span>{medico.crm || 'N/A'}</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>CPF:</label>
-                  <span>{formatCPF(medico.documentoFederal)}</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedData.documentoFederal || ''}
+                      onChange={(e) => handleInputChange('documentoFederal', e.target.value)}
+                      className="edit-input"
+                      placeholder="CPF do médico"
+                    />
+                  ) : (
+                    <span>{formatCPF(medico.documentoFederal)}</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>Email:</label>
-                  <span>{medico.email || 'N/A'}</span>
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={editedData.email || ''}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      className="edit-input"
+                      placeholder="Email do médico"
+                    />
+                  ) : (
+                    <span>{medico.email || 'N/A'}</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>Telefone:</label>
-                  <span>{formatPhone(medico.telefone)}</span>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={editedData.telefone || ''}
+                      onChange={(e) => handleInputChange('telefone', e.target.value)}
+                      className="edit-input"
+                      placeholder="Telefone do médico"
+                    />
+                  ) : (
+                    <span>{formatPhone(medico.telefone)}</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>Data de Inclusão:</label>
@@ -211,19 +439,74 @@ const MedicoDetails = () => {
               <div className="info-grid">
                 <div className="info-item">
                   <label>Especialidade:</label>
-                  <span>{medico.especialidade || 'Não informada'}</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedData.especialidade || ''}
+                      onChange={(e) => handleInputChange('especialidade', e.target.value)}
+                      className="edit-input"
+                      placeholder="Especialidade do médico"
+                    />
+                  ) : (
+                    <span>{medico.especialidade || 'Não informada'}</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>Tipo de Contrato:</label>
-                  <span>{medico.tipoContrato || 'Não informado'}</span>
+                  {isEditing ? (
+                    <select
+                      value={editedData.tipoContrato || ''}
+                      onChange={(e) => handleInputChange('tipoContrato', e.target.value)}
+                      className="edit-input"
+                    >
+                      <option value="">Selecione o tipo</option>
+                      <option value="Livre">Livre</option>
+                      <option value="Contratado">Contratado</option>
+                      <option value="Parceria">Parceria</option>
+                    </select>
+                  ) : (
+                    <span>{medico.tipoContrato || 'Não informado'}</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>Valor da Consulta:</label>
-                  <span>{medico.valorConsulta ? `R$ ${medico.valorConsulta}` : 'Não informado'}</span>
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={editedData.valorConsulta || ''}
+                      onChange={(e) => handleInputChange('valorConsulta', parseFloat(e.target.value) || 0)}
+                      className="edit-input"
+                      placeholder="Valor da consulta"
+                      min="0"
+                      step="0.01"
+                    />
+                  ) : (
+                    <span>{medico.valorConsulta ? `R$ ${medico.valorConsulta}` : 'Não informado'}</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>Dias de Atendimento:</label>
-                  <span>{medico.diasAtendimento || 'Não informados'}</span>
+                  {isEditing ? (
+                    <div className="dias-atendimento-container">
+                      <div className="dias-checkboxes">
+                        {diasSemana.map(dia => (
+                          <label key={dia.key} className="dia-checkbox">
+                            <input
+                              type="checkbox"
+                              checked={editedData.diasSelecionados?.some(d => d.key === dia.key) || false}
+                              onChange={(e) => handleDiaChange(dia, e.target.checked)}
+                            />
+                            <span className="dia-label">{dia.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                      <div className="dias-selected-info">
+                        <small>Valor: {editedData.diasAtendimento || 0}</small>
+                      </div>
+                    </div>
+                  ) : (
+                    <span>{formatDiasAtendimento(medico.diasAtendimento)}</span>
+                  )}
                 </div>
               </div>
             </div>
