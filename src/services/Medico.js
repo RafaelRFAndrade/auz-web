@@ -15,6 +15,11 @@ medicoClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => {
@@ -110,7 +115,6 @@ export const medicoService = {
     }
   },
 
-  // Buscar detalhes completos do médico (com atendimentos)
   getMedicoDetalhado: async (codigoMedico) => {
     try {
       const response = await medicoClient.get('/Medico/Detalhado', {
@@ -120,12 +124,10 @@ export const medicoService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar detalhes do médico:', error.response?.data || error.message);
       throw error;
     }
   },
 
-  // Atualizar médico completo
   updateMedicoCompleto: async (medicoData) => {
     try {
       const response = await medicoClient.put('/Medico/Completo', {
@@ -142,7 +144,50 @@ export const medicoService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Erro ao atualizar médico:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  uploadFotoPerfil: async (codigoEntidade, file) => {
+    try {
+      const formData = new FormData();
+      formData.append('File', file);
+      formData.append('CodigoEntidade', codigoEntidade);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080'}/Medico/FotoDePerfil`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      return await response.json();
+
+    } catch (error) {
+      throw error;
+    }
+  },
+
+
+  getFotoPerfil: async (codigoOperador) => {
+    try {
+      const response = await medicoClient.get('/Medico/FotoDePerfil', {
+        params: {
+          codigoOperador: codigoOperador
+        },
+        responseType: 'blob'
+      });
+      
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 404) {
+        return null;
+      }
       throw error;
     }
   }

@@ -14,9 +14,78 @@ const MedicoDetails = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [editedData, setEditedData] = useState({});
   const [alert, setAlert] = useState({ show: false, type: 'info', title: '', message: '' });
+  const [fotoPerfil, setFotoPerfil] = useState(null);
+  const [isUploadingFoto, setIsUploadingFoto] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   const showAlert = (type, title, message) => setAlert({ show: true, type, title, message });
   const closeAlert = () => setAlert(prev => ({ ...prev, show: false }));
+
+  // Funções para gerenciar foto de perfil
+  const carregarFotoPerfil = async (codigoMedico) => {
+    try {
+      const fotoBlob = await medicoService.getFotoPerfil(codigoMedico);
+      if (fotoBlob) {
+        const fotoUrl = URL.createObjectURL(fotoBlob);
+        setFotoPerfil(fotoUrl);
+      } else {
+        setFotoPerfil(null);
+      }
+    } catch (error) {
+      setFotoPerfil(null);
+    }
+  };
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validar tipo de arquivo
+      if (!file.type.startsWith('image/')) {
+        showAlert('error', 'Erro', 'Por favor, selecione apenas arquivos de imagem.');
+        return;
+      }
+
+      // Validar tamanho (máximo 10MB - compatível com backend que permite 50MB)
+      if (file.size > 10 * 1024 * 1024) {
+        showAlert('error', 'Erro', 'O arquivo deve ter no máximo 10MB.');
+        return;
+      }
+
+      handleUploadFoto(file);
+    }
+  };
+
+  const handleUploadFoto = async (file) => {
+    try {
+      setIsUploadingFoto(true);
+      
+      await medicoService.uploadFotoPerfil(medicoData.medico.codigo, file);
+      await carregarFotoPerfil(medicoData.medico.codigo);
+      
+      setShowUploadModal(false);
+      showAlert('success', 'Sucesso', 'Foto de perfil atualizada com sucesso!');
+    } catch (error) {
+      let errorMessage = 'Erro desconhecido';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.Mensagem) {
+        errorMessage = error.response.data.Mensagem;
+      }
+      
+      showAlert('error', 'Erro no Upload', `Erro ao fazer upload da foto: ${errorMessage}`);
+    } finally {
+      setIsUploadingFoto(false);
+    }
+  };
+
+  const removerFotoPerfil = () => {
+    if (fotoPerfil) {
+      URL.revokeObjectURL(fotoPerfil);
+      setFotoPerfil(null);
+    }
+  };
 
   const handleEdit = () => {
     if (medicoData && medicoData.medico) {
@@ -150,6 +219,11 @@ const MedicoDetails = () => {
         setIsLoading(true);
         const response = await medicoService.getMedicoDetalhado(codigoMedico);
         setMedicoData(response);
+        
+        // Carregar foto de perfil se disponível
+        if (response && response.medico && response.medico.codigo) {
+          await carregarFotoPerfil(response.medico.codigo);
+        }
       } catch (error) {
         console.error('Erro ao buscar detalhes do médico:', error);
         if (error.response?.status === 401) {
@@ -165,6 +239,15 @@ const MedicoDetails = () => {
 
     fetchMedicoDetails();
   }, [codigoMedico, navigate]);
+
+  // Cleanup da foto quando o componente for desmontado
+  useEffect(() => {
+    return () => {
+      if (fotoPerfil) {
+        URL.revokeObjectURL(fotoPerfil);
+      }
+    };
+  }, [fotoPerfil]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '---';
@@ -287,12 +370,36 @@ const MedicoDetails = () => {
                 ← Voltar
               </button>
               <div className="title-section">
-                <h1 className="details-title">
-                  <span className="highlight">Detalhes do Médico</span> 👨‍⚕️
-                </h1>
-                <p className="details-subtitle">
-                  {medico.nome}
-                </p>
+                <div className="medico-profile">
+                  <div className="profile-photo-container">
+                    {fotoPerfil ? (
+                      <img 
+                        src={fotoPerfil} 
+                        alt={`Foto de ${medico.nome}`}
+                        className="profile-photo"
+                      />
+                    ) : (
+                      <div className="profile-photo-placeholder">
+                        👨‍⚕️
+                      </div>
+                    )}
+                    <button 
+                      className="btn-upload-photo"
+                      onClick={() => setShowUploadModal(true)}
+                      title="Alterar foto de perfil"
+                    >
+                      📷
+                    </button>
+                  </div>
+                  <div className="title-info">
+                    <h1 className="details-title">
+                      <span className="highlight">Detalhes do Médico</span>
+                    </h1>
+                    <p className="details-subtitle">
+                      {medico.nome}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="header-right">
@@ -556,6 +663,71 @@ const MedicoDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Upload de Foto */}
+      {showUploadModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Alterar Foto de Perfil</h3>
+              <button 
+                className="btn-close-modal"
+                onClick={() => setShowUploadModal(false)}
+                disabled={isUploadingFoto}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="upload-section">
+                <div className="current-photo">
+                  {fotoPerfil ? (
+                    <img 
+                      src={fotoPerfil} 
+                      alt="Foto atual"
+                      className="current-photo-preview"
+                    />
+                  ) : (
+                    <div className="no-photo-placeholder">
+                      <span>👨‍⚕️</span>
+                      <p>Nenhuma foto</p>
+                    </div>
+                  )}
+                </div>
+                <div className="upload-actions">
+                  <input
+                    type="file"
+                    id="photo-upload"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    style={{ display: 'none' }}
+                    disabled={isUploadingFoto}
+                  />
+                  <label 
+                    htmlFor="photo-upload" 
+                    className={`btn-upload-file ${isUploadingFoto ? 'disabled' : ''}`}
+                  >
+                    {isUploadingFoto ? '⏳ Enviando...' : '📁 Selecionar Foto'}
+                  </label>
+                  <p className="upload-info">
+                    Formatos aceitos: JPG, PNG, GIF<br/>
+                    Tamanho máximo: 10MB
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="btn-cancel"
+                onClick={() => setShowUploadModal(false)}
+                disabled={isUploadingFoto}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Alert 
         show={alert.show} 
