@@ -43,7 +43,7 @@ export const medicoService = {
     }
   },
 
-  getAllMedicos: async (filtro = '', pagina = 0, itensPorPagina = 100) => {
+  getAllMedicos: async (filtro = '', pagina = 1, itensPorPagina = 25) => {
     try {
       const response = await medicoClient.get('/Medico/Listar', {
         params: {

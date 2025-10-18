@@ -10,6 +10,12 @@ const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [pagination, setPagination] = useState({
+    pagina: 1,
+    itensPorPagina: 25,
+    totalItens: 0,
+    totalPaginas: 0
+  });
   const [formData, setFormData] = useState({
     nome: '',
     crm: '',
@@ -55,12 +61,12 @@ const Doctors = () => {
     };
   };
 
-  const fetchDoctors = useCallback(async (filtro = '') => {
+  const fetchDoctors = useCallback(async (filtro = '', pagina = 1) => {
     try {
       setIsLoading(true);
-      const response = await medicoService.getAllMedicos(filtro, 0, 100);
+      const response = await medicoService.getAllMedicos(filtro, pagina, pagination.itensPorPagina);
       
-      console.log('Resposta do serviço de médicos:', response);
+      console.log('📋 Response médicos:', response);
       
       if (response && response.listaMedicos && Array.isArray(response.listaMedicos)) {
         const mappedDoctors = response.listaMedicos.map(doc => ({
@@ -72,6 +78,18 @@ const Doctors = () => {
         }));
         
         setDoctors(mappedDoctors);
+        
+        // Atualizar informações de paginação
+        const totalItens = response.itens || 0;
+        const totalPaginas = response.totalPaginas || Math.ceil(totalItens / pagination.itensPorPagina);
+        
+        
+        setPagination(prev => ({
+          ...prev,
+          pagina: pagina,
+          totalItens: totalItens,
+          totalPaginas: totalPaginas
+        }));
       } 
       else if (Array.isArray(response)) {
         const mappedDoctors = response.map(doc => ({
@@ -83,10 +101,29 @@ const Doctors = () => {
         }));
         
         setDoctors(mappedDoctors);
+        
+        // Se não há informações de paginação na resposta, usar valores padrão
+        // Se temos exatamente 25 registros, pode haver mais páginas
+        const totalItens = response.length === 25 ? 26 : response.length; // Assumir que há mais se temos 25
+        const totalPaginas = Math.ceil(totalItens / pagination.itensPorPagina);
+        
+        
+        setPagination(prev => ({
+          ...prev,
+          pagina: pagina,
+          totalItens: totalItens,
+          totalPaginas: totalPaginas
+        }));
       }
       else {
         console.error('Formato de resposta inesperado:', response);
         setDoctors([]);
+        setPagination(prev => ({
+          ...prev,
+          pagina: 1,
+          totalItens: 0,
+          totalPaginas: 0
+        }));
       }
     } catch (error) {
       console.error('Erro ao buscar médicos:', error);
@@ -95,15 +132,21 @@ const Doctors = () => {
         navigate('/login');
       }
       setDoctors([]);
+      setPagination(prev => ({
+        ...prev,
+        pagina: 1,
+        totalItens: 0,
+        totalPaginas: 0
+      }));
     } finally {
       setIsLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, pagination.itensPorPagina]);
 
   // Função de busca com debounce
   const debouncedSearch = useCallback(
     debounce((searchValue) => {
-      fetchDoctors(searchValue);
+      fetchDoctors(searchValue, 1); // Reset para primeira página ao buscar
     }, 500),
     [fetchDoctors]
   );
@@ -127,7 +170,7 @@ const Doctors = () => {
     };
 
     fetchUserData();
-    fetchDoctors(); // Carrega todos os médicos inicialmente
+    fetchDoctors('', 1); // Carrega primeira página de médicos
   }, [navigate, fetchDoctors]);
 
   // Busca quando o termo de pesquisa muda (apenas se não for a primeira carga)
@@ -140,6 +183,18 @@ const Doctors = () => {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
+
+  // Funções de paginação
+  const handlePageChange = (novaPagina) => {
+    if (novaPagina >= 1 && novaPagina <= pagination.totalPaginas) {
+      fetchDoctors(searchTerm, novaPagina);
+    }
+  };
+
+  const handleFirstPage = () => handlePageChange(1);
+  const handlePrevPage = () => handlePageChange(pagination.pagina - 1);
+  const handleNextPage = () => handlePageChange(pagination.pagina + 1);
+  const handleLastPage = () => handlePageChange(pagination.totalPaginas);
 
   const handleNewDoctor = () => {
     setFormData({
@@ -276,7 +331,7 @@ const Doctors = () => {
       }
       
       setShowModal(false);
-      await fetchDoctors(searchTerm); // Recarrega com o filtro atual
+      await fetchDoctors(searchTerm, pagination.pagina); // Recarrega com o filtro atual
       
       setFormData({
         nome: '',
@@ -384,7 +439,7 @@ const Doctors = () => {
   const confirmDelete = async () => {
     try {
       await medicoService.deleteMedico(doctorToDelete);
-      await fetchDoctors(searchTerm); // Recarrega com o filtro atual
+      await fetchDoctors(searchTerm, pagination.pagina); // Recarrega com o filtro atual
       setShowDeleteModal(false);
       showAlert('success', 'Sucesso', 'Médico excluído com sucesso!');
     } catch (error) {
@@ -545,6 +600,78 @@ const Doctors = () => {
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Controles de Paginação */}
+          {!isLoading && doctors.length > 0 && (
+            <div className="pagination-container">
+              <div className="pagination-info">
+                <span className="pagination-text">
+                  Página {pagination.pagina} de {pagination.totalPaginas} 
+                  ({pagination.totalItens} médico{pagination.totalItens !== 1 ? 's' : ''} total)
+                </span>
+              </div>
+              <div className="pagination-controls">
+                <button 
+                  className="pagination-btn"
+                  onClick={handleFirstPage}
+                  disabled={pagination.pagina === 1}
+                  title="Primeira página"
+                >
+                  ⏮️
+                </button>
+                <button 
+                  className="pagination-btn"
+                  onClick={handlePrevPage}
+                  disabled={pagination.pagina === 1}
+                  title="Página anterior"
+                >
+                  ⏪
+                </button>
+                
+                <div className="pagination-numbers">
+                  {Array.from({ length: Math.min(5, pagination.totalPaginas) }, (_, i) => {
+                    let pageNum;
+                    if (pagination.totalPaginas <= 5) {
+                      pageNum = i + 1;
+                    } else if (pagination.pagina <= 3) {
+                      pageNum = i + 1;
+                    } else if (pagination.pagina >= pagination.totalPaginas - 2) {
+                      pageNum = pagination.totalPaginas - 4 + i;
+                    } else {
+                      pageNum = pagination.pagina - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        className={`pagination-number ${pagination.pagina === pageNum ? 'active' : ''}`}
+                        onClick={() => handlePageChange(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <button 
+                  className="pagination-btn"
+                  onClick={handleNextPage}
+                  disabled={pagination.pagina === pagination.totalPaginas}
+                  title="Próxima página"
+                >
+                  ⏩
+                </button>
+                <button 
+                  className="pagination-btn"
+                  onClick={handleLastPage}
+                  disabled={pagination.pagina === pagination.totalPaginas}
+                  title="Última página"
+                >
+                  ⏭️
+                </button>
+              </div>
             </div>
           )}
         </div>
