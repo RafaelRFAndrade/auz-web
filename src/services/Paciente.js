@@ -52,9 +52,9 @@ export const pacienteService = {
     }
   },
 
-  getPacienteById: async (id) => {
+  getPacienteById: async (codigoPaciente) => {
     try {
-      const response = await pacienteClient.get(`/Paciente/${id}`);
+      const response = await pacienteClient.get(`/Paciente/${codigoPaciente}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -70,6 +70,61 @@ export const pacienteService = {
         telefone: pacienteData.telefone,
         documentoFederal: pacienteData.documentoFederal
       });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updatePacienteDetalhado: async (pacienteData) => {
+    try {
+      // Mapear estado civil para enum
+      const mapearEstadoCivil = (estadoCivil) => {
+        switch (estadoCivil) {
+          case 'S': return 0; // Solteiro
+          case 'C': return 1; // Casado
+          case 'D': return 2; // Divorciado
+          case 'V': return 3; // Viuvo
+          case 'U': return 4; // Separado (União Estável mapeado como Separado)
+          default: return null;
+        }
+      };
+
+      // Converter altura e peso para decimal
+      const converterParaDecimal = (valor) => {
+        if (!valor || valor === '' || valor === null) return null;
+        const num = parseFloat(valor);
+        return isNaN(num) ? null : num;
+      };
+
+      // Converter data de nascimento
+      const converterDataNascimento = (data) => {
+        if (!data || data === '' || data === null) return null;
+        return new Date(data).toISOString();
+      };
+
+      const response = await pacienteClient.put('/Paciente/Detalhado', {
+        codigoPaciente: pacienteData.codigo,
+        nome: pacienteData.nome,
+        documentoFederal: pacienteData.documentoFederal,
+        telefone: pacienteData.telefone,
+        email: pacienteData.email,
+        dataNascimento: converterDataNascimento(pacienteData.dataNascimento),
+        altura: converterParaDecimal(pacienteData.altura),
+        peso: converterParaDecimal(pacienteData.peso),
+        contatoEmergencia: pacienteData.contatoEmergencia || null,
+        genero: pacienteData.genero || null,
+        estadoCivil: mapearEstadoCivil(pacienteData.estadoCivil),
+        cep: pacienteData.cep || null,
+        logradouro: pacienteData.logradouro || null,
+        numero: pacienteData.numero || null,
+        complemento: pacienteData.complemento || null,
+        bairro: pacienteData.bairro || null,
+        cidade: pacienteData.cidade || null,
+        uf: pacienteData.uf || null,
+        possuiEspecificacoes: pacienteData.possuiEspecificacoes || false,
+        descricaoEspecificacoes: pacienteData.descricaoEspecificacoes || null
+      });
+      return response.data;
     } catch (error) {
       throw error;
     }

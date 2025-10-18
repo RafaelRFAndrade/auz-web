@@ -12,6 +12,7 @@ const Patients = lazy(() => import('./components/home/Patients'));
 const Appointments = lazy(() => import('./components/home/Appointments'));
 const AppointmentDetails = lazy(() => import('./components/home/AppointmentDetails'));
 const MedicoDetails = lazy(() => import('./components/home/MedicoDetails'));
+const PatientDetails = lazy(() => import('./components/home/PatientDetails'));
 const Scheduling = lazy(() => import('./components/home/Scheduling'));
 const Calendar = lazy(() => import('./components/home/Calendar'));
 const Sidebar = lazy(() => import('./components/Sidebar'));
@@ -154,6 +155,18 @@ function App() {
                 <AuthenticatedLayout>
                   <Suspense fallback={<Loading text="Carregando detalhes do médico..." />}>
                     <MedicoDetails />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient-details/:codigoPaciente" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando detalhes do paciente..." />}>
+                    <PatientDetails />
                   </Suspense>
                 </AuthenticatedLayout>
               </ProtectedRoute>
