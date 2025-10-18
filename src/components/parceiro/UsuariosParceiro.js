@@ -1,52 +1,122 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { usuarioService } from '../../services/Usuario';
 import './UsuariosParceiro.css';
 
 const UsuariosParceiro = () => {
   const [usuarios, setUsuarios] = useState([]);
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [totalPaginas, setTotalPaginas] = useState(0);
-  const [totalRegistros, setTotalRegistros] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [pagination, setPagination] = useState({
+    pagina: 1,
+    itensPorPagina: 25,
+    totalItens: 0,
+    totalPaginas: 0
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  const registrosPorPagina = 25; // Quantidade máxima de registros por página
 
-  const carregarUsuarios = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await usuarioService.obterUsuariosPorParceiro(paginaAtual, registrosPorPagina);
-      setUsuarios(response.usuarios || []);
-      setTotalRegistros(response.totalRegistros || response.total || 0);
-      
-      // Calcula o número total de páginas: total de registros ÷ registros por página (arredondado para cima)
-      const totalRegistrosResponse = response.totalRegistros || response.total || 0;
-      const paginasCalculadas = Math.ceil(totalRegistrosResponse / registrosPorPagina);
-      setTotalPaginas(paginasCalculadas);
-    } catch (err) {
-      setError('Erro ao carregar usuários. Tente novamente.');
-      console.error('Erro:', err);
-    } finally {
-      setLoading(false);
-    }
+  // Debounce para busca
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
+    };
   };
+
+  const fetchUsuarios = useCallback(async (filtro = '', pagina = 1) => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      const response = await usuarioService.obterUsuariosPorParceiro(pagina, pagination.itensPorPagina, filtro);
+      
+      console.log('📋 Response usuários:', response);
+      
+      if (response && response.usuarios && Array.isArray(response.usuarios)) {
+        setUsuarios(response.usuarios);
+        
+        // Atualizar informações de paginação
+        const totalItens = response.itens || 0;
+        const totalPaginas = response.totalPaginas || 0;
+        
+        setPagination(prev => ({
+          ...prev,
+          pagina: pagina,
+          totalItens: totalItens,
+          totalPaginas: totalPaginas
+        }));
+      } 
+      else if (Array.isArray(response)) {
+        setUsuarios(response);
+        
+        // Se não há informações de paginação na resposta, usar valores padrão
+        const totalItens = response.length === 25 ? 26 : response.length; // Assumir que há mais se temos 25
+        const totalPaginas = Math.ceil(totalItens / pagination.itensPorPagina);
+        
+        setPagination(prev => ({
+          ...prev,
+          pagina: pagina,
+          totalItens: totalItens,
+          totalPaginas: totalPaginas
+        }));
+      }
+      else {
+        console.error('Formato de resposta inesperado:', response);
+        setUsuarios([]);
+        setPagination(prev => ({
+          ...prev,
+          pagina: 1,
+          totalItens: 0,
+          totalPaginas: 0
+        }));
+      }
+    } catch (err) {
+      console.error('Erro ao buscar usuários:', err);
+      setError('Erro ao carregar usuários. Tente novamente.');
+      setUsuarios([]);
+      setPagination(prev => ({
+        ...prev,
+        pagina: 1,
+        totalItens: 0,
+        totalPaginas: 0
+      }));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [pagination.itensPorPagina]);
 
   useEffect(() => {
-    carregarUsuarios();
-  }, [paginaAtual]);
+    fetchUsuarios('', 1); // Carrega primeira página de usuários
+  }, [fetchUsuarios]);
 
-  const handlePaginaAnterior = () => {
-    if (paginaAtual > 1) {
-      setPaginaAtual(paginaAtual - 1);
+  // Função de busca com debounce
+  const debouncedSearch = useCallback(
+    debounce((searchValue) => {
+      fetchUsuarios(searchValue, 1); // Reset para primeira página ao buscar
+    }, 500),
+    [fetchUsuarios]
+  );
+
+  // Busca quando o termo de pesquisa muda (apenas se não for a primeira carga)
+  useEffect(() => {
+    if (searchTerm !== '') {
+      debouncedSearch(searchTerm);
+    }
+  }, [searchTerm, debouncedSearch]);
+
+  const handleSearch = (e) => setSearchTerm(e.target.value);
+
+  // Funções de paginação
+  const handlePageChange = (novaPagina) => {
+    if (novaPagina >= 1 && novaPagina <= pagination.totalPaginas) {
+      fetchUsuarios(searchTerm, novaPagina);
     }
   };
 
-  const handleProximaPagina = () => {
-    if (paginaAtual < totalPaginas) {
-      setPaginaAtual(paginaAtual + 1);
-    }
-  };
+  const handleFirstPage = () => handlePageChange(1);
+  const handlePrevPage = () => handlePageChange(pagination.pagina - 1);
+  const handleNextPage = () => handlePageChange(pagination.pagina + 1);
+  const handleLastPage = () => handlePageChange(pagination.totalPaginas);
 
   return (
     <div className="usuarios-parceiro-container">
@@ -71,8 +141,32 @@ const UsuariosParceiro = () => {
           </div>
         </div>
 
+        {/* Search Section */}
+        <div className="search-section">
+          <div className="search-container">
+            <div className="search-wrapper">
+              <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input 
+                type="text" 
+                className="modern-search-input" 
+                placeholder="Buscar usuários por nome ou email..." 
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+              {isLoading && (
+                <div className="search-loading">
+                  <div className="loading-spinner-small"></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Stats Section */}
-        {totalRegistros > 0 && (
+        {pagination.totalItens > 0 && (
           <div className="stats-container">
             <div className="stat-card">
               <div className="stat-icon">
@@ -82,11 +176,11 @@ const UsuariosParceiro = () => {
                 </svg>
               </div>
               <div className="stat-content">
-                <div className="stat-number">{totalRegistros}</div>
-                <div className="stat-label">Usuário{totalRegistros !== 1 ? 's' : ''} Total</div>
+                <div className="stat-number">{pagination.totalItens}</div>
+                <div className="stat-label">Usuário{pagination.totalItens !== 1 ? 's' : ''} Total</div>
               </div>
             </div>
-            {totalPaginas > 1 && (
+            {pagination.totalPaginas > 1 && (
               <div className="stat-card">
                 <div className="stat-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -96,8 +190,8 @@ const UsuariosParceiro = () => {
                   </svg>
                 </div>
                 <div className="stat-content">
-                  <div className="stat-number">{totalPaginas}</div>
-                  <div className="stat-label">Página{totalPaginas !== 1 ? 's' : ''}</div>
+                  <div className="stat-number">{pagination.totalPaginas}</div>
+                  <div className="stat-label">Página{pagination.totalPaginas !== 1 ? 's' : ''}</div>
                 </div>
               </div>
             )}
@@ -119,7 +213,7 @@ const UsuariosParceiro = () => {
             </div>
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div className="loading-container">
               <div className="loading-spinner">Carregando...</div>
             </div>
@@ -202,34 +296,73 @@ const UsuariosParceiro = () => {
             </div>
           )}
 
-          {/* Pagination */}
-          {usuarios.length > 0 && totalPaginas > 1 && (
+          {/* Controles de Paginação */}
+          {!isLoading && usuarios.length > 0 && (
             <div className="pagination-container">
               <div className="pagination-info">
-                <span>Mostrando página {paginaAtual} de {totalPaginas}</span>
-                <span className="total-items">Total: {totalRegistros} usuários</span>
+                <span className="pagination-text">
+                  Página {pagination.pagina} de {pagination.totalPaginas} 
+                  ({pagination.totalItens} usuário{pagination.totalItens !== 1 ? 's' : ''} total)
+                </span>
               </div>
-              <div className="pagination">
-                <button
-                  onClick={handlePaginaAnterior}
-                  disabled={paginaAtual === 1}
-                  className="btn-pagination btn-pagination-nav"
+              <div className="pagination-controls">
+                <button 
+                  className="pagination-btn"
+                  onClick={handleFirstPage}
+                  disabled={pagination.pagina === 1}
+                  title="Primeira página"
+                >
+                  ⏮️
+                </button>
+                <button 
+                  className="pagination-btn"
+                  onClick={handlePrevPage}
+                  disabled={pagination.pagina === 1}
                   title="Página anterior"
                 >
                   ⏪
                 </button>
                 
-                <span className="pagination-current">
-                  {paginaAtual} de {totalPaginas}
-                </span>
+                <div className="pagination-numbers">
+                  {Array.from({ length: Math.min(5, pagination.totalPaginas) }, (_, i) => {
+                    let pageNum;
+                    if (pagination.totalPaginas <= 5) {
+                      pageNum = i + 1;
+                    } else if (pagination.pagina <= 3) {
+                      pageNum = i + 1;
+                    } else if (pagination.pagina >= pagination.totalPaginas - 2) {
+                      pageNum = pagination.totalPaginas - 4 + i;
+                    } else {
+                      pageNum = pagination.pagina - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        className={`pagination-number ${pagination.pagina === pageNum ? 'active' : ''}`}
+                        onClick={() => handlePageChange(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
                 
-                <button
-                  onClick={handleProximaPagina}
-                  disabled={paginaAtual === totalPaginas}
-                  className="btn-pagination btn-pagination-nav"
+                <button 
+                  className="pagination-btn"
+                  onClick={handleNextPage}
+                  disabled={pagination.pagina === pagination.totalPaginas}
                   title="Próxima página"
                 >
                   ⏩
+                </button>
+                <button 
+                  className="pagination-btn"
+                  onClick={handleLastPage}
+                  disabled={pagination.pagina === pagination.totalPaginas}
+                  title="Última página"
+                >
+                  ⏭️
                 </button>
               </div>
             </div>

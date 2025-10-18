@@ -74,12 +74,13 @@ usuarioClient.interceptors.response.use(
 );
 
 export const usuarioService = {
-  obterUsuariosPorParceiro: async (pagina = 1, itens = 25) => {
+  obterUsuariosPorParceiro: async (pagina = 1, itens = 25, filtro = '') => {
     try {
       const response = await usuarioClient.get('/Usuario/ObterUsuariosPorParceiro', {
         params: {
           pagina,
-          itens
+          itens,
+          filtro
         }
       });
       return response.data;
