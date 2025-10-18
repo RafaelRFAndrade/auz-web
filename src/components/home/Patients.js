@@ -10,6 +10,12 @@ const Patients = () => {
   const [patients, setPatients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [pagination, setPagination] = useState({
+    pagina: 1,
+    itensPorPagina: 25,
+    totalItens: 0,
+    totalPaginas: 0
+  });
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -43,25 +49,73 @@ const Patients = () => {
     };
   };
 
-  const fetchPatients = useCallback(async (filtro = '') => {
+  const fetchPatients = useCallback(async (filtro = '', pagina = 1) => {
     try {
       setIsLoading(true);
-      const response = await pacienteService.getAllPacientes(filtro, 0, 100);
+      const response = await pacienteService.getAllPacientes(filtro, pagina, pagination.itensPorPagina);
       
-      console.log('Resposta do serviço de pacientes:', response);
+      console.log('📋 Response pacientes:', response);
       
-      const mapped = (response?.listaPacientes || response || []).map(p => ({
-        id: p.codigo,
-        name: p.nome,
-        email: p.email || 'Não informado',
-        phone: p.telefone ? formatPhone(p.telefone) : 'Não informado',
-        documentoFederal: p.documentoFederal ? formatCPF(p.documentoFederal) : 'Não informado',
-        situacao: p.situacao === 0 ? 'Ativo' : 'Desativo',
-        dtInclusao: p.dtInclusao ? new Date(p.dtInclusao).toLocaleDateString() : '',
-        dtSituacao: p.dtSituacao ? new Date(p.dtSituacao).toLocaleDateString() : '',
-      }));
-      
-      setPatients(mapped);
+      if (response && response.listaPacientes && Array.isArray(response.listaPacientes)) {
+        const mapped = response.listaPacientes.map(p => ({
+          id: p.codigo,
+          name: p.nome,
+          email: p.email || 'Não informado',
+          phone: p.telefone ? formatPhone(p.telefone) : 'Não informado',
+          documentoFederal: p.documentoFederal ? formatCPF(p.documentoFederal) : 'Não informado',
+          situacao: p.situacao === 0 ? 'Ativo' : 'Desativo',
+          dtInclusao: p.dtInclusao ? new Date(p.dtInclusao).toLocaleDateString() : '',
+          dtSituacao: p.dtSituacao ? new Date(p.dtSituacao).toLocaleDateString() : '',
+        }));
+        
+        setPatients(mapped);
+        
+        // Atualizar informações de paginação
+        const totalItens = response.itens || 0;
+        const totalPaginas = response.totalPaginas || Math.ceil(totalItens / pagination.itensPorPagina);
+        
+        setPagination(prev => ({
+          ...prev,
+          pagina: pagina,
+          totalItens: totalItens,
+          totalPaginas: totalPaginas
+        }));
+      } 
+      else if (Array.isArray(response)) {
+        const mapped = response.map(p => ({
+          id: p.codigo,
+          name: p.nome,
+          email: p.email || 'Não informado',
+          phone: p.telefone ? formatPhone(p.telefone) : 'Não informado',
+          documentoFederal: p.documentoFederal ? formatCPF(p.documentoFederal) : 'Não informado',
+          situacao: p.situacao === 0 ? 'Ativo' : 'Desativo',
+          dtInclusao: p.dtInclusao ? new Date(p.dtInclusao).toLocaleDateString() : '',
+          dtSituacao: p.dtSituacao ? new Date(p.dtSituacao).toLocaleDateString() : '',
+        }));
+        
+        setPatients(mapped);
+        
+        // Se não há informações de paginação na resposta, usar valores padrão
+        const totalItens = response.length === 25 ? 26 : response.length; // Assumir que há mais se temos 25
+        const totalPaginas = Math.ceil(totalItens / pagination.itensPorPagina);
+        
+        setPagination(prev => ({
+          ...prev,
+          pagina: pagina,
+          totalItens: totalItens,
+          totalPaginas: totalPaginas
+        }));
+      }
+      else {
+        console.error('Formato de resposta inesperado:', response);
+        setPatients([]);
+        setPagination(prev => ({
+          ...prev,
+          pagina: 1,
+          totalItens: 0,
+          totalPaginas: 0
+        }));
+      }
     } catch (error) {
       console.error('Erro ao buscar pacientes:', error);
       if (error.response?.status === 401) {
@@ -69,15 +123,21 @@ const Patients = () => {
         navigate('/login');
       }
       setPatients([]);
+      setPagination(prev => ({
+        ...prev,
+        pagina: 1,
+        totalItens: 0,
+        totalPaginas: 0
+      }));
     } finally {
       setIsLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, pagination.itensPorPagina]);
 
   // Função de busca com debounce
   const debouncedSearch = useCallback(
     debounce((searchValue) => {
-      fetchPatients(searchValue);
+      fetchPatients(searchValue, 1); // Reset para primeira página ao buscar
     }, 500),
     [fetchPatients]
   );
@@ -101,7 +161,7 @@ const Patients = () => {
     };
 
     fetchUserData();
-    fetchPatients(); // Carrega todos os pacientes inicialmente
+    fetchPatients('', 1); // Carrega primeira página de pacientes
   }, [navigate, fetchPatients]);
 
   // Busca quando o termo de pesquisa muda (apenas se não for a primeira carga)
@@ -112,6 +172,18 @@ const Patients = () => {
   }, [searchTerm, debouncedSearch]);
 
   const handleSearch = (e) => setSearchTerm(e.target.value);
+
+  // Funções de paginação
+  const handlePageChange = (novaPagina) => {
+    if (novaPagina >= 1 && novaPagina <= pagination.totalPaginas) {
+      fetchPatients(searchTerm, novaPagina);
+    }
+  };
+
+  const handleFirstPage = () => handlePageChange(1);
+  const handlePrevPage = () => handlePageChange(pagination.pagina - 1);
+  const handleNextPage = () => handlePageChange(pagination.pagina + 1);
+  const handleLastPage = () => handlePageChange(pagination.totalPaginas);
 
   const handleNewPatient = () => {
     setFormData({ nome: '', email: '', telefone: '', documentoFederal: '' });
@@ -211,7 +283,7 @@ const Patients = () => {
       }
 
       setShowModal(false);
-      await fetchPatients(searchTerm); // Recarrega com o filtro atual
+      await fetchPatients(searchTerm, pagination.pagina); // Recarrega com o filtro atual
       showAlert('success', 'Sucesso', formData.id ? 'Paciente atualizado com sucesso' : 'Paciente cadastrado com sucesso');
     } catch (error) {
       showAlert('error', 'Erro', error.response?.data?.mensagem || 'Erro ao processar');
@@ -245,7 +317,7 @@ const Patients = () => {
   const confirmDelete = async () => {
     try {
       await pacienteService.deletePaciente(patientToDelete);
-      await fetchPatients(searchTerm); // Recarrega com o filtro atual
+      await fetchPatients(searchTerm, pagination.pagina); // Recarrega com o filtro atual
       setShowDeleteModal(false);
       showAlert('success', 'Sucesso', 'Paciente excluído com sucesso');
     } catch (error) {
@@ -407,6 +479,78 @@ const Patients = () => {
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Controles de Paginação */}
+          {!isLoading && patients.length > 0 && (
+            <div className="pagination-container">
+              <div className="pagination-info">
+                <span className="pagination-text">
+                  Página {pagination.pagina} de {pagination.totalPaginas} 
+                  ({pagination.totalItens} paciente{pagination.totalItens !== 1 ? 's' : ''} total)
+                </span>
+              </div>
+              <div className="pagination-controls">
+                <button 
+                  className="pagination-btn"
+                  onClick={handleFirstPage}
+                  disabled={pagination.pagina === 1}
+                  title="Primeira página"
+                >
+                  ⏮️
+                </button>
+                <button 
+                  className="pagination-btn"
+                  onClick={handlePrevPage}
+                  disabled={pagination.pagina === 1}
+                  title="Página anterior"
+                >
+                  ⏪
+                </button>
+                
+                <div className="pagination-numbers">
+                  {Array.from({ length: Math.min(5, pagination.totalPaginas) }, (_, i) => {
+                    let pageNum;
+                    if (pagination.totalPaginas <= 5) {
+                      pageNum = i + 1;
+                    } else if (pagination.pagina <= 3) {
+                      pageNum = i + 1;
+                    } else if (pagination.pagina >= pagination.totalPaginas - 2) {
+                      pageNum = pagination.totalPaginas - 4 + i;
+                    } else {
+                      pageNum = pagination.pagina - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        className={`pagination-number ${pagination.pagina === pageNum ? 'active' : ''}`}
+                        onClick={() => handlePageChange(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <button 
+                  className="pagination-btn"
+                  onClick={handleNextPage}
+                  disabled={pagination.pagina === pagination.totalPaginas}
+                  title="Próxima página"
+                >
+                  ⏩
+                </button>
+                <button 
+                  className="pagination-btn"
+                  onClick={handleLastPage}
+                  disabled={pagination.pagina === pagination.totalPaginas}
+                  title="Última página"
+                >
+                  ⏭️
+                </button>
+              </div>
             </div>
           )}
         </div>
