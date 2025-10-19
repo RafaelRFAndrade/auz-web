@@ -116,6 +116,49 @@ export const usuarioService = {
     }
   },
 
+  cadastrarUsuarioPorParceiro: async (nome, email, senha, tipoPermissao) => {
+    try {
+      const response = await usuarioClient.post('/Usuario/UsuarioPorParceiro', {
+        nome,
+        email,
+        senha,
+        tipoPermissao
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  atualizarUsuario: async (codigo, situacao, nome, email, senha, tipoPermissao) => {
+    try {
+      const response = await usuarioClient.patch('/Usuario', {
+        codigo,
+        situacao,
+        nome,
+        email,
+        senha,
+        tipoPermissao
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  excluirUsuario: async (codigoUsuario) => {
+    try {
+      const response = await usuarioClient.delete('/Usuario', {
+        data: {
+          codigoUsuario
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   isAuthenticated: () => {
     const token = localStorage.getItem('authToken');
   

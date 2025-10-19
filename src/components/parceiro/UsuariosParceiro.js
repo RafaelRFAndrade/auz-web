@@ -13,6 +13,36 @@ const UsuariosParceiro = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Estados para modal de cadastro
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError] = useState('');
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    senha: '',
+    tipoPermissao: 2
+  });
+
+  // Estados para modal de edição
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editModalLoading, setEditModalLoading] = useState(false);
+  const [editModalError, setEditModalError] = useState('');
+  const [editFormData, setEditFormData] = useState({
+    codigo: '',
+    situacao: 1,
+    nome: '',
+    email: '',
+    senha: '',
+    tipoPermissao: 2
+  });
+
+  // Estados para confirmação de exclusão
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [usuarioToDelete, setUsuarioToDelete] = useState(null);
 
   // Debounce para busca
   const debounce = (func, delay) => {
@@ -118,6 +148,171 @@ const UsuariosParceiro = () => {
   const handleNextPage = () => handlePageChange(pagination.pagina + 1);
   const handleLastPage = () => handlePageChange(pagination.totalPaginas);
 
+  // Funções para modal de cadastro
+  const handleOpenModal = () => {
+    setShowModal(true);
+    setModalError('');
+    setFormData({
+      nome: '',
+      email: '',
+      senha: '',
+      tipoPermissao: 2
+    });
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setModalError('');
+    setFormData({
+      nome: '',
+      email: '',
+      senha: '',
+      tipoPermissao: 2
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.nome.trim() || !formData.email.trim() || !formData.senha.trim()) {
+      setModalError('Todos os campos são obrigatórios');
+      return;
+    }
+
+    try {
+      setModalLoading(true);
+      setModalError('');
+      
+      await usuarioService.cadastrarUsuarioPorParceiro(
+        formData.nome,
+        formData.email,
+        formData.senha,
+        formData.tipoPermissao
+      );
+      
+      // Fechar modal e recarregar lista
+      handleCloseModal();
+      fetchUsuarios(searchTerm, pagination.pagina);
+      
+    } catch (error) {
+      console.error('Erro ao cadastrar usuário:', error);
+      setModalError(error.response?.data?.message || 'Erro ao cadastrar usuário. Tente novamente.');
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Funções para modal de edição
+  const handleOpenEditModal = (usuario) => {
+    setShowEditModal(true);
+    setEditModalError('');
+    setEditFormData({
+      codigo: usuario.id || usuario.codigo || '',
+      situacao: usuario.situacao || 1,
+      nome: usuario.nome || '',
+      email: usuario.email || '',
+      senha: '', // Senha vazia para edição
+      tipoPermissao: usuario.tipoPermissao || 2
+    });
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditModalError('');
+    setEditFormData({
+      codigo: '',
+      situacao: 1,
+      nome: '',
+      email: '',
+      senha: '',
+      tipoPermissao: 2
+    });
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!editFormData.nome.trim() || !editFormData.email.trim()) {
+      setEditModalError('Nome e email são obrigatórios');
+      return;
+    }
+
+    try {
+      setEditModalLoading(true);
+      setEditModalError('');
+      
+      await usuarioService.atualizarUsuario(
+        editFormData.codigo,
+        editFormData.situacao,
+        editFormData.nome,
+        editFormData.email,
+        editFormData.senha || '', // Senha opcional na edição
+        editFormData.tipoPermissao
+      );
+      
+      // Fechar modal e recarregar lista
+      handleCloseEditModal();
+      fetchUsuarios(searchTerm, pagination.pagina);
+      
+    } catch (error) {
+      console.error('Erro ao atualizar usuário:', error);
+      setEditModalError(error.response?.data?.message || 'Erro ao atualizar usuário. Tente novamente.');
+    } finally {
+      setEditModalLoading(false);
+    }
+  };
+
+  // Funções para exclusão de usuário
+  const handleOpenDeleteModal = (usuario) => {
+    setUsuarioToDelete(usuario);
+    setShowDeleteModal(true);
+    setDeleteError('');
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setUsuarioToDelete(null);
+    setDeleteError('');
+  };
+
+  const handleDeleteUser = async () => {
+    if (!usuarioToDelete) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeleteError('');
+      
+      const codigoUsuario = usuarioToDelete.id || usuarioToDelete.codigo;
+      await usuarioService.excluirUsuario(codigoUsuario);
+      
+      // Fechar modal e recarregar lista
+      handleCloseDeleteModal();
+      fetchUsuarios(searchTerm, pagination.pagina);
+      
+    } catch (error) {
+      console.error('Erro ao excluir usuário:', error);
+      setDeleteError(error.response?.data?.message || 'Erro ao excluir usuário. Tente novamente.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   return (
     <div className="usuarios-parceiro-container">
       <div className="main-content">
@@ -126,14 +321,14 @@ const UsuariosParceiro = () => {
           <div className="header-content">
             <div className="welcome-section">
               <h1 className="welcome-title">
-                <span className="highlight">Usuários do Parceiro</span> 👥
+                <span className="highlight">Parceiro</span> 👥
               </h1>
               <p className="welcome-subtitle">
                 Gerencie os usuários associados ao parceiro
               </p>
             </div>
             <div className="header-actions">
-              <button className="btn-primary">
+              <button className="btn-primary" onClick={handleOpenModal}>
                 <span className="btn-icon">👤➕</span>
                 Adicionar Usuário
               </button>
@@ -249,12 +444,14 @@ const UsuariosParceiro = () => {
                         <button 
                           className="btn-edit" 
                           title="Editar usuário"
+                          onClick={() => handleOpenEditModal(usuario)}
                         >
                           ✏️
                         </button>
                         <button 
                           className="btn-delete" 
                           title="Excluir usuário"
+                          onClick={() => handleOpenDeleteModal(usuario)}
                         >
                           🗑️
                         </button>
@@ -287,7 +484,7 @@ const UsuariosParceiro = () => {
                   <p className="empty-description">
                     Adicione o primeiro usuário do parceiro
                   </p>
-                  <button className="btn-primary">
+                  <button className="btn-primary" onClick={handleOpenModal}>
                     <span className="btn-icon">👤➕</span>
                     Adicionar Primeiro Usuário
                   </button>
@@ -369,6 +566,328 @@ const UsuariosParceiro = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de Cadastro de Usuário */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h2 className="modal-title">
+                <span className="modal-icon">👤➕</span>
+                Cadastrar Novo Usuário
+              </h2>
+              <button className="modal-close" onClick={handleCloseModal}>
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="modal-form">
+              <div className="form-group">
+                <label htmlFor="nome" className="form-label">
+                  Nome Completo *
+                </label>
+                <input
+                  type="text"
+                  id="nome"
+                  name="nome"
+                  value={formData.nome}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="Digite o nome completo"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email" className="form-label">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="Digite o email"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="senha" className="form-label">
+                  Senha *
+                </label>
+                <input
+                  type="password"
+                  id="senha"
+                  name="senha"
+                  value={formData.senha}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="Digite a senha"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="tipoPermissao" className="form-label">
+                  Tipo de Permissão
+                </label>
+                <select
+                  id="tipoPermissao"
+                  name="tipoPermissao"
+                  value={formData.tipoPermissao}
+                  onChange={handleInputChange}
+                  className="form-select"
+                >
+                  <option value={1}>Administrador</option>
+                  <option value={2}>Usuário</option>
+                  <option value={3}>Visualizador</option>
+                </select>
+              </div>
+
+              {modalError && (
+                <div className="modal-error">
+                  <span className="error-icon">⚠️</span>
+                  {modalError}
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleCloseModal}
+                  disabled={modalLoading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={modalLoading}
+                >
+                  {modalLoading ? (
+                    <>
+                      <span className="loading-spinner-small"></span>
+                      Cadastrando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="btn-icon">👤➕</span>
+                      Cadastrar Usuário
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edição de Usuário */}
+      {showEditModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h2 className="modal-title">
+                <span className="modal-icon">✏️</span>
+                Editar Usuário
+              </h2>
+              <button className="modal-close" onClick={handleCloseEditModal}>
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleEditSubmit} className="modal-form">
+              <div className="form-group">
+                <label htmlFor="edit-nome" className="form-label">
+                  Nome Completo *
+                </label>
+                <input
+                  type="text"
+                  id="edit-nome"
+                  name="nome"
+                  value={editFormData.nome}
+                  onChange={handleEditInputChange}
+                  className="form-input"
+                  placeholder="Digite o nome completo"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-email" className="form-label">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  id="edit-email"
+                  name="email"
+                  value={editFormData.email}
+                  onChange={handleEditInputChange}
+                  className="form-input"
+                  placeholder="Digite o email"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-senha" className="form-label">
+                  Nova Senha (deixe em branco para manter a atual)
+                </label>
+                <input
+                  type="password"
+                  id="edit-senha"
+                  name="senha"
+                  value={editFormData.senha}
+                  onChange={handleEditInputChange}
+                  className="form-input"
+                  placeholder="Digite a nova senha (opcional)"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-tipoPermissao" className="form-label">
+                  Tipo de Permissão
+                </label>
+                <select
+                  id="edit-tipoPermissao"
+                  name="tipoPermissao"
+                  value={editFormData.tipoPermissao}
+                  onChange={handleEditInputChange}
+                  className="form-select"
+                >
+                  <option value={1}>Administrador</option>
+                  <option value={2}>Usuário</option>
+                  <option value={3}>Visualizador</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-situacao" className="form-label">
+                  Situação
+                </label>
+                <select
+                  id="edit-situacao"
+                  name="situacao"
+                  value={editFormData.situacao}
+                  onChange={handleEditInputChange}
+                  className="form-select"
+                >
+                  <option value={1}>Ativo</option>
+                  <option value={2}>Inativo</option>
+                </select>
+              </div>
+
+              {editModalError && (
+                <div className="modal-error">
+                  <span className="error-icon">⚠️</span>
+                  {editModalError}
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleCloseEditModal}
+                  disabled={editModalLoading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={editModalLoading}
+                >
+                  {editModalLoading ? (
+                    <>
+                      <span className="loading-spinner-small"></span>
+                      Atualizando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="btn-icon">💾</span>
+                      Salvar Alterações
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Exclusão */}
+      {showDeleteModal && usuarioToDelete && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h2 className="modal-title">
+                <span className="modal-icon">🗑️</span>
+                Confirmar Exclusão
+              </h2>
+              <button className="modal-close" onClick={handleCloseDeleteModal}>
+                ✕
+              </button>
+            </div>
+            
+            <div className="modal-form">
+              <div className="delete-warning">
+                <div className="warning-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 9v4"></path>
+                    <path d="M12 17h.01"></path>
+                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path>
+                  </svg>
+                </div>
+                <h3 className="warning-title">Tem certeza que deseja excluir este usuário?</h3>
+                <p className="warning-message">
+                  Esta ação não pode ser desfeita. O usuário <strong>{usuarioToDelete.nome}</strong> será permanentemente removido do sistema.
+                </p>
+              </div>
+
+              {deleteError && (
+                <div className="modal-error">
+                  <span className="error-icon">⚠️</span>
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleCloseDeleteModal}
+                  disabled={deleteLoading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn-danger"
+                  onClick={handleDeleteUser}
+                  disabled={deleteLoading}
+                >
+                  {deleteLoading ? (
+                    <>
+                      <span className="loading-spinner-small"></span>
+                      Excluindo...
+                    </>
+                  ) : (
+                    <>
+                      <span className="btn-icon">🗑️</span>
+                      Sim, Excluir
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
