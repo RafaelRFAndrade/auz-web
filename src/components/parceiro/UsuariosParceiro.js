@@ -328,6 +328,13 @@ const UsuariosParceiro = () => {
               </p>
             </div>
             <div className="header-actions">
+              <button 
+                className="btn-secondary" 
+                onClick={() => window.location.href = '/parceiro/info'}
+              >
+                <span className="btn-icon">🏢</span>
+                Informações do Parceiro
+              </button>
               <button className="btn-primary" onClick={handleOpenModal}>
                 <span className="btn-icon">👤➕</span>
                 Adicionar Usuário

@@ -159,6 +159,38 @@ export const usuarioService = {
     }
   },
 
+  obterParceiro: async () => {
+    try {
+      const response = await usuarioClient.get('/api/Parceiro');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  atualizarParceiro: async (codigo, nome, razaoSocial, cnpj, cep, logradouro, numero, complemento, bairro, cidade, uf, telefone, email) => {
+    try {
+      const response = await usuarioClient.patch('/api/Parceiro', {
+        codigo,
+        nome,
+        razaoSocial,
+        cnpj,
+        cep,
+        logradouro,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        uf,
+        telefone,
+        email
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   isAuthenticated: () => {
     const token = localStorage.getItem('authToken');
   
