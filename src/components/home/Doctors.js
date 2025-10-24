@@ -12,7 +12,7 @@ const Doctors = () => {
   const [showModal, setShowModal] = useState(false);
   const [pagination, setPagination] = useState({
     pagina: 1,
-    itensPorPagina: 25,
+    itensPorPagina: 12,
     totalItens: 0,
     totalPaginas: 0
   });
@@ -35,6 +35,7 @@ const Doctors = () => {
     title: '',
     message: ''
   });
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   const showAlert = (type, title, message) => {
     setAlert({
@@ -184,9 +185,32 @@ const Doctors = () => {
     setSearchTerm(e.target.value);
   };
 
+  const toggleSearch = () => {
+    setIsSearchExpanded(!isSearchExpanded);
+    if (!isSearchExpanded) {
+      // Focar no input quando expandir
+      setTimeout(() => {
+        const searchInput = document.querySelector('.modern-search-input');
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }, 100);
+    } else {
+      // Limpar busca quando colapsar
+      setSearchTerm('');
+    }
+  };
+
+  const handleSearchBlur = () => {
+    // Só colapsar se não há texto na busca
+    if (searchTerm.trim() === '') {
+      setIsSearchExpanded(false);
+    }
+  };
+
   // Funções de paginação
   const handlePageChange = (novaPagina) => {
-    if (novaPagina >= 1 && novaPagina <= pagination.totalPaginas) {
+    if (novaPagina >= 1 && novaPagina <= pagination.totalPaginas && pagination.totalPaginas > 1) {
       fetchDoctors(searchTerm, novaPagina);
     }
   };
@@ -455,65 +479,81 @@ const Doctors = () => {
   return (
     <div className="doctors-container">
       <div className="main-content">
-        {/* Header Section */}
+        {/* Modern Header Section with Integrated Search */}
         <div className="dashboard-header">
           <div className="header-content">
             <div className="welcome-section">
               <h1 className="welcome-title">
-                <span className="highlight">Operadores</span> 
+                Olá, <span className="highlight">{userData.name}</span>
               </h1>
-              <p className="welcome-subtitle">
-                Gerencie o cadastro de operadores da clínica
-              </p>
+              <p className="welcome-subtitle">Gerencie os operadores da sua clínica</p>
             </div>
             <div className="header-actions">
               <button className="btn-primary" onClick={handleNewDoctor}>
-                <span className="btn-icon">➕</span>
-                Cadastrar Operador
+                <span className="btn-icon">👤</span>
+                Novo Operador
               </button>
             </div>
           </div>
+          
         </div>
 
-        {/* Search Section */}
-        <div className="search-section">
-          <div className="search-container">
-            <div className="search-wrapper">
-              <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input 
-                type="text" 
-                className="modern-search-input" 
-                placeholder="Buscar operadores por nome ou CRM..." 
-                value={searchTerm}
-                onChange={handleSearch}
-              />
-              {isLoading && (
-                <div className="search-loading">
-                  <div className="loading-spinner-small"></div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Doctors Grid */}
+        {/* Modern Doctors Section */}
         <div className="doctors-section">
           <div className="section-header">
             <div className="section-title">
               <svg className="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
-                <path d="M8 3v4"></path>
-                <path d="M16 3v4"></path>
-                <path d="M12 11v6"></path>
-                <path d="M9 14h6"></path>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              Lista de Operadores
+              Operadores Cadastrados
             </div>
-            <div className="section-count">
-              {doctors.length} médico{doctors.length !== 1 ? 's' : ''}
+            <div className="section-actions">
+              <div className="section-count">
+                {pagination.totalItens} operador{pagination.totalItens !== 1 ? 'es' : ''}
+              </div>
+              
+              {/* Inline Search */}
+              <div className="section-search">
+                {!isSearchExpanded ? (
+                  <button className="search-toggle-btn" onClick={toggleSearch}>
+                    <svg className="search-toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span>Buscar</span>
+                  </button>
+                ) : (
+                  <div className="search-inline">
+                    <div className="search-wrapper">
+                      <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <input 
+                        type="text" 
+                        className="modern-search-input" 
+                        placeholder="Buscar por nome ou CRM..." 
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        onBlur={handleSearchBlur}
+                        autoFocus
+                      />
+                      {isLoading && (
+                        <div className="search-loading">
+                          <div className="loading-spinner-small"></div>
+                        </div>
+                      )}
+                      <button className="search-close-btn" onClick={toggleSearch}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -543,21 +583,30 @@ const Doctors = () => {
                           onClick={() => navigate(`/medico-details/${doctor.id}`)}
                           title="Ver detalhes"
                         >
-                          👁️
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
                         </button>
                         <button 
                           className="btn-edit" 
                           onClick={() => handleEdit(doctor.id)}
                           title="Editar operador"
                         >
-                          ✏️
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                          </svg>
                         </button>
                         <button 
                           className="btn-delete" 
                           onClick={() => handleDelete(doctor.id)}
                           title="Excluir operador"
                         >
-                          🗑️
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3,6 5,6 21,6"></polyline>
+                            <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -590,11 +639,11 @@ const Doctors = () => {
                   </div>
                   <h3 className="empty-title">Nenhum operador encontrado</h3>
                   <p className="empty-description">
-                    {searchTerm ? 'Tente ajustar os termos de busca' : 'Cadastre o primeiro médico da clínica'}
+                    {searchTerm ? 'Tente ajustar os termos de busca' : 'Cadastre o primeiro operador da clínica'}
                   </p>
                   {!searchTerm && (
                     <button className="btn-primary" onClick={handleNewDoctor}>
-                      <span className="btn-icon">➕</span>
+                      <span className="btn-icon">👤</span>
                       Cadastrar Primeiro Operador
                     </button>
                   )}
@@ -616,18 +665,23 @@ const Doctors = () => {
                 <button 
                   className="pagination-btn"
                   onClick={handleFirstPage}
-                  disabled={pagination.pagina === 1}
+                  disabled={pagination.pagina === 1 || pagination.totalPaginas <= 1}
                   title="Primeira página"
                 >
-                  ⏮️
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="11,17 6,12 11,7"></polyline>
+                    <polyline points="18,17 13,12 18,7"></polyline>
+                  </svg>
                 </button>
                 <button 
                   className="pagination-btn"
                   onClick={handlePrevPage}
-                  disabled={pagination.pagina === 1}
+                  disabled={pagination.pagina === 1 || pagination.totalPaginas <= 1}
                   title="Página anterior"
                 >
-                  ⏪
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15,18 9,12 15,6"></polyline>
+                  </svg>
                 </button>
                 
                 <div className="pagination-numbers">
@@ -658,18 +712,23 @@ const Doctors = () => {
                 <button 
                   className="pagination-btn"
                   onClick={handleNextPage}
-                  disabled={pagination.pagina === pagination.totalPaginas}
+                  disabled={pagination.pagina === pagination.totalPaginas || pagination.totalPaginas <= 1}
                   title="Próxima página"
                 >
-                  ⏩
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9,18 15,12 9,6"></polyline>
+                  </svg>
                 </button>
                 <button 
                   className="pagination-btn"
                   onClick={handleLastPage}
-                  disabled={pagination.pagina === pagination.totalPaginas}
+                  disabled={pagination.pagina === pagination.totalPaginas || pagination.totalPaginas <= 1}
                   title="Última página"
                 >
-                  ⏭️
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="13,17 18,12 13,7"></polyline>
+                    <polyline points="6,17 11,12 6,7"></polyline>
+                  </svg>
                 </button>
               </div>
             </div>
@@ -677,14 +736,20 @@ const Doctors = () => {
         </div>
       </div>
 
-      {/* Modal de Cadastro/Edição de Médico */}
+
+      {/* Modern Modal de Cadastro/Edição */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-container">
             <div className="modal-header">
-              <h2 className="modal-title">{formData.id ? 'Editar Médico' : 'Cadastrar Médico'}</h2>
+              <h2 className="modal-title">
+                {formData.id ? 'Editar Operador' : 'Novo Operador'}
+              </h2>
               <button className="btn-close" onClick={handleCloseModal}>
-                ✕
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
             <div className="modal-body">
@@ -694,7 +759,7 @@ const Doctors = () => {
                 )}
                 
                 <div className="form-group">
-                  <label htmlFor="nome">Nome*</label>
+                  <label htmlFor="nome">Nome Completo*</label>
                   <input
                     type="text"
                     id="nome"
@@ -702,6 +767,7 @@ const Doctors = () => {
                     value={formData.nome}
                     onChange={handleChange}
                     className={errors.nome ? 'input-error' : ''}
+                    placeholder="Digite o nome completo"
                   />
                   {errors.nome && <div className="error-message">{errors.nome}</div>}
                 </div>
@@ -729,6 +795,7 @@ const Doctors = () => {
                     value={formData.email}
                     onChange={handleChange}
                     className={errors.email ? 'input-error' : ''}
+                    placeholder="operador@clinica.com"
                   />
                   {errors.email && <div className="error-message">{errors.email}</div>}
                 </div>
@@ -765,12 +832,29 @@ const Doctors = () => {
                 
                 <div className="modal-footer">
                   <button type="button" className="btn-secondary" onClick={handleCloseModal}>
-                    <span className="btn-icon">✕</span>
+                    <span className="btn-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </span>
                     Cancelar
                   </button>
                   <button type="submit" className="btn-primary" disabled={isSubmitting}>
-                    <span className="btn-icon">{isSubmitting ? '⏳' : '💾'}</span>
-                    {isSubmitting ? 'Salvando...' : 'Salvar'}
+                    <span className="btn-icon">
+                      {isSubmitting ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 12a9 9 0 11-6.219-8.56"></path>
+                        </svg>
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                          <polyline points="17,21 17,13 7,13 7,21"></polyline>
+                          <polyline points="7,3 7,8 15,8"></polyline>
+                        </svg>
+                      )}
+                    </span>
+                    {isSubmitting ? 'Salvando...' : 'Salvar Operador'}
                   </button>
                 </div>
               </form>
@@ -779,41 +863,55 @@ const Doctors = () => {
         </div>
       )}
 
-       {/* Modal de Confirmação de Exclusão */}
+       {/* Modern Modal de Confirmação de Exclusão */}
     {showDeleteModal && (
       <div className="modal-overlay">
         <div className="modal-popup delete-modal">
           <div className="modal-popup-header">
-            <h3>Excluir Médico</h3>
+            <h3>Excluir Operador</h3>
             <button 
               className="btn-close"
               onClick={() => setShowDeleteModal(false)}
             >
-              ✕
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           </div>
           <div className="modal-popup-body">
             <div className="warning-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2">
                 <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               </svg>
             </div>
             <p>Tem certeza que deseja excluir permanentemente este operador?</p>
+            <p className="warning-text">Esta ação não pode ser desfeita.</p>
           </div>
           <div className="modal-popup-footer">
             <button 
               className="btn-secondary"
               onClick={() => setShowDeleteModal(false)}
             >
-              <span className="btn-icon">✕</span>
+              <span className="btn-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </span>
               Cancelar
             </button>
             <button 
               className="btn-danger"
               onClick={confirmDelete}
             >
-              <span className="btn-icon">🗑️</span>
-              Excluir
+              <span className="btn-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="3,6 5,6 21,6"></polyline>
+                  <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                </svg>
+              </span>
+              Excluir Operador
             </button>
           </div>
         </div>
