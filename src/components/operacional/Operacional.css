@@ -1,0 +1,389 @@
+.operacional-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.operacional-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px 0;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.back-button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.header-info h1 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin: 0 0 5px 0;
+  font-weight: 700;
+}
+
+.header-info p {
+  color: #718096;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.operacional-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.agendamentos-section,
+.pacientes-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f7fafc;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin: 0;
+  font-weight: 600;
+}
+
+.section-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.agendamentos-grid,
+.pacientes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.agendamento-card,
+.paciente-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.agendamento-card:hover,
+.paciente-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #667eea;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.paciente-info h3 {
+  font-size: 1.1rem;
+  color: #2d3748;
+  margin: 0 0 5px 0;
+  font-weight: 600;
+}
+
+.paciente-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.atendimento {
+  font-weight: 500;
+  color: #667eea !important;
+}
+
+.documento {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem !important;
+}
+
+.data-info {
+  text-align: right;
+}
+
+.data {
+  background: #667eea;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.situacao-info {
+  text-align: right;
+}
+
+.situacao {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.situacao.ativo {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.situacao.inativo {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+.situacao.suspenso {
+  background-color: #fef5e7;
+  color: #744210;
+}
+
+.situacao.desconhecido {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.card-details {
+  margin-bottom: 15px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.detail-row .label {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.detail-row .value {
+  font-size: 0.875rem;
+  color: #2d3748;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-all;
+}
+
+.card-footer {
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.codigo {
+  font-size: 0.75rem;
+  color: #a0aec0;
+  font-family: 'Courier New', monospace;
+}
+
+.loading-container,
+.error-container,
+.empty-container {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+}
+
+.error-icon,
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.error-container p,
+.empty-container p {
+  color: #718096;
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.retry-button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+}
+
+/* Scrollbar personalizada */
+.agendamentos-grid::-webkit-scrollbar,
+.pacientes-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.agendamentos-grid::-webkit-scrollbar-track,
+.pacientes-grid::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.agendamentos-grid::-webkit-scrollbar-thumb,
+.pacientes-grid::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.agendamentos-grid::-webkit-scrollbar-thumb:hover,
+.pacientes-grid::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .operacional-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .agendamentos-section,
+  .pacientes-section {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .operacional-container {
+    padding: 16px;
+  }
+  
+  .operacional-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .back-button {
+    margin-right: 0;
+    margin-bottom: 0;
+  }
+  
+  .header-info h1 {
+    font-size: 1.75rem;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .agendamentos-grid,
+  .pacientes-grid {
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .operacional-header {
+    padding: 15px 0;
+  }
+  
+  .header-info h1 {
+    font-size: 1.5rem;
+  }
+  
+  .agendamentos-section,
+  .pacientes-section {
+    padding: 16px;
+  }
+  
+  .agendamento-card,
+  .paciente-card {
+    padding: 16px;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .data-info,
+  .situacao-info {
+    text-align: left;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .detail-row .value {
+    text-align: left;
+  }
+}

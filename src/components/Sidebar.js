@@ -41,6 +41,7 @@ const Sidebar = () => {
   // Menu base com todos os itens
   const allMenuItems = [
     { path: '/home', icon: '🏠', label: 'Início' },
+    { path: '/operacional', icon: '⚡', label: 'Operacional' },
     { path: '/doctors', icon: '👨‍⚕️', label: 'Médicos' },
     { path: '/patients', icon: '👥', label: 'Pacientes' },
     { path: '/appointments', icon: '📅', label: 'Atendimentos' },

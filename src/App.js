@@ -18,6 +18,8 @@ const Calendar = lazy(() => import('./components/home/Calendar'));
 const Sidebar = lazy(() => import('./components/Sidebar'));
 const UsuariosParceiro = lazy(() => import('./components/parceiro/UsuariosParceiro'));
 const ParceiroInfo = lazy(() => import('./components/parceiro/ParceiroInfo'));
+const OperacionalMenu = lazy(() => import('./components/operacional/OperacionalMenu'));
+const Operacional = lazy(() => import('./components/operacional/Operacional'));
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -228,6 +230,30 @@ function App() {
                 <AuthenticatedLayout>
                   <Suspense fallback={<Loading text="Carregando informações do parceiro..." />}>
                     <ParceiroInfo />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/operacional" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando menu operacional..." />}>
+                    <OperacionalMenu />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/operacional/:codigoMedico" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando operacional..." />}>
+                    <Operacional />
                   </Suspense>
                 </AuthenticatedLayout>
               </ProtectedRoute>
