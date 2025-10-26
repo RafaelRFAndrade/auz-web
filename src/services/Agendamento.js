@@ -124,6 +124,22 @@ export const agendamentoService = {
       console.error('Erro ao buscar agendamentos por mês:', error);
       throw error;
     }
+  },
+
+  // Buscar agendamentos para a home com paginação
+  getHome: async (pagina = 1, itensPorPagina = 5) => {
+    try {
+      const response = await agendamentoClient.get('/Agendamento/Home', {
+        params: {
+          Pagina: pagina,
+          ItensPorPagina: itensPorPagina
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar agendamentos da home:', error);
+      throw error;
+    }
   }
 };
 

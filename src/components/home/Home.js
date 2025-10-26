@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usuarioService } from '../../services/Usuario';
+import { atendimentoService } from '../../services/Atendimento';
+import { agendamentoService } from '../../services/Agendamento';
 import './Home.css';
 import logo from '../../logo.png'; 
 
@@ -8,28 +10,43 @@ const Home = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
   const [appointments, setAppointments] = useState(0);
   const [scheduledWeek, setScheduledWeek] = useState(0);
+  const [qtdUsuarios, setQtdUsuarios] = useState(0);
+  const [qtdOperadores, setQtdOperadores] = useState(0);
   const [appointmentsList, setAppointmentsList] = useState([]);
   const [scheduledList, setScheduledList] = useState([]);
   const [activePage, setActivePage] = useState('home');
+  const [currentAppointmentPage, setCurrentAppointmentPage] = useState(1);
+  const [currentScheduledPage, setCurrentScheduledPage] = useState(1);
+  const [totalAppointmentPages, setTotalAppointmentPages] = useState(1);
+  const [totalScheduledPages, setTotalScheduledPages] = useState(1);
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
+  const [isLoadingScheduled, setIsLoadingScheduled] = useState(false);
+  const [appointmentAnimation, setAppointmentAnimation] = useState('');
+  const [scheduledAnimation, setScheduledAnimation] = useState('');
+  const [isTransitioningAppointments, setIsTransitioningAppointments] = useState(false);
+  const [isTransitioningScheduled, setIsTransitioningScheduled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       try {
         if (!usuarioService.isAuthenticated()) {
           navigate('/login');
           return;
         }
 
-        const homeData = await usuarioService.getHome();
-        setUserData({ name: homeData.nomeUsuario });
-        setAppointments(homeData.atendimentos.length);
-        setScheduledWeek(homeData.agendamentos.length);
-        setAppointmentsList(homeData.atendimentos);
-        setScheduledList(homeData.agendamentos);
+        // Buscar dados do usuário (nome)
+        const userHomeData = await usuarioService.getHome();
+        setUserData({ name: userHomeData.nomeUsuario });
+        setQtdUsuarios(userHomeData.qtdUsuarios || 0);
+        setQtdOperadores(userHomeData.qtdOperadores || 0);
+
+        // Carregar dados iniciais
+        await loadAppointments(1);
+        await loadScheduled(1);
 
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching data:', error);
         if (error.response && error.response.status === 401) {
           usuarioService.logout();
           navigate('/login');
@@ -37,8 +54,38 @@ const Home = () => {
       }
     };
 
-    fetchUserData();
+    fetchData();
   }, [navigate]);
+
+  // Função para carregar atendimentos
+  const loadAppointments = async (page) => {
+    try {
+      setIsLoadingAppointments(true);
+      const atendimentosData = await atendimentoService.getAtendimentos(page, 4, '');
+      setAppointments(atendimentosData.itens || 0);
+      setAppointmentsList(atendimentosData.atendimentos || []);
+      setTotalAppointmentPages(atendimentosData.totalPaginas || 1);
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+    } finally {
+      setIsLoadingAppointments(false);
+    }
+  };
+
+  // Função para carregar agendamentos
+  const loadScheduled = async (page) => {
+    try {
+      setIsLoadingScheduled(true);
+      const agendamentosData = await agendamentoService.getHome(page, 4);
+      setScheduledWeek(agendamentosData.itens || 0);
+      setScheduledList(agendamentosData.agendamentos || []);
+      setTotalScheduledPages(agendamentosData.totalPaginas || 1);
+    } catch (error) {
+      console.error('Error loading scheduled:', error);
+    } finally {
+      setIsLoadingScheduled(false);
+    }
+  };
 
   const handleLogout = () => {
     usuarioService.logout();
@@ -79,6 +126,92 @@ const Home = () => {
 
   const getSituacao = (situacao) => {
     return situacao === 0 ? 'Agendado' : 'Desconhecido';
+  };
+
+  // Funções de navegação para atendimentos
+  const nextAppointment = async () => {
+    if (currentAppointmentPage < totalAppointmentPages && !isLoadingAppointments && !isTransitioningAppointments) {
+      setIsTransitioningAppointments(true);
+      setAppointmentAnimation('fade-out');
+      
+      setTimeout(async () => {
+        const nextPage = currentAppointmentPage + 1;
+        setCurrentAppointmentPage(nextPage);
+        await loadAppointments(nextPage);
+        
+        setTimeout(() => {
+          setAppointmentAnimation('fade-in');
+          setTimeout(() => {
+            setAppointmentAnimation('');
+            setIsTransitioningAppointments(false);
+          }, 200);
+        }, 50);
+      }, 150);
+    }
+  };
+
+  const prevAppointment = async () => {
+    if (currentAppointmentPage > 1 && !isLoadingAppointments && !isTransitioningAppointments) {
+      setIsTransitioningAppointments(true);
+      setAppointmentAnimation('fade-out');
+      
+      setTimeout(async () => {
+        const prevPage = currentAppointmentPage - 1;
+        setCurrentAppointmentPage(prevPage);
+        await loadAppointments(prevPage);
+        
+        setTimeout(() => {
+          setAppointmentAnimation('fade-in');
+          setTimeout(() => {
+            setAppointmentAnimation('');
+            setIsTransitioningAppointments(false);
+          }, 200);
+        }, 50);
+      }, 150);
+    }
+  };
+
+  // Funções de navegação para agendamentos
+  const nextScheduled = async () => {
+    if (currentScheduledPage < totalScheduledPages && !isLoadingScheduled && !isTransitioningScheduled) {
+      setIsTransitioningScheduled(true);
+      setScheduledAnimation('fade-out');
+      
+      setTimeout(async () => {
+        const nextPage = currentScheduledPage + 1;
+        setCurrentScheduledPage(nextPage);
+        await loadScheduled(nextPage);
+        
+        setTimeout(() => {
+          setScheduledAnimation('fade-in');
+          setTimeout(() => {
+            setScheduledAnimation('');
+            setIsTransitioningScheduled(false);
+          }, 200);
+        }, 50);
+      }, 150);
+    }
+  };
+
+  const prevScheduled = async () => {
+    if (currentScheduledPage > 1 && !isLoadingScheduled && !isTransitioningScheduled) {
+      setIsTransitioningScheduled(true);
+      setScheduledAnimation('fade-out');
+      
+      setTimeout(async () => {
+        const prevPage = currentScheduledPage - 1;
+        setCurrentScheduledPage(prevPage);
+        await loadScheduled(prevPage);
+        
+        setTimeout(() => {
+          setScheduledAnimation('fade-in');
+          setTimeout(() => {
+            setScheduledAnimation('');
+            setIsTransitioningScheduled(false);
+          }, 200);
+        }, 50);
+      }, 150);
+    }
   };
 
   return (
@@ -142,47 +275,80 @@ const Home = () => {
           <div className="metric-card success-card">
             <div className="metric-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 12l2 2 4-4"></path>
-                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
               </svg>
             </div>
             <div className="metric-content">
-              <div className="metric-title">Taxa de Sucesso</div>
-              <div className="metric-value">94%</div>
+              <div className="metric-title">Usuários</div>
+              <div className="metric-value">{qtdUsuarios}</div>
+            </div>
+          </div>
+
+          <div className="metric-card warning-card">
+            <div className="metric-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div className="metric-content">
+              <div className="metric-title">Operadores</div>
+              <div className="metric-value">{qtdOperadores}</div>
             </div>
           </div>
         </div>
         
-        {/* Activities Section */}
+        {/* Atendimentos Section */}
         <div className="activities-section">
           <div className="section-header">
             <h2 className="section-title">
               <svg className="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
               </svg>
-              Atividades Recentes
+              Atendimentos em Andamento
             </h2>
-
+            <div className="section-controls">
+              <span className="section-count">{appointments} atendimentos</span>
+              {totalAppointmentPages > 1 && (
+                <div className="navigation-controls">
+                  <button 
+                    className="nav-btn prev-btn" 
+                    onClick={prevAppointment}
+                    disabled={currentAppointmentPage === 1 || isLoadingAppointments || isTransitioningAppointments}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="15,18 9,12 15,6"></polyline>
+                    </svg>
+                  </button>
+                  <span className="nav-indicator">
+                    {currentAppointmentPage} / {totalAppointmentPages}
+                  </span>
+                  <button 
+                    className="nav-btn next-btn" 
+                    onClick={nextAppointment}
+                    disabled={currentAppointmentPage === totalAppointmentPages || isLoadingAppointments || isTransitioningAppointments}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="9,18 15,12 9,6"></polyline>
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="activities-grid">
-            <div className="activity-column">
-              <div className="column-header">
-                <h3 className="column-title">
-                  <div className="title-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                  </div>
-                  Atendimentos em Andamento
-                </h3>
-                <span className="column-count">{appointmentsList.length}</span>
+          <div className="horizontal-carousel">
+            {isLoadingAppointments ? (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <span>Carregando atendimentos...</span>
               </div>
-              <div className="activity-list">
+            ) : appointmentsList.length > 0 ? (
+              <div className={`cards-container ${appointmentAnimation}`}>
                 {appointmentsList.map((atendimento, index) => (
                   <div key={index} className="activity-card modern-card">
                     <div className="card-header">
@@ -212,37 +378,72 @@ const Home = () => {
                     </div>
                   </div>
                 ))}
-                {appointmentsList.length === 0 && (
-                  <div className="empty-state">
-                    <div className="empty-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                      </svg>
-                    </div>
-                    <div className="empty-title">Nenhum atendimento em andamento</div>
-                    <div className="empty-subtitle">Os novos atendimentos aparecerão aqui</div>
-                  </div>
-                )}
               </div>
-            </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                </div>
+                <div className="empty-title">Nenhum atendimento em andamento</div>
+                <div className="empty-subtitle">Os novos atendimentos aparecerão aqui</div>
+              </div>
+            )}
+          </div>
+        </div>
 
-            <div className="activity-column">
-              <div className="column-header">
-                <h3 className="column-title">
-                  <div className="title-icon">
+        {/* Agendamentos Section */}
+        <div className="activities-section">
+          <div className="section-header">
+            <h2 className="section-title">
+              <svg className="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Agendamentos da Semana
+            </h2>
+            <div className="section-controls">
+              <span className="section-count">{scheduledWeek} agendamentos</span>
+              {totalScheduledPages > 1 && (
+                <div className="navigation-controls">
+                  <button 
+                    className="nav-btn prev-btn" 
+                    onClick={prevScheduled}
+                    disabled={currentScheduledPage === 1 || isLoadingScheduled || isTransitioningScheduled}
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                      <polyline points="15,18 9,12 15,6"></polyline>
                     </svg>
-                  </div>
-                  Agendamentos da Semana
-                </h3>
-                <span className="column-count">{scheduledList.length}</span>
+                  </button>
+                  <span className="nav-indicator">
+                    {currentScheduledPage} / {totalScheduledPages}
+                  </span>
+                  <button 
+                    className="nav-btn next-btn" 
+                    onClick={nextScheduled}
+                    disabled={currentScheduledPage === totalScheduledPages || isLoadingScheduled || isTransitioningScheduled}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="9,18 15,12 9,6"></polyline>
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="horizontal-carousel">
+            {isLoadingScheduled ? (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <span>Carregando agendamentos...</span>
               </div>
-              <div className="activity-list">
+            ) : scheduledList.length > 0 ? (
+              <div className={`cards-container ${scheduledAnimation}`}>
                 {scheduledList.map((agendamento, index) => (
                   <div key={index} className="activity-card modern-card">
                     <div className="card-header">
@@ -272,22 +473,21 @@ const Home = () => {
                     </div>
                   </div>
                 ))}
-                {scheduledList.length === 0 && (
-                  <div className="empty-state">
-                    <div className="empty-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                      </svg>
-                    </div>
-                    <div className="empty-title">Nenhum agendamento para esta semana</div>
-                    <div className="empty-subtitle">Os agendamentos da semana aparecerão aqui</div>
-                  </div>
-                )}
               </div>
-            </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <div className="empty-title">Nenhum agendamento para esta semana</div>
+                <div className="empty-subtitle">Os agendamentos da semana aparecerão aqui</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
