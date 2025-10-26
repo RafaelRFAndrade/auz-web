@@ -327,374 +327,392 @@ const Patients = () => {
   };
 
   return (
-    <div className="patients-container">
-      <div className="main-content">
-        {/* Header Section */}
-        <div className="dashboard-header">
-          <div className="header-content">
-            <div className="welcome-section">
-              <h1 className="welcome-title">
-                <span className="highlight">Pacientes</span> 👥
-              </h1>
-              <p className="welcome-subtitle">
-                Gerencie o cadastro de pacientes da clínica
-              </p>
-            </div>
-            <div className="header-actions">
-              <button className="btn-primary" onClick={handleNewPatient}>
-                <span className="btn-icon">👤➕</span>
-                Cadastrar Paciente
-              </button>
-            </div>
+    <div className="patients-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-content">
+          <div className="title-section">
+            <h1 className="page-title">Pacientes</h1>
+            <p className="page-subtitle">Gerencie o cadastro de pacientes</p>
           </div>
+          <button className="add-button" onClick={handleNewPatient}>
+            <svg className="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Novo Paciente
+          </button>
         </div>
+      </div>
 
-        {/* Search Section */}
-        <div className="search-section">
-          <div className="search-container">
-            <div className="search-wrapper">
-              <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input 
-                type="text" 
-                className="modern-search-input" 
-                placeholder="Buscar pacientes por nome..." 
-                value={searchTerm}
-                onChange={handleSearch}
-              />
-              {isLoading && (
-                <div className="search-loading">
-                  <div className="loading-spinner-small"></div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Patients Grid */}
-        <div className="patients-section">
-          <div className="section-header">
-            <div className="section-title">
-              <svg className="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Lista de Pacientes
-            </div>
-            <div className="section-count">
-              {patients.length} paciente{patients.length !== 1 ? 's' : ''}
-            </div>
-          </div>
-
-          {isLoading ? (
-            <div className="loading-container">
-              <div className="loading-spinner">Carregando pacientes...</div>
-            </div>
-          ) : (
-            <div className="patients-grid">
-              {patients.length > 0 ? (
-                patients.map(patient => (
-                  <div key={patient.id} className="patient-card">
-                    <div className="card-header">
-                      <div className="patient-avatar">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                      </div>
-                      <div className="patient-info">
-                        <h3 className="patient-name">{patient.name}</h3>
-                        <p className="patient-cpf">CPF: {patient.documentoFederal}</p>
-                      </div>
-                      <div className="card-actions">
-                        <button 
-                          className="btn-view" 
-                          onClick={() => navigate(`/patient-details/${patient.id}`)}
-                          title="Ver detalhes do paciente"
-                        >
-                          👁️
-                        </button>
-                        <button 
-                          className="btn-edit" 
-                          onClick={() => handleEdit(patient.id)}
-                          title="Editar paciente"
-                        >
-                          ✏️
-                        </button>
-                        <button 
-                          className="btn-delete" 
-                          onClick={() => handleDelete(patient.id)}
-                          title="Excluir paciente"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                    <div className="card-content">
-                      <div className="info-row">
-                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                          <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                        <span className="info-label">Email:</span>
-                        <span className="info-value">{patient.email}</span>
-                      </div>
-                      <div className="info-row">
-                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                        </svg>
-                        <span className="info-label">Telefone:</span>
-                        <span className="info-value">{patient.phone}</span>
-                      </div>
-                      <div className="info-row">
-                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <polyline points="12,6 12,12 16,14"></polyline>
-                        </svg>
-                        <span className="info-label">Situação:</span>
-                        <span className="info-value">{patient.situacao}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="empty-state">
-                  <div className="empty-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                  </div>
-                  <h3 className="empty-title">Nenhum paciente encontrado</h3>
-                  <p className="empty-description">
-                    {searchTerm ? 'Tente ajustar os termos de busca' : 'Cadastre o primeiro paciente da clínica'}
-                  </p>
-                  {!searchTerm && (
-                    <button className="btn-primary" onClick={handleNewPatient}>
-                      <span className="btn-icon">👤➕</span>
-                      Cadastrar Primeiro Paciente
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Controles de Paginação */}
-          {!isLoading && patients.length > 0 && (
-            <div className="pagination-container">
-              <div className="pagination-info">
-                <span className="pagination-text">
-                  Página {pagination.pagina} de {pagination.totalPaginas} 
-                  ({pagination.totalItens} paciente{pagination.totalItens !== 1 ? 's' : ''} total)
-                </span>
-              </div>
-              <div className="pagination-controls">
-                <button 
-                  className="pagination-btn"
-                  onClick={handleFirstPage}
-                  disabled={pagination.pagina === 1}
-                  title="Primeira página"
-                >
-                  ⏮️
-                </button>
-                <button 
-                  className="pagination-btn"
-                  onClick={handlePrevPage}
-                  disabled={pagination.pagina === 1}
-                  title="Página anterior"
-                >
-                  ⏪
-                </button>
-                
-                <div className="pagination-numbers">
-                  {Array.from({ length: Math.min(5, pagination.totalPaginas) }, (_, i) => {
-                    let pageNum;
-                    if (pagination.totalPaginas <= 5) {
-                      pageNum = i + 1;
-                    } else if (pagination.pagina <= 3) {
-                      pageNum = i + 1;
-                    } else if (pagination.pagina >= pagination.totalPaginas - 2) {
-                      pageNum = pagination.totalPaginas - 4 + i;
-                    } else {
-                      pageNum = pagination.pagina - 2 + i;
-                    }
-                    
-                    return (
-                      <button
-                        key={pageNum}
-                        className={`pagination-number ${pagination.pagina === pageNum ? 'active' : ''}`}
-                        onClick={() => handlePageChange(pageNum)}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                </div>
-                
-                <button 
-                  className="pagination-btn"
-                  onClick={handleNextPage}
-                  disabled={pagination.pagina === pagination.totalPaginas}
-                  title="Próxima página"
-                >
-                  ⏩
-                </button>
-                <button 
-                  className="pagination-btn"
-                  onClick={handleLastPage}
-                  disabled={pagination.pagina === pagination.totalPaginas}
-                  title="Última página"
-                >
-                  ⏭️
-                </button>
-              </div>
+      {/* Search Bar */}
+      <div className="search-section">
+        <div className="search-container">
+          <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            className="search-input" 
+            placeholder="Buscar por nome, CPF ou email..." 
+            value={searchTerm}
+            onChange={handleSearch}
+          />
+          {isLoading && (
+            <div className="search-loading">
+              <div className="loading-spinner"></div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Modal de Cadastro/Edição de Paciente */}
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-container">
-            <div className="modal-header">
-              <h2 className="modal-title">{formData.id ? 'Editar Paciente' : 'Cadastrar Paciente'}</h2>
-              <button className="btn-close" onClick={handleCloseModal}>
-                ✕
+      {/* Patients List */}
+      <div className="patients-section">
+        <div className="section-header">
+          <h2 className="section-title">Lista de Pacientes</h2>
+          <div className="patients-count">
+            {pagination.totalItens} paciente{pagination.totalItens !== 1 ? 's' : ''}
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="loading-container">
+            <div className="loading-spinner large"></div>
+            <p className="loading-text">Carregando pacientes...</p>
+          </div>
+        ) : (
+          <div className="patients-list">
+            {patients.length > 0 ? (
+              patients.map(patient => (
+                <div key={patient.id} className="patient-item">
+                  <div className="patient-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  
+                  <div className="patient-info">
+                    <div className="patient-main">
+                      <h3 className="patient-name" title={patient.name}>
+                        {patient.name}
+                      </h3>
+                      <div className="patient-cpf" title={patient.documentoFederal}>
+                        {patient.documentoFederal}
+                      </div>
+                    </div>
+                    
+                    <div className="patient-details">
+                      <div className="detail-item">
+                        <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                          <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <span className="detail-label">Email:</span>
+                        <span className="detail-value" title={patient.email}>
+                          {patient.email}
+                        </span>
+                      </div>
+                      
+                      <div className="detail-item">
+                        <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <span className="detail-label">Telefone:</span>
+                        <span className="detail-value" title={patient.phone}>
+                          {patient.phone}
+                        </span>
+                      </div>
+                      
+                      <div className="detail-item">
+                        <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12,6 12,12 16,14"></polyline>
+                        </svg>
+                        <span className="detail-label">Status:</span>
+                        <span className={`status-badge ${patient.situacao.toLowerCase()}`}>
+                          {patient.situacao}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="patient-actions">
+                    <button 
+                      className="action-btn view-btn" 
+                      onClick={() => navigate(`/patient-details/${patient.id}`)}
+                      title="Ver detalhes"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button 
+                      className="action-btn edit-btn" 
+                      onClick={() => handleEdit(patient.id)}
+                      title="Editar"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    <button 
+                      className="action-btn delete-btn" 
+                      onClick={() => handleDelete(patient.id)}
+                      title="Excluir"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3,6 5,6 21,6"></polyline>
+                        <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                <h3 className="empty-title">Nenhum paciente encontrado</h3>
+                <p className="empty-description">
+                  {searchTerm ? 'Tente ajustar os termos de busca' : 'Cadastre o primeiro paciente da clínica'}
+                </p>
+                {!searchTerm && (
+                  <button className="add-button" onClick={handleNewPatient}>
+                    <svg className="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Cadastrar Primeiro Paciente
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!isLoading && patients.length > 0 && (
+          <div className="pagination">
+            <div className="pagination-info">
+              Página {pagination.pagina} de {pagination.totalPaginas}
+            </div>
+            <div className="pagination-controls">
+              <button 
+                className="pagination-btn"
+                onClick={handleFirstPage}
+                disabled={pagination.pagina === 1}
+                title="Primeira página"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="11,19 2,12 11,5"></polyline>
+                  <polyline points="22,19 13,12 22,5"></polyline>
+                </svg>
+              </button>
+              <button 
+                className="pagination-btn"
+                onClick={handlePrevPage}
+                disabled={pagination.pagina === 1}
+                title="Página anterior"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="15,18 9,12 15,6"></polyline>
+                </svg>
+              </button>
+              
+              <div className="pagination-numbers">
+                {Array.from({ length: Math.min(5, pagination.totalPaginas) }, (_, i) => {
+                  let pageNum;
+                  if (pagination.totalPaginas <= 5) {
+                    pageNum = i + 1;
+                  } else if (pagination.pagina <= 3) {
+                    pageNum = i + 1;
+                  } else if (pagination.pagina >= pagination.totalPaginas - 2) {
+                    pageNum = pagination.totalPaginas - 4 + i;
+                  } else {
+                    pageNum = pagination.pagina - 2 + i;
+                  }
+                  
+                  return (
+                    <button
+                      key={pageNum}
+                      className={`pagination-number ${pagination.pagina === pageNum ? 'active' : ''}`}
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <button 
+                className="pagination-btn"
+                onClick={handleNextPage}
+                disabled={pagination.pagina === pagination.totalPaginas}
+                title="Próxima página"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9,18 15,12 9,6"></polyline>
+                </svg>
+              </button>
+              <button 
+                className="pagination-btn"
+                onClick={handleLastPage}
+                disabled={pagination.pagina === pagination.totalPaginas}
+                title="Última página"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="13,19 22,12 13,5"></polyline>
+                  <polyline points="2,19 11,12 2,5"></polyline>
+                </svg>
               </button>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Modal de Cadastro/Edição */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="modal-title">
+                {formData.id ? 'Editar Paciente' : 'Novo Paciente'}
+              </h2>
+              <button className="modal-close" onClick={handleCloseModal}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
+            <form className="modal-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="nome" className="form-label">Nome Completo *</label>
+                <input
+                  type="text"
+                  id="nome"
+                  name="nome"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  className={`form-input ${errors.nome ? 'error' : ''}`}
+                  placeholder="Digite o nome completo"
+                />
+                {errors.nome && <span className="error-text">{errors.nome}</span>}
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="email" className="form-label">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`form-input ${errors.email ? 'error' : ''}`}
+                  placeholder="exemplo@email.com"
+                />
+                {errors.email && <span className="error-text">{errors.email}</span>}
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="telefone" className="form-label">Telefone *</label>
+                <input
+                  type="text"
+                  id="telefone"
+                  name="telefone"
+                  value={formData.telefone}
+                  onChange={handlePhoneChange}
+                  className={`form-input ${errors.telefone ? 'error' : ''}`}
+                  placeholder="(11) 99999-9999"
+                  maxLength={15}
+                />
+                {errors.telefone && <span className="error-text">{errors.telefone}</span>}
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="documentoFederal" className="form-label">CPF *</label>
+                <input
+                  type="text"
+                  id="documentoFederal"
+                  name="documentoFederal"
+                  value={formData.documentoFederal}
+                  onChange={handleCPFChange}
+                  className={`form-input ${errors.documentoFederal ? 'error' : ''}`}
+                  placeholder="000.000.000-00"
+                  maxLength={14}
+                />
+                {errors.documentoFederal && <span className="error-text">{errors.documentoFederal}</span>}
+              </div>
+              
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={handleCloseModal}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                  {isSubmitting ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Exclusão */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal delete-modal">
+            <div className="modal-header">
+              <h2 className="modal-title">Excluir Paciente</h2>
+              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
             <div className="modal-body">
-              <form onSubmit={handleSubmit}>
-                {errors.general && (
-                  <div className="error-message general-error">{errors.general}</div>
-                )}
-                
-                <div className="form-group">
-                  <label htmlFor="nome">Nome*</label>
-                  <input
-                    type="text"
-                    id="nome"
-                    name="nome"
-                    value={formData.nome}
-                    onChange={handleChange}
-                    className={errors.nome ? 'input-error' : ''}
-                  />
-                  {errors.nome && <div className="error-message">{errors.nome}</div>}
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="email">Email*</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={errors.email ? 'input-error' : ''}
-                  />
-                  {errors.email && <div className="error-message">{errors.email}</div>}
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="telefone">Telefone*</label>
-                  <input
-                    type="text"
-                    id="telefone"
-                    name="telefone"
-                    value={formData.telefone}
-                    onChange={handlePhoneChange}
-                    placeholder="(XX) XXXXX-XXXX"
-                    className={errors.telefone ? 'input-error' : ''}
-                    maxLength={15}
-                  />
-                  {errors.telefone && <div className="error-message">{errors.telefone}</div>}
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="documentoFederal">CPF*</label>
-                  <input
-                    type="text"
-                    id="documentoFederal"
-                    name="documentoFederal"
-                    value={formData.documentoFederal}
-                    onChange={handleCPFChange}
-                    placeholder="XXX.XXX.XXX-XX"
-                    className={errors.documentoFederal ? 'input-error' : ''}
-                    maxLength={14}
-                  />
-                  {errors.documentoFederal && <div className="error-message">{errors.documentoFederal}</div>}
-                </div>
-                
-                <div className="modal-footer">
-                  <button type="button" className="btn-secondary" onClick={handleCloseModal}>
-                    <span className="btn-icon">✕</span>
-                    Cancelar
-                  </button>
-                  <button type="submit" className="btn-primary" disabled={isSubmitting}>
-                    <span className="btn-icon">{isSubmitting ? '⏳' : '💾'}</span>
-                    {isSubmitting ? 'Salvando...' : 'Salvar'}
-                  </button>
-                </div>
-              </form>
+              <div className="warning-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <p className="warning-text">
+                Tem certeza que deseja excluir permanentemente este paciente?
+              </p>
+            </div>
+            
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                Cancelar
+              </button>
+              <button className="btn-danger" onClick={confirmDelete}>
+                Excluir
+              </button>
             </div>
           </div>
         </div>
       )}
 
-       {/* Modal de Confirmação de Exclusão */}
-    {showDeleteModal && (
-      <div className="modal-overlay">
-        <div className="modal-popup delete-modal">
-          <div className="modal-popup-header">
-            <h3>Excluir Paciente</h3>
-            <button 
-              className="btn-close"
-              onClick={() => setShowDeleteModal(false)}
-            >
-              ✕
-            </button>
-          </div>
-          <div className="modal-popup-body">
-            <div className="warning-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d32f2f" strokeWidth="2">
-                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-              </svg>
-            </div>
-            <p>Tem certeza que deseja excluir permanentemente este paciente?</p>
-          </div>
-          <div className="modal-popup-footer">
-            <button 
-              className="btn-secondary"
-              onClick={() => setShowDeleteModal(false)}
-            >
-              <span className="btn-icon">✕</span>
-              Cancelar
-            </button>
-            <button 
-              className="btn-danger"
-              onClick={confirmDelete}
-            >
-              <span className="btn-icon">🗑️</span>
-              Excluir
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
-
-       {/* alerta de Erro */}
-       <Alert
+      {/* Alert */}
+      <Alert
         show={alert.show}
         type={alert.type}
         title={alert.title}
         message={alert.message}
         onClose={closeAlert}
-        duration={7000} // 7 segundos
+        duration={7000}
       />
-  </div>
+    </div>
   );
 };
 

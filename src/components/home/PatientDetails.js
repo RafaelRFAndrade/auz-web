@@ -215,9 +215,10 @@ const PatientDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="patient-details-container">
+      <div className="patient-details-page">
         <div className="loading-container">
-          <div className="loading-spinner">Carregando detalhes...</div>
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Carregando detalhes do paciente...</p>
         </div>
       </div>
     );
@@ -225,12 +226,21 @@ const PatientDetails = () => {
 
   if (!pacienteData) {
     return (
-      <div className="patient-details-container">
+      <div className="patient-details-page">
         <div className="error-state">
-          <div className="error-icon">❌</div>
-          <h3>Paciente não encontrado</h3>
-          <p>O paciente solicitado não foi encontrado.</p>
+          <div className="error-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <h3 className="error-title">Paciente não encontrado</h3>
+          <p className="error-description">O paciente solicitado não foi encontrado.</p>
           <button className="btn-primary" onClick={() => navigate('/patients')}>
+            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
             Voltar para Pacientes
           </button>
         </div>
@@ -239,421 +249,491 @@ const PatientDetails = () => {
   }
 
   return (
-    <div className="patient-details-container">
-      <div className="main-content">
-        {/* Header Section */}
-        <div className="details-header">
-          <div className="header-content">
-            <div className="header-left">
-              <button 
-                className="btn-back" 
-                onClick={() => navigate('/patients')}
-                title="Voltar para pacientes"
-              >
-                ← Voltar
-              </button>
-              <div className="title-section">
-                <div className="patient-profile">
-                  <div className="profile-photo-container">
-                    <div className="profile-photo-placeholder">
-                      👤
-                    </div>
-                  </div>
-                  <div className="title-info">
-                    <h1 className="details-title">
-                      <span className="highlight">Detalhes do Paciente</span>
-                    </h1>
-                    <p className="details-subtitle">
-                      {pacienteData.nome}
-                    </p>
-                  </div>
-                </div>
+    <div className="patient-details-page">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-content">
+          <div className="header-left">
+            <button className="back-button" onClick={() => navigate('/patients')}>
+              <svg className="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"></path>
+              </svg>
+              Voltar
+            </button>
+            
+            <div className="patient-profile">
+              <div className="patient-avatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div className="patient-info">
+                <h1 className="patient-name" title={pacienteData.nome}>
+                  {pacienteData.nome}
+                </h1>
+                <p className="patient-cpf" title={formatCPF(pacienteData.documentoFederal)}>
+                  {formatCPF(pacienteData.documentoFederal)}
+                </p>
               </div>
             </div>
-            <div className="header-right">
-              <div className={`status-badge ${getSituacaoClass(pacienteData.situacao)}`}>
-                {getSituacaoText(pacienteData.situacao)}
-              </div>
-              {!isEditing ? (
-                <button 
-                  className="btn-edit" 
-                  onClick={handleEdit}
-                  title="Editar dados do paciente"
-                >
-                  ✏️ Editar
+          </div>
+          
+          <div className="header-right">
+            <div className={`status-badge ${getSituacaoClass(pacienteData.situacao)}`}>
+              {getSituacaoText(pacienteData.situacao)}
+            </div>
+            
+            {!isEditing ? (
+              <button className="edit-button" onClick={handleEdit}>
+                <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Editar
+              </button>
+            ) : (
+              <div className="edit-actions">
+                <button className="save-button" onClick={handleSave} disabled={isSaving}>
+                  <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17,21 17,13 7,13 7,21"></polyline>
+                    <polyline points="7,3 7,8 15,8"></polyline>
+                  </svg>
+                  {isSaving ? 'Salvando...' : 'Salvar'}
                 </button>
-              ) : (
-                <div className="edit-actions">
-                  <button 
-                    className="btn-save" 
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    title="Salvar alterações"
+                <button className="cancel-button" onClick={handleCancel} disabled={isSaving}>
+                  <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  Cancelar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="content-grid">
+        {/* Informações Básicas */}
+        <div className="info-section">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <h2 className="section-title">Informações Básicas</h2>
+          </div>
+          
+          <div className="section-content">
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">Nome Completo</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.nome || ''}
+                    onChange={(e) => handleInputChange('nome', e.target.value)}
+                    className="form-input"
+                    placeholder="Nome do paciente"
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.nome}>
+                    {pacienteData.nome || '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">CPF</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.documentoFederal || ''}
+                    onChange={(e) => handleInputChange('documentoFederal', e.target.value)}
+                    className="form-input"
+                    placeholder="000.000.000-00"
+                  />
+                ) : (
+                  <span className="info-value" title={formatCPF(pacienteData.documentoFederal)}>
+                    {formatCPF(pacienteData.documentoFederal)}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Email</label>
+                {isEditing ? (
+                  <input
+                    type="email"
+                    value={editedData.email || ''}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="form-input"
+                    placeholder="exemplo@email.com"
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.email}>
+                    {pacienteData.email || '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Telefone</label>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    value={editedData.telefone || ''}
+                    onChange={(e) => handleInputChange('telefone', e.target.value)}
+                    className="form-input"
+                    placeholder="(11) 99999-9999"
+                  />
+                ) : (
+                  <span className="info-value" title={formatPhone(pacienteData.telefone)}>
+                    {formatPhone(pacienteData.telefone)}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Data de Nascimento</label>
+                {isEditing ? (
+                  <input
+                    type="date"
+                    value={editedData.dataNascimento || ''}
+                    onChange={(e) => handleInputChange('dataNascimento', e.target.value)}
+                    className="form-input"
+                  />
+                ) : (
+                  <span className="info-value">
+                    {pacienteData.dataNascimento ? new Date(pacienteData.dataNascimento).toLocaleDateString('pt-BR') : '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Gênero</label>
+                {isEditing ? (
+                  <select
+                    value={editedData.genero || ''}
+                    onChange={(e) => handleInputChange('genero', e.target.value)}
+                    className="form-input"
                   >
-                    {isSaving ? '💾 Salvando...' : '💾 Salvar'}
-                  </button>
-                  <button 
-                    className="btn-cancel" 
-                    onClick={handleCancel}
-                    disabled={isSaving}
-                    title="Cancelar edição"
+                    <option value="">Selecione o gênero</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                    <option value="O">Outro</option>
+                  </select>
+                ) : (
+                  <span className="info-value">
+                    {getGeneroText(pacienteData.genero)}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Estado Civil</label>
+                {isEditing ? (
+                  <select
+                    value={editedData.estadoCivil || ''}
+                    onChange={(e) => handleInputChange('estadoCivil', e.target.value)}
+                    className="form-input"
                   >
-                    ❌ Cancelar
-                  </button>
-                </div>
-              )}
+                    <option value="">Selecione o estado civil</option>
+                    <option value="S">Solteiro(a)</option>
+                    <option value="C">Casado(a)</option>
+                    <option value="D">Divorciado(a)</option>
+                    <option value="V">Viúvo(a)</option>
+                    <option value="U">União Estável</option>
+                  </select>
+                ) : (
+                  <span className="info-value">
+                    {getEstadoCivilText(pacienteData.estadoCivil)}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Data de Inclusão</label>
+                <span className="info-value">
+                  {formatDate(pacienteData.dtInclusao)}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Status</label>
+                <span className={`status-text ${getSituacaoClass(pacienteData.situacao)}`}>
+                  {getSituacaoText(pacienteData.situacao)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="details-grid">
-          {/* Informações Básicas */}
-          <div className="details-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">ℹ️</span>
-                Informações Básicas
-              </h2>
+        {/* Informações Físicas */}
+        <div className="info-section">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+              </svg>
             </div>
-            <div className="section-content">
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>Nome:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.nome || ''}
-                      onChange={(e) => handleInputChange('nome', e.target.value)}
-                      className="edit-input"
-                      placeholder="Nome do paciente"
-                    />
-                  ) : (
-                    <span>{pacienteData.nome || 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>CPF:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.documentoFederal || ''}
-                      onChange={(e) => handleInputChange('documentoFederal', e.target.value)}
-                      className="edit-input"
-                      placeholder="CPF do paciente"
-                    />
-                  ) : (
-                    <span>{formatCPF(pacienteData.documentoFederal)}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Email:</label>
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      value={editedData.email || ''}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="edit-input"
-                      placeholder="Email do paciente"
-                    />
-                  ) : (
-                    <span>{pacienteData.email || 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Telefone:</label>
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      value={editedData.telefone || ''}
-                      onChange={(e) => handleInputChange('telefone', e.target.value)}
-                      className="edit-input"
-                      placeholder="Telefone do paciente"
-                    />
-                  ) : (
-                    <span>{formatPhone(pacienteData.telefone)}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Data de Nascimento:</label>
-                  {isEditing ? (
-                    <input
-                      type="date"
-                      value={editedData.dataNascimento || ''}
-                      onChange={(e) => handleInputChange('dataNascimento', e.target.value)}
-                      className="edit-input"
-                    />
-                  ) : (
-                    <span>{pacienteData.dataNascimento ? new Date(pacienteData.dataNascimento).toLocaleDateString('pt-BR') : 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Gênero:</label>
-                  {isEditing ? (
-                    <select
-                      value={editedData.genero || ''}
-                      onChange={(e) => handleInputChange('genero', e.target.value)}
-                      className="edit-input"
-                    >
-                      <option value="">Selecione o gênero</option>
-                      <option value="M">Masculino</option>
-                      <option value="F">Feminino</option>
-                      <option value="O">Outro</option>
-                    </select>
-                  ) : (
-                    <span>{getGeneroText(pacienteData.genero)}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Estado Civil:</label>
-                  {isEditing ? (
-                    <select
-                      value={editedData.estadoCivil || ''}
-                      onChange={(e) => handleInputChange('estadoCivil', e.target.value)}
-                      className="edit-input"
-                    >
-                      <option value="">Selecione o estado civil</option>
-                      <option value="S">Solteiro(a)</option>
-                      <option value="C">Casado(a)</option>
-                      <option value="D">Divorciado(a)</option>
-                      <option value="V">Viúvo(a)</option>
-                      <option value="U">União Estável</option>
-                    </select>
-                  ) : (
-                    <span>{getEstadoCivilText(pacienteData.estadoCivil)}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Data de Inclusão:</label>
-                  <span>{formatDate(pacienteData.dtInclusao)}</span>
-                </div>
-                <div className="info-item">
-                  <label>Situação:</label>
-                  <span className={`status-text ${getSituacaoClass(pacienteData.situacao)}`}>
-                    {getSituacaoText(pacienteData.situacao)}
+            <h2 className="section-title">Informações Físicas</h2>
+          </div>
+          
+          <div className="section-content">
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">Altura (cm)</label>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    value={editedData.altura || ''}
+                    onChange={(e) => handleInputChange('altura', e.target.value)}
+                    className="form-input"
+                    placeholder="Altura em cm"
+                    min="0"
+                  />
+                ) : (
+                  <span className="info-value">
+                    {pacienteData.altura ? `${pacienteData.altura} cm` : '---'}
                   </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Informações Físicas */}
-          <div className="details-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">📏</span>
-                Informações Físicas
-              </h2>
-            </div>
-            <div className="section-content">
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>Altura (cm):</label>
-                  {isEditing ? (
-                    <input
-                      type="number"
-                      value={editedData.altura || ''}
-                      onChange={(e) => handleInputChange('altura', e.target.value)}
-                      className="edit-input"
-                      placeholder="Altura em cm"
-                      min="0"
-                    />
-                  ) : (
-                    <span>{pacienteData.altura ? `${pacienteData.altura} cm` : 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Peso (kg):</label>
-                  {isEditing ? (
-                    <input
-                      type="number"
-                      value={editedData.peso || ''}
-                      onChange={(e) => handleInputChange('peso', e.target.value)}
-                      className="edit-input"
-                      placeholder="Peso em kg"
-                      min="0"
-                      step="0.1"
-                    />
-                  ) : (
-                    <span>{pacienteData.peso ? `${pacienteData.peso} kg` : 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Contato de Emergência:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.contatoEmergencia || ''}
-                      onChange={(e) => handleInputChange('contatoEmergencia', e.target.value)}
-                      className="edit-input"
-                      placeholder="Nome e telefone do contato"
-                    />
-                  ) : (
-                    <span>{pacienteData.contatoEmergencia || 'N/A'}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Endereço */}
-          <div className="details-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">🏠</span>
-                Endereço
-              </h2>
-            </div>
-            <div className="section-content">
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>CEP:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.cep || ''}
-                      onChange={(e) => handleInputChange('cep', e.target.value)}
-                      className="edit-input"
-                      placeholder="CEP"
-                    />
-                  ) : (
-                    <span>{pacienteData.cep || 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Logradouro:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.logradouro || ''}
-                      onChange={(e) => handleInputChange('logradouro', e.target.value)}
-                      className="edit-input"
-                      placeholder="Rua, Avenida, etc."
-                    />
-                  ) : (
-                    <span>{pacienteData.logradouro || 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Número:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.numero || ''}
-                      onChange={(e) => handleInputChange('numero', e.target.value)}
-                      className="edit-input"
-                      placeholder="Número"
-                    />
-                  ) : (
-                    <span>{pacienteData.numero || 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Complemento:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.complemento || ''}
-                      onChange={(e) => handleInputChange('complemento', e.target.value)}
-                      className="edit-input"
-                      placeholder="Apartamento, bloco, etc."
-                    />
-                  ) : (
-                    <span>{pacienteData.complemento || 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Bairro:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.bairro || ''}
-                      onChange={(e) => handleInputChange('bairro', e.target.value)}
-                      className="edit-input"
-                      placeholder="Bairro"
-                    />
-                  ) : (
-                    <span>{pacienteData.bairro || 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>Cidade:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.cidade || ''}
-                      onChange={(e) => handleInputChange('cidade', e.target.value)}
-                      className="edit-input"
-                      placeholder="Cidade"
-                    />
-                  ) : (
-                    <span>{pacienteData.cidade || 'N/A'}</span>
-                  )}
-                </div>
-                <div className="info-item">
-                  <label>UF:</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.uf || ''}
-                      onChange={(e) => handleInputChange('uf', e.target.value)}
-                      className="edit-input"
-                      placeholder="Estado"
-                      maxLength="2"
-                    />
-                  ) : (
-                    <span>{pacienteData.uf || 'N/A'}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Especificações Médicas */}
-          <div className="details-section full-width">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">🏥</span>
-                Especificações Médicas
-              </h2>
-            </div>
-            <div className="section-content">
-              <div className="info-grid">
-                <div className="info-item full-width">
-                  <label>Possui Especificações:</label>
-                  {isEditing ? (
-                    <div className="checkbox-container">
-                      <input
-                        type="checkbox"
-                        checked={editedData.possuiEspecificacoes || false}
-                        onChange={(e) => handleInputChange('possuiEspecificacoes', e.target.checked)}
-                        className="checkbox-input"
-                      />
-                      <span className="checkbox-label">Sim, possui especificações médicas</span>
-                    </div>
-                  ) : (
-                    <span>{pacienteData.possuiEspecificacoes ? 'Sim' : 'Não'}</span>
-                  )}
-                </div>
-                {pacienteData.possuiEspecificacoes && (
-                  <div className="info-item full-width">
-                    <label>Descrição das Especificações:</label>
-                    {isEditing ? (
-                      <textarea
-                        value={editedData.descricaoEspecificacoes || ''}
-                        onChange={(e) => handleInputChange('descricaoEspecificacoes', e.target.value)}
-                        className="edit-textarea"
-                        placeholder="Descreva as especificações médicas do paciente"
-                        rows="4"
-                      />
-                    ) : (
-                      <div className="text-content">
-                        {pacienteData.descricaoEspecificacoes || 'Nenhuma descrição fornecida'}
-                      </div>
-                    )}
-                  </div>
                 )}
               </div>
+              
+              <div className="info-item">
+                <label className="info-label">Peso (kg)</label>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    value={editedData.peso || ''}
+                    onChange={(e) => handleInputChange('peso', e.target.value)}
+                    className="form-input"
+                    placeholder="Peso em kg"
+                    min="0"
+                    step="0.1"
+                  />
+                ) : (
+                  <span className="info-value">
+                    {pacienteData.peso ? `${pacienteData.peso} kg` : '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item full-width">
+                <label className="info-label">Contato de Emergência</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.contatoEmergencia || ''}
+                    onChange={(e) => handleInputChange('contatoEmergencia', e.target.value)}
+                    className="form-input"
+                    placeholder="Nome e telefone do contato"
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.contatoEmergencia}>
+                    {pacienteData.contatoEmergencia || '---'}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Endereço */}
+        <div className="info-section">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <h2 className="section-title">Endereço</h2>
+          </div>
+          
+          <div className="section-content">
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">CEP</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.cep || ''}
+                    onChange={(e) => handleInputChange('cep', e.target.value)}
+                    className="form-input"
+                    placeholder="00000-000"
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.cep}>
+                    {pacienteData.cep || '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Logradouro</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.logradouro || ''}
+                    onChange={(e) => handleInputChange('logradouro', e.target.value)}
+                    className="form-input"
+                    placeholder="Rua, Avenida, etc."
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.logradouro}>
+                    {pacienteData.logradouro || '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Número</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.numero || ''}
+                    onChange={(e) => handleInputChange('numero', e.target.value)}
+                    className="form-input"
+                    placeholder="Número"
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.numero}>
+                    {pacienteData.numero || '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Complemento</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.complemento || ''}
+                    onChange={(e) => handleInputChange('complemento', e.target.value)}
+                    className="form-input"
+                    placeholder="Apartamento, bloco, etc."
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.complemento}>
+                    {pacienteData.complemento || '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Bairro</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.bairro || ''}
+                    onChange={(e) => handleInputChange('bairro', e.target.value)}
+                    className="form-input"
+                    placeholder="Bairro"
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.bairro}>
+                    {pacienteData.bairro || '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Cidade</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.cidade || ''}
+                    onChange={(e) => handleInputChange('cidade', e.target.value)}
+                    className="form-input"
+                    placeholder="Cidade"
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.cidade}>
+                    {pacienteData.cidade || '---'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">UF</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.uf || ''}
+                    onChange={(e) => handleInputChange('uf', e.target.value)}
+                    className="form-input"
+                    placeholder="Estado"
+                    maxLength="2"
+                  />
+                ) : (
+                  <span className="info-value" title={pacienteData.uf}>
+                    {pacienteData.uf || '---'}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Especificações Médicas */}
+        <div className="info-section full-width">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg>
+            </div>
+            <h2 className="section-title">Especificações Médicas</h2>
+          </div>
+          
+          <div className="section-content">
+            <div className="info-grid">
+              <div className="info-item full-width">
+                <label className="info-label">Possui Especificações</label>
+                {isEditing ? (
+                  <div className="checkbox-container">
+                    <input
+                      type="checkbox"
+                      checked={editedData.possuiEspecificacoes || false}
+                      onChange={(e) => handleInputChange('possuiEspecificacoes', e.target.checked)}
+                      className="checkbox-input"
+                      id="possuiEspecificacoes"
+                    />
+                    <label htmlFor="possuiEspecificacoes" className="checkbox-label">
+                      Sim, possui especificações médicas
+                    </label>
+                  </div>
+                ) : (
+                  <span className="info-value">
+                    {pacienteData.possuiEspecificacoes ? 'Sim' : 'Não'}
+                  </span>
+                )}
+              </div>
+              
+              {(pacienteData.possuiEspecificacoes || (isEditing && editedData.possuiEspecificacoes)) && (
+                <div className="info-item full-width">
+                  <label className="info-label">Descrição das Especificações</label>
+                  {isEditing ? (
+                    <textarea
+                      value={editedData.descricaoEspecificacoes || ''}
+                      onChange={(e) => handleInputChange('descricaoEspecificacoes', e.target.value)}
+                      className="form-textarea"
+                      placeholder="Descreva as especificações médicas do paciente"
+                      rows="4"
+                    />
+                  ) : (
+                    <div className="text-content" title={pacienteData.descricaoEspecificacoes}>
+                      {pacienteData.descricaoEspecificacoes || 'Nenhuma descrição fornecida'}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
