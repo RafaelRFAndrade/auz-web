@@ -47,7 +47,6 @@ const AppointmentDetails = () => {
   };
 
   const navegarPagina = (novaPagina) => {
-    // FORÇAR usando codigoAtendimento da URL
     carregarDocumentos(codigoAtendimento, novaPagina);
   };
 
@@ -75,7 +74,7 @@ const AppointmentDetails = () => {
     } else if (width < 1600) {
       setItemsPerView(3);
     } else {
-      setItemsPerView(4); // Mais itens em telas grandes
+      setItemsPerView(4);
     }
   };
 
@@ -210,363 +209,483 @@ const AppointmentDetails = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="appointment-details-container">
-        <div className="loading-container">
-          <div className="loading-spinner">Carregando detalhes...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!atendimento) {
-    return (
-      <div className="appointment-details-container">
-        <div className="error-state">
-          <div className="error-icon">❌</div>
-          <h3>Atendimento não encontrado</h3>
-          <p>O atendimento solicitado não foi encontrado.</p>
-          <button className="btn-primary" onClick={() => navigate('/appointments')}>
-            Voltar para Atendimentos
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="appointment-details-container">
-      <div className="main-content">
-        {/* Header Section */}
-        <div className="details-header">
-          <div className="header-content">
-            <div className="header-left">
-              <button 
-                className="btn-back" 
-                onClick={() => navigate('/appointments')}
-                title="Voltar para atendimentos"
-              >
-                ← Voltar
-              </button>
-              <div className="title-section">
-                <h1 className="details-title">
-                  <span className="highlight">Detalhes do Atendimento</span> 📋
+    <div className="appointment-details-page">
+      {/* Header Fixo - Sempre presente */}
+      <div className="page-header">
+        <div className="header-content">
+          <div className="header-left">
+            <button className="back-button" onClick={() => navigate('/appointments')}>
+              <svg className="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"></path>
+              </svg>
+              Voltar
+            </button>
+            
+            <div className="appointment-profile">
+              <div className="appointment-avatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14,2 14,8 20,8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10,9 9,9 8,9"></polyline>
+                </svg>
+              </div>
+              <div className="appointment-info">
+                <h1 className="appointment-title" title={atendimento?.descricaoAtendimento || 'Carregando...'}>
+                  {atendimento?.descricaoAtendimento || 'Carregando detalhes...'}
                 </h1>
-                <p className="details-subtitle">
-                  {atendimento.descricaoAtendimento}
+                <p className="appointment-subtitle">
+                  Detalhes do Atendimento
                 </p>
               </div>
             </div>
-            <div className="header-right">
+          </div>
+          
+          <div className="header-right">
+            {atendimento ? (
               <div className={`status-badge ${getSituacaoClass(atendimento.situacao)}`}>
                 {getSituacaoText(atendimento.situacao)}
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="details-grid">
-          {/* Informações Básicas */}
-          <div className="details-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">ℹ️</span>
-                Informações Básicas
-              </h2>
-            </div>
-            <div className="section-content">
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>Descrição:</label>
-                  <span>{atendimento.descricaoAtendimento || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Data de Inclusão:</label>
-                  <span>{formatDate(atendimento.dtInclusao)}</span>
-                </div>
-                <div className="info-item">
-                  <label>Situação:</label>
-                  <span className={`status-text ${getSituacaoClass(atendimento.situacao)}`}>
-                    {getSituacaoText(atendimento.situacao)}
-                  </span>
-                </div>
+            ) : (
+              <div className="status-badge status-loading">
+                {isLoading ? 'Carregando...' : '---'}
               </div>
-            </div>
-          </div>
-
-          {/* Informações do Médico */}
-          <div className="details-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">👨‍⚕️</span>
-                Informações do Médico
-              </h2>
-            </div>
-            <div className="section-content">
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>Nome:</label>
-                  <span>{atendimento.nomeMedico || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <label>CPF:</label>
-                  <span>{atendimento.documentoFederalMedico || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Email:</label>
-                  <span>{atendimento.emailMedico || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Telefone:</label>
-                  <span>{atendimento.telefoneMedico || 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Informações do Paciente */}
-          <div className="details-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">👤</span>
-                Informações do Paciente
-              </h2>
-            </div>
-            <div className="section-content">
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>Nome:</label>
-                  <span>{atendimento.nomePaciente || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <label>CPF:</label>
-                  <span>{atendimento.documentoFederalPaciente || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Email:</label>
-                  <span>{atendimento.emailPaciente || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Telefone:</label>
-                  <span>{atendimento.telefonePaciente || 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Agendamentos */}
-          <div className="details-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">📅</span>
-                Agendamentos ({atendimento.agendamentos?.length || 0})
-              </h2>
-            </div>
-            <div className="section-content">
-              {atendimento.agendamentos && atendimento.agendamentos.length > 0 ? (
-                <div className="agendamentos-list">
-                  {atendimento.agendamentos.map((agendamento, index) => (
-                    <div key={index} className="agendamento-item">
-                      <div className="agendamento-header">
-                        <h4 className="agendamento-descricao">{agendamento.descricao}</h4>
-                        <span className={`agendamento-status ${getSituacaoClass(agendamento.situacao)}`}>
-                          {getSituacaoText(agendamento.situacao)}
-                        </span>
-                      </div>
-                      <div className="agendamento-details">
-                        <span className="agendamento-date">
-                          📅 {formatDate(agendamento.dtAgendamento)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty-state">
-                  <div className="empty-icon">📅</div>
-                  <p>Nenhum agendamento encontrado</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Documentos - Carrossel */}
-          <div className="details-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">📄</span>
-                Documentos ({totalItens || 0})
-              </h2>
-            </div>
-            <div className="section-content">
-              {documentosLoading ? (
-                <div className="loading-state">
-                  <div className="loading-spinner">Carregando documentos...</div>
-                </div>
-              ) : documentosError ? (
-                <div className="error-state">
-                  <div className="error-icon">⚠️</div>
-                  <p>{documentosError}</p>
-                  <button 
-                    className="btn-primary"
-                    onClick={() => atendimento && carregarDocumentos(atendimento.codigo, paginaAtual)}
-                  >
-                    Tentar novamente
-                  </button>
-                </div>
-              ) : documentos.length === 0 ? (
-                <div className="empty-state">
-                  <div className="empty-icon">📄</div>
-                  <p>Nenhum documento encontrado</p>
-                </div>
-              ) : (
-                <>
-                  <div className="documentos-carousel">
-                    <div className="documentos-carousel-header">
-                      <h3 className="documentos-carousel-title">
-                        Documentos ({documentos.length})
-                      </h3>
-                      <div className="carousel-controls">
-                        <button
-                          className="carousel-btn"
-                          onClick={prevSlide}
-                          disabled={currentSlide === 0}
-                          title="Documento anterior"
-                        >
-                          ← Anterior
-                        </button>
-                        <button
-                          className="carousel-btn"
-                          onClick={nextSlide}
-                          disabled={currentSlide >= documentos.length - itemsPerView}
-                          title="Próximo documento"
-                        >
-                          Próximo →
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="documentos-container">
-                      <div 
-                        className="documentos-track"
-                        style={{
-                          transform: `translateX(-${currentSlide * (100 / itemsPerView)}%)`
-                        }}
-                      >
-                        {documentos.map((documento, index) => (
-                          <div key={documento.codigo || index} className="documento-item">
-                            <div className="documento-header">
-                              <div className="documento-icon">
-                                {formatarTipoArquivo(documento.tipoConteudo)}
-                              </div>
-                              <div className="documento-info">
-                                <h4 className="documento-nome" title={documento.nomeArquivo}>
-                                  {documento.nomeArquivo}
-                                </h4>
-                                <div className="documento-details">
-                                  <span className="documento-tipo">
-                                    {formatarTipoArquivo(documento.tipoConteudo)}
-                                  </span>
-                                  <span className="documento-tamanho">
-                                    {formatFileSize(documento.tamanhoBytes)}
-                                  </span>
-                                  <span className="documento-data">
-                                    {formatDate(documento.dataUpload)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="documento-actions">
-                                <button 
-                                  className="btn-download"
-                                  onClick={() => handleDownloadDocumento(documento.codigo, documento.nomeArquivo)}
-                                  title="Baixar documento"
-                                  disabled={isLoading}
-                                >
-                                  {isLoading ? '⏳' : '⬇️'} Download
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Indicadores do carrossel */}
-                    {documentos.length > itemsPerView && (
-                      <div className="carousel-indicators">
-                        {Array.from({ length: Math.ceil(documentos.length / itemsPerView) }, (_, i) => (
-                          <button
-                            key={i}
-                            className={`carousel-indicator ${Math.floor(currentSlide / itemsPerView) === i ? 'active' : ''}`}
-                            onClick={() => goToSlide(i * itemsPerView)}
-                            title={`Ir para slide ${i + 1}`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Paginação */}
-                  {totalPaginas > 1 && (
-                    <div className="documentos-pagination">
-                      <div className="pagination-info">
-                        Página {paginaAtual} de {totalPaginas}
-                      </div>
-                      <div className="pagination-controls">
-                        <button
-                          className="pagination-button"
-                          onClick={() => navegarPagina(paginaAtual - 1)}
-                          disabled={paginaAtual <= 1 || documentosLoading}
-                          title="Página anterior"
-                        >
-                          ← Anterior
-                        </button>
-                        
-                        <div className="pagination-numbers">
-                          {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
-                            let numeroPagina;
-                            if (totalPaginas <= 5) {
-                              numeroPagina = i + 1;
-                            } else if (paginaAtual <= 3) {
-                              numeroPagina = i + 1;
-                            } else if (paginaAtual >= totalPaginas - 2) {
-                              numeroPagina = totalPaginas - 4 + i;
-                            } else {
-                              numeroPagina = paginaAtual - 2 + i;
-                            }
-                            
-                            return (
-                              <button
-                                key={numeroPagina}
-                                className={`pagination-number ${paginaAtual === numeroPagina ? 'active' : ''}`}
-                                onClick={() => navegarPagina(numeroPagina)}
-                                disabled={documentosLoading}
-                              >
-                                {numeroPagina}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        
-                        <button
-                          className="pagination-button"
-                          onClick={() => navegarPagina(paginaAtual + 1)}
-                          disabled={paginaAtual >= totalPaginas || documentosLoading}
-                          title="Próxima página"
-                        >
-                          Próxima →
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Content - Estados condicionais */}
+      {isLoading ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Carregando detalhes do atendimento...</p>
+        </div>
+      ) : !atendimento ? (
+        <div className="error-state">
+          <div className="error-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <h3 className="error-title">Atendimento não encontrado</h3>
+          <p className="error-description">O atendimento solicitado não foi encontrado.</p>
+          <button className="btn-primary" onClick={() => navigate('/appointments')}>
+            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+            Voltar para Atendimentos
+          </button>
+        </div>
+      ) : (
+        <div className="content-grid">
+        {/* Informações Básicas */}
+        <div className="info-section">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14,2 14,8 20,8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10,9 9,9 8,9"></polyline>
+              </svg>
+            </div>
+            <h2 className="section-title">Informações Básicas</h2>
+          </div>
+          
+          <div className="section-content">
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">Descrição</label>
+                <span className="info-value" title={atendimento.descricaoAtendimento}>
+                  {atendimento.descricaoAtendimento || '---'}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Data de Inclusão</label>
+                <span className="info-value">
+                  {formatDate(atendimento.dtInclusao)}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Status</label>
+                <span className={`status-text ${getSituacaoClass(atendimento.situacao)}`}>
+                  {getSituacaoText(atendimento.situacao)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Informações do Médico */}
+        <div className="info-section">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <h2 className="section-title">Informações do Médico</h2>
+          </div>
+          
+          <div className="section-content">
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">Nome</label>
+                <span className="info-value" title={atendimento.nomeMedico}>
+                  {atendimento.nomeMedico || '---'}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">CPF</label>
+                <span className="info-value" title={atendimento.documentoFederalMedico}>
+                  {atendimento.documentoFederalMedico || '---'}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Email</label>
+                <span className="info-value" title={atendimento.emailMedico}>
+                  {atendimento.emailMedico || '---'}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Telefone</label>
+                <span className="info-value" title={atendimento.telefoneMedico}>
+                  {atendimento.telefoneMedico || '---'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Informações do Paciente */}
+        <div className="info-section">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <h2 className="section-title">Informações do Paciente</h2>
+          </div>
+          
+          <div className="section-content">
+            <div className="info-grid">
+              <div className="info-item">
+                <label className="info-label">Nome</label>
+                <span className="info-value" title={atendimento.nomePaciente}>
+                  {atendimento.nomePaciente || '---'}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">CPF</label>
+                <span className="info-value" title={atendimento.documentoFederalPaciente}>
+                  {atendimento.documentoFederalPaciente || '---'}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Email</label>
+                <span className="info-value" title={atendimento.emailPaciente}>
+                  {atendimento.emailPaciente || '---'}
+                </span>
+              </div>
+              
+              <div className="info-item">
+                <label className="info-label">Telefone</label>
+                <span className="info-value" title={atendimento.telefonePaciente}>
+                  {atendimento.telefonePaciente || '---'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Agendamentos */}
+        <div className="info-section">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <h2 className="section-title">Agendamentos ({atendimento.agendamentos?.length || 0})</h2>
+          </div>
+          
+          <div className="section-content">
+            {atendimento.agendamentos && atendimento.agendamentos.length > 0 ? (
+              <div className="agendamentos-list">
+                {atendimento.agendamentos.map((agendamento, index) => (
+                  <div key={index} className="agendamento-item">
+                    <div className="agendamento-header">
+                      <h4 className="agendamento-descricao" title={agendamento.descricao}>
+                        {agendamento.descricao}
+                      </h4>
+                      <span className={`agendamento-status ${getSituacaoClass(agendamento.situacao)}`}>
+                        {getSituacaoText(agendamento.situacao)}
+                      </span>
+                    </div>
+                    <div className="agendamento-details">
+                      <span className="agendamento-date">
+                        📅 {formatDate(agendamento.dtAgendamento)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <h3 className="empty-title">Nenhum agendamento encontrado</h3>
+                <p className="empty-description">Este atendimento ainda não possui agendamentos.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Documentos */}
+        <div className="info-section full-width">
+          <div className="section-header">
+            <div className="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14,2 14,8 20,8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10,9 9,9 8,9"></polyline>
+              </svg>
+            </div>
+            <h2 className="section-title">Documentos ({totalItens || 0})</h2>
+          </div>
+          
+          <div className="section-content">
+            {documentosLoading ? (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Carregando documentos...</p>
+              </div>
+            ) : documentosError ? (
+              <div className="error-state">
+                <div className="error-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </div>
+                <h3 className="error-title">Erro ao carregar documentos</h3>
+                <p className="error-description">{documentosError}</p>
+                <button 
+                  className="btn-primary"
+                  onClick={() => atendimento && carregarDocumentos(atendimento.codigo, paginaAtual)}
+                >
+                  <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="23,4 23,10 17,10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                  Tentar novamente
+                </button>
+              </div>
+            ) : documentos.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10,9 9,9 8,9"></polyline>
+                  </svg>
+                </div>
+                <h3 className="empty-title">Nenhum documento encontrado</h3>
+                <p className="empty-description">Este atendimento ainda não possui documentos anexados.</p>
+              </div>
+            ) : (
+              <>
+                <div className="documentos-carousel">
+                  <div className="documentos-carousel-header">
+                    <h3 className="documentos-carousel-title">
+                      Documentos ({documentos.length})
+                    </h3>
+                    <div className="carousel-controls">
+                      <button
+                        className="carousel-btn"
+                        onClick={prevSlide}
+                        disabled={currentSlide === 0}
+                        title="Documento anterior"
+                      >
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Anterior
+                      </button>
+                      <button
+                        className="carousel-btn"
+                        onClick={nextSlide}
+                        disabled={currentSlide >= documentos.length - itemsPerView}
+                        title="Próximo documento"
+                      >
+                        Próximo
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="documentos-container">
+                    <div 
+                      className="documentos-track"
+                      style={{
+                        transform: `translateX(-${currentSlide * (100 / itemsPerView)}%)`
+                      }}
+                    >
+                      {documentos.map((documento, index) => (
+                        <div key={documento.codigo || index} className="documento-item">
+                          <div className="documento-header">
+                            <div className="documento-icon">
+                              {formatarTipoArquivo(documento.tipoConteudo)}
+                            </div>
+                            <div className="documento-info">
+                              <h4 className="documento-nome" title={documento.nomeArquivo}>
+                                {documento.nomeArquivo}
+                              </h4>
+                              <div className="documento-details">
+                                <span className="documento-tipo">
+                                  {formatarTipoArquivo(documento.tipoConteudo)}
+                                </span>
+                                <span className="documento-tamanho">
+                                  {formatFileSize(documento.tamanhoBytes)}
+                                </span>
+                                <span className="documento-data">
+                                  {formatDate(documento.dataUpload)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="documento-actions">
+                              <button 
+                                className="btn-download"
+                                onClick={() => handleDownloadDocumento(documento.codigo, documento.nomeArquivo)}
+                                title="Baixar documento"
+                                disabled={isLoading}
+                              >
+                                <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                  <polyline points="7,10 12,15 17,10"></polyline>
+                                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                {isLoading ? 'Baixando...' : 'Download'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Indicadores do carrossel */}
+                  {documentos.length > itemsPerView && (
+                    <div className="carousel-indicators">
+                      {Array.from({ length: Math.ceil(documentos.length / itemsPerView) }, (_, i) => (
+                        <button
+                          key={i}
+                          className={`carousel-indicator ${Math.floor(currentSlide / itemsPerView) === i ? 'active' : ''}`}
+                          onClick={() => goToSlide(i * itemsPerView)}
+                          title={`Ir para slide ${i + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Paginação */}
+                {totalPaginas > 1 && (
+                  <div className="documentos-pagination">
+                    <div className="pagination-info">
+                      Página {paginaAtual} de {totalPaginas}
+                    </div>
+                    <div className="pagination-controls">
+                      <button
+                        className="pagination-button"
+                        onClick={() => navegarPagina(paginaAtual - 1)}
+                        disabled={paginaAtual <= 1 || documentosLoading}
+                        title="Página anterior"
+                      >
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Anterior
+                      </button>
+                      
+                      <div className="pagination-numbers">
+                        {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                          let numeroPagina;
+                          if (totalPaginas <= 5) {
+                            numeroPagina = i + 1;
+                          } else if (paginaAtual <= 3) {
+                            numeroPagina = i + 1;
+                          } else if (paginaAtual >= totalPaginas - 2) {
+                            numeroPagina = totalPaginas - 4 + i;
+                          } else {
+                            numeroPagina = paginaAtual - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={numeroPagina}
+                              className={`pagination-number ${paginaAtual === numeroPagina ? 'active' : ''}`}
+                              onClick={() => navegarPagina(numeroPagina)}
+                              disabled={documentosLoading}
+                            >
+                              {numeroPagina}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        className="pagination-button"
+                        onClick={() => navegarPagina(paginaAtual + 1)}
+                        disabled={paginaAtual >= totalPaginas || documentosLoading}
+                        title="Próxima página"
+                      >
+                        Próxima
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+        </div>
+      )}
 
       <Alert 
         show={alert.show} 
