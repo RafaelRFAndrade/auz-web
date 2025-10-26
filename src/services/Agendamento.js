@@ -162,6 +162,23 @@ export const agendamentoService = {
       console.error('Erro ao atualizar agendamento:', error);
       throw error;
     }
+  },
+
+  // Buscar agendamentos detalhados por atendimento com paginação
+  getDetalhadoAtendimento: async (codigoAtendimento, pagina = 1, itensPorPagina = 5) => {
+    try {
+      const response = await agendamentoClient.get('/Agendamento/DetalhadoAtendimento', {
+        params: {
+          CodigoAtendimento: codigoAtendimento,
+          Pagina: pagina,
+          ItensPorPagina: itensPorPagina
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar agendamentos detalhados do atendimento:', error);
+      throw error;
+    }
   }
 };
 

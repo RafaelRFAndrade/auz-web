@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { atendimentoService } from '../../services/Atendimento';
 import { documentoService } from '../../services/Documento';
 import { usuarioService } from '../../services/Usuario';
+import { agendamentoService } from '../../services/Agendamento';
 import './AppointmentDetails.css';
 import Alert from '../../components/custom/Alert';
 
@@ -17,14 +18,26 @@ const AppointmentDetails = () => {
   const [documentos, setDocumentos] = useState([]);
   const [documentosLoading, setDocumentosLoading] = useState(false);
   const [documentosError, setDocumentosError] = useState(null);
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [totalPaginas, setTotalPaginas] = useState(0);
-  const [totalItens, setTotalItens] = useState(0);
-  const itensPorPagina = 5;
+  const [documentosPaginaAtual, setDocumentosPaginaAtual] = useState(1);
+  const [documentosTotalPaginas, setDocumentosTotalPaginas] = useState(0);
+  const [documentosTotalItens, setDocumentosTotalItens] = useState(0);
+  const itensPorPagina = 15;
   
-  // Estados para carrossel
+  // Estados para agendamentos
+  const [agendamentos, setAgendamentos] = useState([]);
+  const [agendamentosLoading, setAgendamentosLoading] = useState(false);
+  const [agendamentosError, setAgendamentosError] = useState(null);
+  const [agendamentosPaginaAtual, setAgendamentosPaginaAtual] = useState(1);
+  const [agendamentosTotalPaginas, setAgendamentosTotalPaginas] = useState(0);
+  const [agendamentosTotalItens, setAgendamentosTotalItens] = useState(0);
+  
+  // Estados para carrossel de documentos
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
+  
+  // Estados para carrossel de agendamentos
+  const [currentAgendamentoSlide, setCurrentAgendamentoSlide] = useState(0);
+  const [agendamentosItemsPerView, setAgendamentosItemsPerView] = useState(4);
 
   const showAlert = (type, title, message) => setAlert({ show: true, type, title, message });
   const closeAlert = () => setAlert(prev => ({ ...prev, show: false }));
@@ -35,9 +48,9 @@ const AppointmentDetails = () => {
       setDocumentosError(null);
       const response = await documentoService.buscarDocumentos(codigoEntidade, pagina, itensPorPagina);
       setDocumentos(response.documentos || []);
-      setTotalPaginas(response.totalPaginas || 0);
-      setTotalItens(response.itens || 0);
-      setPaginaAtual(pagina);
+      setDocumentosTotalPaginas(response.totalPaginas || 0);
+      setDocumentosTotalItens(response.itens || 0);
+      setDocumentosPaginaAtual(pagina);
     } catch (error) {
       console.error('Erro ao carregar documentos:', error);
       setDocumentosError('Erro ao carregar documentos. Tente novamente.');
@@ -46,11 +59,32 @@ const AppointmentDetails = () => {
     }
   };
 
-  const navegarPagina = (novaPagina) => {
+  const carregarAgendamentos = async (codigoAtendimento, pagina = 1) => {
+    try {
+      setAgendamentosLoading(true);
+      setAgendamentosError(null);
+      const response = await agendamentoService.getDetalhadoAtendimento(codigoAtendimento, pagina, itensPorPagina);
+      setAgendamentos(response.agendamentos || []);
+      setAgendamentosTotalPaginas(response.totalPaginas || 0);
+      setAgendamentosTotalItens(response.itens || 0);
+      setAgendamentosPaginaAtual(pagina);
+    } catch (error) {
+      console.error('Erro ao carregar agendamentos:', error);
+      setAgendamentosError('Erro ao carregar agendamentos. Tente novamente.');
+    } finally {
+      setAgendamentosLoading(false);
+    }
+  };
+
+  const navegarPaginaDocumentos = (novaPagina) => {
     carregarDocumentos(codigoAtendimento, novaPagina);
   };
 
-  // Funções do carrossel
+  const navegarPaginaAgendamentos = (novaPagina) => {
+    carregarAgendamentos(codigoAtendimento, novaPagina);
+  };
+
+  // Funções do carrossel de documentos
   const nextSlide = () => {
     const maxSlide = Math.max(0, documentos.length - itemsPerView);
     setCurrentSlide(prev => Math.min(prev + 1, maxSlide));
@@ -64,17 +98,35 @@ const AppointmentDetails = () => {
     setCurrentSlide(slideIndex);
   };
 
+  // Funções do carrossel de agendamentos
+  const nextAgendamentoSlide = () => {
+    const maxSlide = Math.max(0, agendamentos.length - agendamentosItemsPerView);
+    setCurrentAgendamentoSlide(prev => Math.min(prev + 1, maxSlide));
+  };
+
+  const prevAgendamentoSlide = () => {
+    setCurrentAgendamentoSlide(prev => Math.max(prev - 1, 0));
+  };
+
+  const goToAgendamentoSlide = (slideIndex) => {
+    setCurrentAgendamentoSlide(slideIndex);
+  };
+
   // Calcular itens visíveis baseado no tamanho da tela
   const updateItemsPerView = () => {
     const width = window.innerWidth;
     if (width < 768) {
       setItemsPerView(1);
+      setAgendamentosItemsPerView(1);
     } else if (width < 1200) {
       setItemsPerView(2);
+      setAgendamentosItemsPerView(2);
     } else if (width < 1600) {
       setItemsPerView(3);
+      setAgendamentosItemsPerView(3);
     } else {
       setItemsPerView(4);
+      setAgendamentosItemsPerView(4);
     }
   };
 
@@ -82,6 +134,11 @@ const AppointmentDetails = () => {
   useEffect(() => {
     setCurrentSlide(0);
   }, [documentos]);
+
+  // Resetar slide quando agendamentos mudarem
+  useEffect(() => {
+    setCurrentAgendamentoSlide(0);
+  }, [agendamentos]);
 
   // Atualizar itens por view quando a tela redimensionar
   useEffect(() => {
@@ -103,8 +160,9 @@ const AppointmentDetails = () => {
         const response = await atendimentoService.getAtendimentoDetails(codigoAtendimento);
         setAtendimento(response);
         
-        // Carregar documentos usando o codigoAtendimento da URL
+        // Carregar documentos e agendamentos usando o codigoAtendimento da URL
         carregarDocumentos(codigoAtendimento);
+        carregarAgendamentos(codigoAtendimento);
       } catch (error) {
         console.error('Erro ao buscar detalhes do atendimento:', error);
         if (error.response?.status === 401) {
@@ -415,7 +473,7 @@ const AppointmentDetails = () => {
         </div>
 
         {/* Agendamentos */}
-        <div className="info-section">
+        <div className="info-section full-width">
           <div className="section-header">
             <div className="section-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -425,31 +483,38 @@ const AppointmentDetails = () => {
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
             </div>
-            <h2 className="section-title">Agendamentos ({atendimento.agendamentos?.length || 0})</h2>
+            <h2 className="section-title">Agendamentos ({agendamentosTotalItens || 0})</h2>
           </div>
           
           <div className="section-content">
-            {atendimento.agendamentos && atendimento.agendamentos.length > 0 ? (
-              <div className="agendamentos-list">
-                {atendimento.agendamentos.map((agendamento, index) => (
-                  <div key={index} className="agendamento-item">
-                    <div className="agendamento-header">
-                      <h4 className="agendamento-descricao" title={agendamento.descricao}>
-                        {agendamento.descricao}
-                      </h4>
-                      <span className={`agendamento-status ${getSituacaoClass(agendamento.situacao)}`}>
-                        {getSituacaoText(agendamento.situacao)}
-                      </span>
-                    </div>
-                    <div className="agendamento-details">
-                      <span className="agendamento-date">
-                        📅 {formatDate(agendamento.dtAgendamento)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+            {agendamentosLoading ? (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Carregando agendamentos...</p>
               </div>
-            ) : (
+            ) : agendamentosError ? (
+              <div className="error-state">
+                <div className="error-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </div>
+                <h3 className="error-title">Erro ao carregar agendamentos</h3>
+                <p className="error-description">{agendamentosError}</p>
+                <button 
+                  className="btn-primary"
+                  onClick={() => carregarAgendamentos(codigoAtendimento, agendamentosPaginaAtual)}
+                >
+                  <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="23,4 23,10 17,10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                  Tentar novamente
+                </button>
+              </div>
+            ) : agendamentos.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -462,6 +527,146 @@ const AppointmentDetails = () => {
                 <h3 className="empty-title">Nenhum agendamento encontrado</h3>
                 <p className="empty-description">Este atendimento ainda não possui agendamentos.</p>
               </div>
+            ) : (
+              <>
+                <div className="agendamentos-carousel">
+                  <div className="agendamentos-carousel-header">
+                    <h3 className="agendamentos-carousel-title">
+                      Agendamentos ({agendamentos.length})
+                    </h3>
+                    <div className="carousel-controls">
+                      <button
+                        className="carousel-btn"
+                        onClick={prevAgendamentoSlide}
+                        disabled={currentAgendamentoSlide === 0}
+                        title="Agendamento anterior"
+                      >
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Anterior
+                      </button>
+                      <button
+                        className="carousel-btn"
+                        onClick={nextAgendamentoSlide}
+                        disabled={currentAgendamentoSlide >= agendamentos.length - agendamentosItemsPerView}
+                        title="Próximo agendamento"
+                      >
+                        Próximo
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="agendamentos-container">
+                    <div 
+                      className="agendamentos-track"
+                      style={{
+                        transform: `translateX(-${currentAgendamentoSlide * (100 / agendamentosItemsPerView)}%)`
+                      }}
+                    >
+                      {agendamentos.map((agendamento, index) => (
+                        <div key={index} className="agendamento-item">
+                          <div className="agendamento-header">
+                            <div className="agendamento-icon">
+                              📅
+                            </div>
+                            <div className="agendamento-info">
+                              <h4 className="agendamento-descricao" title={agendamento.descricao}>
+                                {agendamento.descricao}
+                              </h4>
+                              <div className="agendamento-details">
+                                <span className="agendamento-date">
+                                  {formatDate(agendamento.dtAgendamento)}
+                                </span>
+                                <span className={`agendamento-status ${getSituacaoClass(agendamento.situacao)}`}>
+                                  {getSituacaoText(agendamento.situacao)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Indicadores do carrossel de agendamentos */}
+                  {agendamentos.length > agendamentosItemsPerView && (
+                    <div className="carousel-indicators">
+                      {Array.from({ length: Math.ceil(agendamentos.length / agendamentosItemsPerView) }, (_, i) => (
+                        <button
+                          key={i}
+                          className={`carousel-indicator ${Math.floor(currentAgendamentoSlide / agendamentosItemsPerView) === i ? 'active' : ''}`}
+                          onClick={() => goToAgendamentoSlide(i * agendamentosItemsPerView)}
+                          title={`Ir para slide ${i + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Paginação dos agendamentos */}
+                {agendamentosTotalPaginas > 1 && (
+                  <div className="agendamentos-pagination">
+                    <div className="pagination-info">
+                      Página {agendamentosPaginaAtual} de {agendamentosTotalPaginas}
+                    </div>
+                    <div className="pagination-controls">
+                      <button
+                        className="pagination-button"
+                        onClick={() => navegarPaginaAgendamentos(agendamentosPaginaAtual - 1)}
+                        disabled={agendamentosPaginaAtual <= 1 || agendamentosLoading}
+                        title="Página anterior"
+                      >
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Anterior
+                      </button>
+                      
+                      <div className="pagination-numbers">
+                        {Array.from({ length: Math.min(5, agendamentosTotalPaginas) }, (_, i) => {
+                          let numeroPagina;
+                          if (agendamentosTotalPaginas <= 5) {
+                            numeroPagina = i + 1;
+                          } else if (agendamentosPaginaAtual <= 3) {
+                            numeroPagina = i + 1;
+                          } else if (agendamentosPaginaAtual >= agendamentosTotalPaginas - 2) {
+                            numeroPagina = agendamentosTotalPaginas - 4 + i;
+                          } else {
+                            numeroPagina = agendamentosPaginaAtual - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={numeroPagina}
+                              className={`pagination-number ${agendamentosPaginaAtual === numeroPagina ? 'active' : ''}`}
+                              onClick={() => navegarPaginaAgendamentos(numeroPagina)}
+                              disabled={agendamentosLoading}
+                            >
+                              {numeroPagina}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        className="pagination-button"
+                        onClick={() => navegarPaginaAgendamentos(agendamentosPaginaAtual + 1)}
+                        disabled={agendamentosPaginaAtual >= agendamentosTotalPaginas || agendamentosLoading}
+                        title="Próxima página"
+                      >
+                        Próxima
+                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -478,7 +683,7 @@ const AppointmentDetails = () => {
                 <polyline points="10,9 9,9 8,9"></polyline>
               </svg>
             </div>
-            <h2 className="section-title">Documentos ({totalItens || 0})</h2>
+            <h2 className="section-title">Documentos ({documentosTotalItens || 0})</h2>
           </div>
           
           <div className="section-content">
@@ -500,7 +705,7 @@ const AppointmentDetails = () => {
                 <p className="error-description">{documentosError}</p>
                 <button 
                   className="btn-primary"
-                  onClick={() => atendimento && carregarDocumentos(atendimento.codigo, paginaAtual)}
+                  onClick={() => carregarDocumentos(codigoAtendimento, documentosPaginaAtual)}
                 >
                   <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="23,4 23,10 17,10"></polyline>
@@ -622,16 +827,16 @@ const AppointmentDetails = () => {
                 </div>
 
                 {/* Paginação */}
-                {totalPaginas > 1 && (
+                {documentosTotalPaginas > 1 && (
                   <div className="documentos-pagination">
                     <div className="pagination-info">
-                      Página {paginaAtual} de {totalPaginas}
+                      Página {documentosPaginaAtual} de {documentosTotalPaginas}
                     </div>
                     <div className="pagination-controls">
                       <button
                         className="pagination-button"
-                        onClick={() => navegarPagina(paginaAtual - 1)}
-                        disabled={paginaAtual <= 1 || documentosLoading}
+                        onClick={() => navegarPaginaDocumentos(documentosPaginaAtual - 1)}
+                        disabled={documentosPaginaAtual <= 1 || documentosLoading}
                         title="Página anterior"
                       >
                         <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -641,23 +846,23 @@ const AppointmentDetails = () => {
                       </button>
                       
                       <div className="pagination-numbers">
-                        {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                        {Array.from({ length: Math.min(5, documentosTotalPaginas) }, (_, i) => {
                           let numeroPagina;
-                          if (totalPaginas <= 5) {
+                          if (documentosTotalPaginas <= 5) {
                             numeroPagina = i + 1;
-                          } else if (paginaAtual <= 3) {
+                          } else if (documentosPaginaAtual <= 3) {
                             numeroPagina = i + 1;
-                          } else if (paginaAtual >= totalPaginas - 2) {
-                            numeroPagina = totalPaginas - 4 + i;
+                          } else if (documentosPaginaAtual >= documentosTotalPaginas - 2) {
+                            numeroPagina = documentosTotalPaginas - 4 + i;
                           } else {
-                            numeroPagina = paginaAtual - 2 + i;
+                            numeroPagina = documentosPaginaAtual - 2 + i;
                           }
                           
                           return (
                             <button
                               key={numeroPagina}
-                              className={`pagination-number ${paginaAtual === numeroPagina ? 'active' : ''}`}
-                              onClick={() => navegarPagina(numeroPagina)}
+                              className={`pagination-number ${documentosPaginaAtual === numeroPagina ? 'active' : ''}`}
+                              onClick={() => navegarPaginaDocumentos(numeroPagina)}
                               disabled={documentosLoading}
                             >
                               {numeroPagina}
@@ -668,8 +873,8 @@ const AppointmentDetails = () => {
                       
                       <button
                         className="pagination-button"
-                        onClick={() => navegarPagina(paginaAtual + 1)}
-                        disabled={paginaAtual >= totalPaginas || documentosLoading}
+                        onClick={() => navegarPaginaDocumentos(documentosPaginaAtual + 1)}
+                        disabled={documentosPaginaAtual >= documentosTotalPaginas || documentosLoading}
                         title="Próxima página"
                       >
                         Próxima
