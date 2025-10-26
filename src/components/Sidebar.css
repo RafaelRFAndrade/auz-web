@@ -1,0 +1,480 @@
+/* Sidebar Moderna com Proporção 3:1 */
+.sidebar {
+  --sidebar-width-collapsed: 80px;
+  --sidebar-width-expanded: 240px;
+  
+  /* Paleta de cores unificada com o app */
+  --primary-color: #3b82f6;         /* Azul principal */
+  --primary-hover: #2563eb;          /* Azul hover */
+  --primary-light: #dbeafe;          /* Azul claro */
+  --primary-lighter: #eff6ff;       /* Azul muito claro */
+  
+  --secondary-color: #10b981;        /* Verde complementar */
+  --secondary-hover: #059669;        /* Verde hover */
+  --secondary-light: #d1fae5;        /* Verde claro */
+  
+  --accent-color: #ef4444;           /* Vermelho para logout */
+  --accent-hover: #dc2626;           /* Vermelho hover */
+  --accent-light: #fecaca;           /* Vermelho claro */
+  
+  /* Cores neutras harmonizadas com o app */
+  --text-primary: #1f2937;           /* Texto principal */
+  --text-secondary: #6b7280;         /* Texto secundário */
+  --text-muted: #9ca3af;             /* Texto suave */
+  
+  --background: #ffffff;             /* Fundo principal igual ao app */
+  --background-hover: #f8fafc;       /* Fundo hover igual ao app */
+  --background-active: #f1f5f9;     /* Fundo ativo */
+  
+  --border-color: #e2e8f0;           /* Borda padrão */
+  --border-light: #f1f5f9;          /* Borda clara */
+  
+  /* Sombras com proporção 3:1 */
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  --border-radius: 12px;
+  --border-radius-sm: 8px;
+  --border-radius-lg: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: var(--sidebar-width-collapsed);
+  background: var(--background);
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+  z-index: 1001;
+  overflow: hidden;
+}
+
+.sidebar--expanded {
+  width: var(--sidebar-width-expanded);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Header */
+.sidebar__header {
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar__header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.15) 0%, 
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+.sidebar__header::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(0deg); }
+  50% { transform: translateX(0%) translateY(0%) rotate(180deg); }
+}
+
+.sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-primary);
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar__logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--background-hover);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.sidebar__logo-icon svg {
+  color: var(--primary-color);
+  transition: var(--transition);
+}
+
+.sidebar__logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: var(--transition);
+}
+
+.sidebar--expanded .sidebar__logo-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Navigation */
+.sidebar__nav {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.sidebar__nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar__nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar__nav::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+.sidebar__nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: var(--transition);
+  cursor: pointer;
+  gap: 12px;
+  min-height: 48px;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+
+.sidebar__nav-item:hover {
+  background: var(--background-hover);
+  color: var(--text-primary);
+  transform: translateX(4px);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow);
+}
+
+.sidebar__nav-item--active {
+  background: var(--primary-lighter);
+  color: var(--primary-color);
+  font-weight: 600;
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar__nav-item--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 32px;
+  background: var(--primary-color);
+  border-radius: 0 2px 2px 0;
+}
+
+.sidebar__nav-item--focused {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  background: var(--background-hover);
+}
+
+.sidebar__nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  transition: var(--transition);
+}
+
+.sidebar__nav-icon svg {
+  transition: var(--transition);
+}
+
+.sidebar__nav-item:hover .sidebar__nav-icon svg,
+.sidebar__nav-item--active .sidebar__nav-icon svg {
+  transform: scale(1.1);
+}
+
+.sidebar__nav-label {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: var(--transition);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar--expanded .sidebar__nav-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar__nav-indicator {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.sidebar__nav-item--active .sidebar__nav-indicator {
+  opacity: 1;
+}
+
+/* Footer */
+.sidebar__footer {
+  padding: 20px 12px;
+  border-top: 1px solid var(--border-color);
+  background: var(--background);
+}
+
+.sidebar__logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--accent-color);
+  background: var(--accent-color);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  gap: 12px;
+  min-height: 48px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.sidebar__logout-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.25), 
+    transparent
+  );
+  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar__logout-btn:hover::before {
+  left: 100%;
+}
+
+.sidebar__logout-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-hover);
+}
+
+.sidebar__logout-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow);
+}
+
+.sidebar__logout-btn--focused {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.sidebar__logout-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  transition: var(--transition);
+}
+
+.sidebar__logout-icon svg {
+  transition: var(--transition);
+}
+
+.sidebar__logout-btn:hover .sidebar__logout-icon svg {
+  transform: scale(1.1);
+}
+
+.sidebar__logout-label {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: var(--transition);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar--expanded .sidebar__logout-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .sidebar {
+    --sidebar-width-collapsed: 70px;
+    --sidebar-width-expanded: 220px;
+  }
+  
+  .sidebar__header {
+    padding: 20px 16px;
+  }
+  
+  .sidebar__nav {
+    padding: 16px 8px;
+  }
+  
+  .sidebar__nav-item {
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+  
+  .sidebar__footer {
+    padding: 16px 8px;
+  }
+  
+  .sidebar__logout-btn {
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+}
+
+/* Animações de entrada */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.sidebar {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Estados de loading */
+.sidebar__nav-item:active {
+  transform: scale(0.98);
+}
+
+.sidebar__logout-btn:active {
+  transform: scale(0.98);
+}
+
+/* Acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar__nav-item,
+  .sidebar__logout-btn,
+  .sidebar__logo-text,
+  .sidebar__nav-label,
+  .sidebar__logout-label {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .sidebar {
+    --border-color: #000000;
+    --text-primary: #000000;
+    --text-secondary: #000000;
+  }
+  
+  .sidebar__nav-item--active {
+    background: #000000;
+    color: #ffffff;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .sidebar {
+    --background: #1f2937;
+    --background-hover: #374151;
+    --background-active: #4b5563;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --border-color: #374151;
+    --border-light: #4b5563;
+    
+    /* Cores primárias harmonizadas para dark mode */
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --primary-light: #1e40af;
+    --primary-lighter: #1e3a8a;
+    
+    --secondary-color: #10b981;
+    --secondary-hover: #059669;
+    --secondary-light: #064e3b;
+    
+    --accent-color: #ef4444;
+    --accent-hover: #dc2626;
+    --accent-light: #7f1d1d;
+  }
+  
+  .sidebar__header {
+    background: #1f2937;
+  }
+  
+  .sidebar__nav-item--active {
+    background: var(--primary-lighter);
+    border-color: var(--primary-color);
+  }
+  
+  .sidebar__logout-btn {
+    background: var(--accent-color);
+  }
+}

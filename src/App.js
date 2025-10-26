@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Loading from './components/custom/Loading';
 import { usuarioService } from './services/Usuario';
@@ -39,13 +39,64 @@ function App() {
 
   // Layout para páginas autenticadas (com sidebar)
   const AuthenticatedLayout = ({ children }) => {
+    const [sidebarExpanded, setSidebarExpanded] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+      const handleSidebarToggle = (event) => {
+        setSidebarExpanded(event.detail.isExpanded);
+      };
+
+      const handleResize = () => {
+        setIsMobile(window.innerWidth <= 480);
+      };
+
+      window.addEventListener('sidebarToggle', handleSidebarToggle);
+      window.addEventListener('resize', handleResize);
+      handleResize(); // Verificar tamanho inicial
+
+      return () => {
+        window.removeEventListener('sidebarToggle', handleSidebarToggle);
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+
+    // Calcular estilos dinamicamente baseado no tamanho da tela
+    const getMainStyle = () => {
+      if (isMobile) {
+        return {
+          marginLeft: '0px',
+          width: '100vw',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          minHeight: '100vh',
+          position: 'relative',
+          zIndex: 1
+        };
+      }
+
+      const isTablet = window.innerWidth <= 768;
+      const collapsedWidth = isTablet ? '70px' : '80px';
+      const expandedWidth = isTablet ? '220px' : '240px';
+
+      return {
+        marginLeft: sidebarExpanded ? expandedWidth : collapsedWidth,
+        width: sidebarExpanded ? `calc(100vw - ${expandedWidth})` : `calc(100vw - ${collapsedWidth})`,
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        minHeight: '100vh',
+        position: 'relative',
+        zIndex: 1
+      };
+    };
+
+    const mainStyle = getMainStyle();
+
     return (
-      <div className="flex h-screen bg-gray-100">
+      <div className="app-layout">
         <Suspense fallback={<Loading size="small" text="Carregando menu..." />}>
           <Sidebar />
         </Suspense>
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-6">
+        <main className="app-main" style={mainStyle}>
+          <div className="app-content">
             {children}
           </div>
         </main>

@@ -215,17 +215,32 @@ const Operacional = () => {
 
   return (
     <div className="operacional-container">
+      {/* Header moderno com gradiente */}
       <div className="operacional-header">
-        <button 
-          className="back-button"
-          onClick={voltarParaMenu}
-          title="Voltar para menu operacional"
-        >
-          ← Voltar
-        </button>
-        <div className="header-info">
-          <h1>Operacional - {nomeMedico || 'Médico'}</h1>
-          <p>Agendamentos e pacientes do relacionamento selecionado</p>
+        <div className="header-background">
+          <button 
+            className="back-button"
+            onClick={voltarParaMenu}
+            title="Voltar para menu operacional"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="19" y1="12" x2="5" y2="12"/>
+              <polyline points="12,19 5,12 12,5"/>
+            </svg>
+            Voltar
+          </button>
+          <div className="header-content">
+            <div className="header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20,21v-2a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div className="header-info">
+              <h1>{nomeMedico || 'Médico'}</h1>
+              <p>Gerencie agendamentos e pacientes do relacionamento</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -233,9 +248,25 @@ const Operacional = () => {
         {/* Seção de Agendamentos */}
         <section className="agendamentos-section">
           <div className="section-header">
-            <h2>📅 Agendamentos Recentes</h2>
+            <div className="section-title">
+              <div className="section-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <div className="title-content">
+                <h2>Agendamentos Recentes</h2>
+                <p>Visualize e gerencie os próximos compromissos</p>
+              </div>
+            </div>
             <div className="section-controls">
-              <span className="section-count">{agendamentos.length} agendamentos</span>
+              <div className="section-stats">
+                <span className="stat-number">{agendamentos.length}</span>
+                <span className="stat-label">Agendamentos</span>
+              </div>
               {totalAgendamentoPages > 1 && (
                 <div className="navigation-controls">
                   <button 
@@ -243,8 +274,8 @@ const Operacional = () => {
                     onClick={prevAgendamento}
                     disabled={currentAgendamentoPage === 1 || isTransitioningAgendamentos}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="15,18 9,12 15,6"></polyline>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="15,18 9,12 15,6"/>
                     </svg>
                   </button>
                   <span className="nav-indicator">
@@ -255,8 +286,8 @@ const Operacional = () => {
                     onClick={nextAgendamento}
                     disabled={currentAgendamentoPage === totalAgendamentoPages || isTransitioningAgendamentos}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="9,18 15,12 9,6"></polyline>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="9,18 15,12 9,6"/>
                     </svg>
                   </button>
                 </div>
@@ -264,51 +295,97 @@ const Operacional = () => {
             </div>
           </div>
 
-          <div className="horizontal-carousel">
+          <div className="cards-section">
             {loadingAgendamentos ? (
               <div className="loading-state">
                 <div className="loading-spinner"></div>
-                <span>Carregando agendamentos...</span>
+                <h3>Carregando agendamentos...</h3>
+                <p>Aguarde enquanto buscamos seus dados</p>
               </div>
             ) : errorAgendamentos ? (
-              <div className="error-container">
-                <div className="error-icon">⚠️</div>
+              <div className="error-state">
+                <div className="error-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                </div>
+                <h3>Erro ao carregar agendamentos</h3>
                 <p>{errorAgendamentos}</p>
                 <button 
                   className="retry-button"
                   onClick={() => carregarAgendamentos(codigoMedicoUsuarioOperacional || codigoMedico)}
                 >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="23,4 23,10 17,10"/>
+                    <polyline points="1,20 1,14 7,14"/>
+                    <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10m22,4a9,9,0,0,1-14.85,3.36L23,14"/>
+                  </svg>
                   Tentar novamente
                 </button>
               </div>
             ) : agendamentos.length > 0 ? (
-              <div className={`cards-container ${agendamentoAnimation}`}>
-                {agendamentos.map((agendamento) => (
+              <div className={`cards-grid ${agendamentoAnimation}`}>
+                {agendamentos.map((agendamento, index) => (
                   <div 
                     key={agendamento.codigoAgendamento || agendamento.codigo} 
-                    className="agendamento-card clickable-card"
+                    className="agendamento-card"
                     onClick={() => verDetalhesAgendamento(agendamento)}
                     title="Clique para ver detalhes"
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
+                    <div className="card-glow"></div>
+                    <div className="card-content">
                       <div className="card-header">
-                        <div className="paciente-info">
+                        <div className="paciente-avatar">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M20,21v-2a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                          </svg>
+                        </div>
+                        <div className="card-info">
                           <h3>{agendamento.nomePaciente}</h3>
                           <p className="atendimento">{agendamento.nomeAtendimento}</p>
                         </div>
-                        <div className="data-info">
-                          <span className="data">{formatarData(agendamento.dataAgendamento)}</span>
+                        <div className="data-badge">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
+                          <span>{formatarData(agendamento.dataAgendamento)}</span>
                         </div>
                       </div>
-                      <div className="card-footer">
-                        <span className="click-hint">👆 Clique para ver detalhes</span>
+                      <div className="card-action">
+                        <button 
+                          className="action-button"
+                          onClick={() => verDetalhesAgendamento(agendamento)}
+                          title="Ver detalhes do agendamento"
+                        >
+                          <span className="action-text">Ver detalhes</span>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 18l6-6-6-6"/>
+                          </svg>
+                        </button>
                       </div>
                     </div>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="empty-container">
-                <div className="empty-icon">📅</div>
-                <p>Nenhum agendamento encontrado</p>
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                </div>
+                <h3>Nenhum agendamento encontrado</h3>
+                <p>Não há agendamentos para exibir no momento</p>
               </div>
             )}
           </div>
@@ -317,9 +394,25 @@ const Operacional = () => {
         {/* Seção de Pacientes */}
         <section className="pacientes-section">
           <div className="section-header">
-            <h2>👥 Pacientes</h2>
+            <div className="section-title">
+              <div className="section-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17,21v-2a4,4,0,0,0-4-4H5a4,4,0,0,0-4,4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23,21v-2a4,4,0,0,0-3-3.87"/>
+                  <path d="M16,3.13a4,4,0,0,1,0,7.75"/>
+                </svg>
+              </div>
+              <div className="title-content">
+                <h2>Pacientes</h2>
+                <p>Gerencie informações dos pacientes do relacionamento</p>
+              </div>
+            </div>
             <div className="section-controls">
-              <span className="section-count">{pacientes.length} pacientes</span>
+              <div className="section-stats">
+                <span className="stat-number">{pacientes.length}</span>
+                <span className="stat-label">Pacientes</span>
+              </div>
               {totalPacientePages > 1 && (
                 <div className="navigation-controls">
                   <button 
@@ -327,8 +420,8 @@ const Operacional = () => {
                     onClick={prevPaciente}
                     disabled={currentPacientePage === 1 || isTransitioningPacientes}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="15,18 9,12 15,6"></polyline>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="15,18 9,12 15,6"/>
                     </svg>
                   </button>
                   <span className="nav-indicator">
@@ -339,8 +432,8 @@ const Operacional = () => {
                     onClick={nextPaciente}
                     disabled={currentPacientePage === totalPacientePages || isTransitioningPacientes}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="9,18 15,12 9,6"></polyline>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="9,18 15,12 9,6"/>
                     </svg>
                   </button>
                 </div>
@@ -348,68 +441,123 @@ const Operacional = () => {
             </div>
           </div>
 
-          <div className="horizontal-carousel">
+          <div className="cards-section">
             {loadingPacientes ? (
               <div className="loading-state">
                 <div className="loading-spinner"></div>
-                <span>Carregando pacientes...</span>
+                <h3>Carregando pacientes...</h3>
+                <p>Aguarde enquanto buscamos seus dados</p>
               </div>
             ) : errorPacientes ? (
-              <div className="error-container">
-                <div className="error-icon">⚠️</div>
+              <div className="error-state">
+                <div className="error-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                </div>
+                <h3>Erro ao carregar pacientes</h3>
                 <p>{errorPacientes}</p>
                 <button 
                   className="retry-button"
                   onClick={() => carregarPacientes(codigoMedicoUsuarioOperacional || codigoMedico)}
                 >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="23,4 23,10 17,10"/>
+                    <polyline points="1,20 1,14 7,14"/>
+                    <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10m22,4a9,9,0,0,1-14.85,3.36L23,14"/>
+                  </svg>
                   Tentar novamente
                 </button>
               </div>
             ) : pacientes.length > 0 ? (
-              <div className={`cards-container ${pacienteAnimation}`}>
+              <div className={`cards-grid ${pacienteAnimation}`}>
                 {pacientes.map((paciente, index) => {
                   const situacao = formatarSituacao(paciente.situacao);
                   return (
-                    <div key={`${paciente.codigo}-${index}`} className="paciente-card">
-                      <div className="card-header">
-                        <div className="paciente-info">
-                          <h3>{paciente.nome}</h3>
-                          <p className="documento">CPF: {paciente.documentoFederal}</p>
-                        </div>
-                        <div className="situacao-info">
-                          <span className={`situacao ${situacao.classe}`}>
+                    <div 
+                      key={`${paciente.codigo}-${index}`} 
+                      className="paciente-card"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="card-glow"></div>
+                      <div className="card-content">
+                        <div className="card-header">
+                          <div className="paciente-avatar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20,21v-2a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2"/>
+                              <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                          </div>
+                          <div className="card-info">
+                            <h3>{paciente.nome}</h3>
+                            <p className="documento">CPF: {paciente.documentoFederal}</p>
+                          </div>
+                          <div className={`status-badge ${situacao.classe}`}>
+                            <div className="status-dot"></div>
                             {situacao.texto}
-                          </span>
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="card-details">
-                        <div className="detail-row">
-                          <span className="label">📧 Email:</span>
-                          <span className="value">{paciente.email}</span>
+                        
+                        <div className="card-details">
+                          <div className="detail-row">
+                            <div className="detail-icon">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M4,4h16c1.1,0,2,0.9,2,2v12c0,1.1-0.9,2-2,2H4c-1.1,0-2-0.9-2-2V6C2,4.9,2.9,4,4,4z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                              </svg>
+                            </div>
+                            <div className="detail-content">
+                              <span className="detail-label">Email</span>
+                              <span className="detail-value">{paciente.email}</span>
+                            </div>
+                          </div>
+                          <div className="detail-row">
+                            <div className="detail-icon">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M22,16.92v3a2,2,0,0,1-2.18,2,19.79,19.79,0,0,1-8.63-3.07A19.5,19.5,0,0,1,5.64,8.5,19.79,19.79,0,0,1,2.5,4.18,2,2,0,0,1,4.5,2H7.5a2,2,0,0,1,2,1.72,12.84,12.84,0,0,0,.7,2.81,2,2,0,0,1-.45,2.11L8.09,9.91a16,16,0,0,0,6,6l1.27-1.27a2,2,0,0,1,2.11-.45,12.84,12.84,0,0,0,2.81.7A2,2,0,0,1,22,16.92Z"/>
+                              </svg>
+                            </div>
+                            <div className="detail-content">
+                              <span className="detail-label">Telefone</span>
+                              <span className="detail-value">{paciente.telefone}</span>
+                            </div>
+                          </div>
+                          <div className="detail-row">
+                            <div className="detail-icon">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                              </svg>
+                            </div>
+                            <div className="detail-content">
+                              <span className="detail-label">Inclusão</span>
+                              <span className="detail-value">
+                                {new Date(paciente.dtInclusao).toLocaleDateString('pt-BR')}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="detail-row">
-                          <span className="label">📞 Telefone:</span>
-                          <span className="value">{paciente.telefone}</span>
-                        </div>
-                        <div className="detail-row">
-                          <span className="label">📅 Inclusão:</span>
-                          <span className="value">
-                            {new Date(paciente.dtInclusao).toLocaleDateString('pt-BR')}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="card-footer">
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="empty-container">
-                <div className="empty-icon">👥</div>
-                <p>Nenhum paciente encontrado</p>
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17,21v-2a4,4,0,0,0-4-4H5a4,4,0,0,0-4,4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23,21v-2a4,4,0,0,0-3-3.87"/>
+                    <path d="M16,3.13a4,4,0,0,1,0,7.75"/>
+                  </svg>
+                </div>
+                <h3>Nenhum paciente encontrado</h3>
+                <p>Não há pacientes para exibir no momento</p>
               </div>
             )}
           </div>

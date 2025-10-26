@@ -1,3 +1,41 @@
+/* Layout Principal da Aplicação */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  background: #f8fafc;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  background: #f8fafc;
+  position: relative;
+  z-index: 1;
+}
+
+.app-content {
+  padding: 24px;
+  max-width: 100%;
+  margin: 0 auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .app-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-content {
+    padding: 12px;
+  }
+}
+
+/* Estilos antigos mantidos para compatibilidade */
 .App {
   text-align: center;
 }

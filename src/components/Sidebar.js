@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { usuarioService } from '../services/Usuario';
+import './Sidebar.css';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -16,13 +17,11 @@ const Sidebar = () => {
       const tokenInfo = usuarioService.getTokenInfo();
       
       if (tokenInfo) {
-        // Verifica se tem a claim Role (que contém "Admin" ou "Standard")
         const role = tokenInfo.role || tokenInfo.Role;
         
         if (role) {
-          // Se é "Admin", permite acesso; se é "Standard", não permite
           const isAdmin = role === "Admin";
-          setUserPermission(isAdmin ? 0 : 1); // 0 = Admin, 1 = Standard
+          setUserPermission(isAdmin ? 0 : 1);
           return isAdmin;
         }
       }
@@ -33,26 +32,91 @@ const Sidebar = () => {
     }
   };
 
-  // Verificar permissão na inicialização
   useEffect(() => {
     checkUserPermission();
   }, []);
 
+  // Ícones SVG modernos
+  const icons = {
+    home: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9,22 9,12 15,12 15,22"/>
+      </svg>
+    ),
+    operational: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+    ),
+    doctors: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+    patients: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+    appointments: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    ),
+    calendar: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+        <circle cx="12" cy="16" r="1"/>
+        <circle cx="8" cy="16" r="1"/>
+        <circle cx="16" cy="16" r="1"/>
+      </svg>
+    ),
+    partner: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+    logout: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16,17 21,12 16,7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    )
+  };
+
   // Menu base com todos os itens
   const allMenuItems = [
-    { path: '/home', icon: '🏠', label: 'Início' },
-    { path: '/operacional', icon: '⚡', label: 'Operacional' },
-    { path: '/doctors', icon: '👨‍⚕️', label: 'Médicos' },
-    { path: '/patients', icon: '👥', label: 'Pacientes' },
-    { path: '/appointments', icon: '📅', label: 'Atendimentos' },
-    { path: '/agenda', icon: '📆', label: 'Agenda' },
-    { path: '/parceiro/usuarios', icon: '👤', label: 'Parceiro', requiresAdmin: true }
+    { path: '/home', icon: icons.home, label: 'Início' },
+    { path: '/operacional', icon: icons.operational, label: 'Operacional' },
+    { path: '/doctors', icon: icons.doctors, label: 'Médicos' },
+    { path: '/patients', icon: icons.patients, label: 'Pacientes' },
+    { path: '/appointments', icon: icons.appointments, label: 'Atendimentos' },
+    { path: '/agenda', icon: icons.calendar, label: 'Agenda' },
+    { path: '/parceiro/usuarios', icon: icons.partner, label: 'Parceiro', requiresAdmin: true }
   ];
 
   // Filtrar menu baseado na permissão do usuário
   const menuItems = allMenuItems.filter(item => {
     if (item.requiresAdmin) {
-      // Só mostra se o usuário é Admin (userPermission = 0)
       return userPermission === 0;
     }
     return true;
@@ -68,7 +132,7 @@ const Sidebar = () => {
   // Navegação por teclado
   const handleKeyDown = (event) => {
     const { key } = event;
-    const totalItems = menuItems.length + 1; // +1 para o botão de logout
+    const totalItems = menuItems.length + 1;
 
     switch (key) {
       case 'ArrowDown':
@@ -91,10 +155,8 @@ const Sidebar = () => {
       case ' ':
         event.preventDefault();
         if (focusedIndex >= 0 && focusedIndex < menuItems.length) {
-          // Navegar para o item do menu
           window.location.href = menuItems[focusedIndex].path;
         } else if (focusedIndex === menuItems.length) {
-          // Executar logout
           handleLogout();
         }
         break;
@@ -118,46 +180,44 @@ const Sidebar = () => {
     }
   }, [focusedIndex]);
 
+  // Notificar o layout principal sobre mudanças na sidebar
+  useEffect(() => {
+    const event = new CustomEvent('sidebarToggle', {
+      detail: { isExpanded }
+    });
+    window.dispatchEvent(event);
+  }, [isExpanded]);
+
   return (
     <aside
       ref={sidebarRef}
+      className={`sidebar ${isExpanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}
       role="navigation"
       aria-label="Menu principal de navegação"
       aria-expanded={isExpanded}
-      style={{
-        ...styles.sidebar,
-        width: isExpanded ? '260px' : '70px'
-      }}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <header 
-        style={{ ...styles.header, justifyContent: isExpanded ? 'flex-start' : 'center' }}
-        role="banner"
-      >
-        {isExpanded && (
-          <h1 style={styles.title} id="sidebar-title">
-            Sistema Médico
-          </h1>
-        )}
-        {!isExpanded && (
-          <span 
-            style={{ fontSize: 24 }} 
-            aria-label="Sistema Médico"
-            role="img"
-          >
-            🏥
-          </span>
-        )}
+      <header className="sidebar__header">
+        <div className="sidebar__logo">
+          <div className="sidebar__logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          {isExpanded && (
+            <span className="sidebar__logo-text">
+              Sistema Médico
+            </span>
+          )}
+        </div>
       </header>
 
-      <nav 
-        style={styles.nav}
-        role="navigation"
-        aria-labelledby="sidebar-title"
-      >
+      <nav className="sidebar__nav" role="navigation" aria-labelledby="sidebar-title">
         {menuItems.map((item, index) => {
           const active = isActive(item.path);
           const isFocused = focusedIndex === index;
@@ -167,59 +227,41 @@ const Sidebar = () => {
               key={item.path}
               ref={(el) => (menuItemsRef.current[index] = el)}
               to={item.path}
+              className={`sidebar__nav-item ${active ? 'sidebar__nav-item--active' : ''} ${isFocused ? 'sidebar__nav-item--focused' : ''}`}
               role="menuitem"
               aria-current={active ? 'page' : undefined}
               aria-label={`${item.label}${active ? ' (página atual)' : ''}`}
               tabIndex={isFocused ? 0 : -1}
-              style={{
-                ...styles.navItem,
-                ...(active ? styles.activeItem : {}),
-                ...(isFocused ? styles.focusedItem : {}),
-                justifyContent: isExpanded ? 'flex-start' : 'center'
-              }}
               onFocus={() => setFocusedIndex(index)}
             >
-              <span 
-                style={styles.icon}
-                aria-hidden="true"
-                role="img"
-                aria-label={item.label}
-              >
+              <span className="sidebar__nav-icon">
                 {item.icon}
               </span>
               {isExpanded && (
-                <span style={styles.label}>
+                <span className="sidebar__nav-label">
                   {item.label}
                 </span>
               )}
+              {active && <div className="sidebar__nav-indicator" />}
             </Link>
           );
         })}
       </nav>
 
-      <footer style={styles.footer}>
+      <footer className="sidebar__footer">
         <button
           ref={(el) => (menuItemsRef.current[menuItems.length] = el)}
           onClick={handleLogout}
+          className={`sidebar__logout-btn ${focusedIndex === menuItems.length ? 'sidebar__logout-btn--focused' : ''}`}
           aria-label="Sair do sistema"
           tabIndex={focusedIndex === menuItems.length ? 0 : -1}
-          style={{
-            ...styles.logoutBtn,
-            ...(focusedIndex === menuItems.length ? styles.focusedItem : {}),
-            justifyContent: isExpanded ? 'flex-start' : 'center'
-          }}
           onFocus={() => setFocusedIndex(menuItems.length)}
         >
-          <span 
-            style={styles.icon}
-            aria-hidden="true"
-            role="img"
-            aria-label="Sair"
-          >
-            🚪
+          <span className="sidebar__logout-icon">
+            {icons.logout}
           </span>
           {isExpanded && (
-            <span style={styles.label}>
+            <span className="sidebar__logout-label">
               Sair
             </span>
           )}
@@ -227,86 +269,6 @@ const Sidebar = () => {
       </footer>
     </aside>
   );
-};
-
-const styles = {
-  sidebar: {
-    backgroundColor: '#ffffff',
-    boxShadow: '2px 0 10px rgba(0,0,0,0.1)',
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'fixed',
-    left: 0,
-    top: 0,
-    zIndex: 1000,
-    transition: 'width 0.2s ease'
-  },
-  header: {
-    padding: '24px 20px',
-    borderBottom: '1px solid #e5e7eb',
-    display: 'flex',
-    alignItems: 'center'
-  },
-  title: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    color: '#1f2937',
-    margin: 0
-  },
-  nav: {
-    flex: 1,
-    padding: '20px 12px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  navItem: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '12px 16px',
-    borderRadius: '8px',
-    textDecoration: 'none',
-    color: '#6b7280',
-    fontSize: '14px',
-    fontWeight: '500',
-    transition: 'all 0.2s ease'
-  },
-  activeItem: {
-    backgroundColor: '#dbeafe',
-    color: '#2563eb',
-    borderRight: '4px solid #2563eb'
-  },
-  focusedItem: {
-    outline: '2px solid #2563eb',
-    outlineOffset: '2px',
-    backgroundColor: '#f3f4f6'
-  },
-  icon: {
-    marginRight: '12px',
-    fontSize: '18px'
-  },
-  label: {
-    fontSize: '14px'
-  },
-  footer: {
-    padding: '20px 12px',
-    borderTop: '1px solid #e5e7eb'
-  },
-  logoutBtn: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '12px 16px',
-    borderRadius: '8px',
-    border: 'none',
-    backgroundColor: '#dc2626',
-    color: 'white',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  }
 };
 
 export default Sidebar;
