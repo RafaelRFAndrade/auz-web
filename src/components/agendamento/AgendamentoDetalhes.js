@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { agendamentoService } from '../../services/Agendamento';
+import { documentoService } from '../../services/Documento';
 import Loading from '../custom/Loading';
 import './AgendamentoDetalhes.css';
 
@@ -17,6 +18,21 @@ const AgendamentoDetalhes = () => {
   const [editando, setEditando] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [dadosEditaveis, setDadosEditaveis] = useState({});
+  
+  // Estados para documentos
+  const [documentos, setDocumentos] = useState([]);
+  const [documentosLoading, setDocumentosLoading] = useState(false);
+  const [documentosError, setDocumentosError] = useState(null);
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(0);
+  const [totalItens, setTotalItens] = useState(0);
+  const itensPorPagina = 5;
+  
+  // Estados para upload
+  const [mostrarUpload, setMostrarUpload] = useState(false);
+  const [arquivoSelecionado, setArquivoSelecionado] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   useEffect(() => {
     if (codigoAgendamento) {
@@ -33,11 +49,33 @@ const AgendamentoDetalhes = () => {
       setError(null);
       const response = await agendamentoService.getDetalhes(codigoAgendamento);
       setAgendamento(response);
+      
+      // Carregar documentos após carregar o agendamento
+      if (response && response.codigo) {
+        carregarDocumentos(response.codigo);
+      }
     } catch (error) {
       console.error('Erro ao carregar detalhes do agendamento:', error);
       setError('Erro ao carregar detalhes do agendamento. Tente novamente.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const carregarDocumentos = async (codigoEntidade, pagina = 1) => {
+    try {
+      setDocumentosLoading(true);
+      setDocumentosError(null);
+      const response = await documentoService.buscarDocumentos(codigoEntidade, pagina, itensPorPagina);
+      setDocumentos(response.documentos || []);
+      setTotalPaginas(response.totalPaginas || 0);
+      setTotalItens(response.itens || 0);
+      setPaginaAtual(pagina);
+    } catch (error) {
+      console.error('Erro ao carregar documentos:', error);
+      setDocumentosError('Erro ao carregar documentos. Tente novamente.');
+    } finally {
+      setDocumentosLoading(false);
     }
   };
 
@@ -137,6 +175,111 @@ const AgendamentoDetalhes = () => {
       ...prev,
       [campo]: valor
     }));
+  };
+
+  const navegarPagina = (novaPagina) => {
+    if (agendamento && agendamento.codigo) {
+      carregarDocumentos(agendamento.codigo, novaPagina);
+    }
+  };
+
+  const formatarTamanho = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const formatarTipoArquivo = (tipoConteudo) => {
+    if (tipoConteudo.startsWith('image/')) return '🖼️ Imagem';
+    if (tipoConteudo.startsWith('application/pdf')) return '📄 PDF';
+    if (tipoConteudo.startsWith('text/')) return '📝 Texto';
+    if (tipoConteudo.includes('word')) return '📄 Word';
+    if (tipoConteudo.includes('excel') || tipoConteudo.includes('spreadsheet')) return '📊 Excel';
+    return '📄 Documento';
+  };
+
+  const downloadDocumento = async (codigoDocumento, nomeArquivo) => {
+    try {
+      const response = await documentoService.downloadDocumento(codigoDocumento);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nomeArquivo;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Erro ao fazer download:', error);
+      setDocumentosError('Erro ao fazer download do documento.');
+    }
+  };
+
+  const handleFileSelect = (event) => {
+    const arquivo = event.target.files[0];
+    if (arquivo) {
+      // Validar tamanho do arquivo (máximo 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (arquivo.size > maxSize) {
+        setUploadError('O arquivo deve ter no máximo 10MB.');
+        return;
+      }
+      
+      // Validar tipo de arquivo
+      const allowedTypes = [
+        'image/jpeg', 'image/png', 'image/gif',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain'
+      ];
+      
+      if (!allowedTypes.includes(arquivo.type)) {
+        setUploadError('Tipo de arquivo não permitido. Use: JPG, PNG, PDF, DOC, DOCX, XLS, XLSX ou TXT.');
+        return;
+      }
+      
+      setArquivoSelecionado(arquivo);
+      setUploadError(null);
+    }
+  };
+
+  const uploadDocumento = async () => {
+    if (!arquivoSelecionado || !agendamento?.codigo) {
+      setUploadError('Selecione um arquivo válido.');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setUploadError(null);
+      
+      await documentoService.uploadDocumento(agendamento.codigo, arquivoSelecionado);
+      
+      // Recarregar lista de documentos
+      await carregarDocumentos(agendamento.codigo, paginaAtual);
+      
+      // Limpar estado
+      setArquivoSelecionado(null);
+      setMostrarUpload(false);
+      
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      setUploadError('Erro ao fazer upload do documento. Tente novamente.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const cancelarUpload = () => {
+    setArquivoSelecionado(null);
+    setMostrarUpload(false);
+    setUploadError(null);
   };
 
   if (loading) {
@@ -376,6 +519,204 @@ const AgendamentoDetalhes = () => {
                 <span className="value">{agendamento.dtSituacao ? formatarData(agendamento.dtSituacao) : 'Não informado'}</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Card de Documentos */}
+        <div className="agendamento-card">
+          <div className="card-header">
+            <h3>📁 Documentos</h3>
+            <div className="documentos-info">
+              {totalItens > 0 && (
+                <span className="documentos-count">
+                  {totalItens} documento{totalItens !== 1 ? 's' : ''}
+                </span>
+              )}
+              <button
+                className="upload-button"
+                onClick={() => setMostrarUpload(!mostrarUpload)}
+                title="Adicionar documento"
+              >
+                📤 {mostrarUpload ? 'Cancelar' : 'Adicionar'}
+              </button>
+            </div>
+          </div>
+          <div className="card-content">
+            {/* Interface de Upload */}
+            {mostrarUpload && (
+              <div className="upload-section">
+                <div className="upload-header">
+                  <h4>📤 Adicionar Documento</h4>
+                  <p>Selecione um arquivo para enviar (máx. 10MB)</p>
+                </div>
+                
+                <div className="upload-form">
+                  <div className="file-input-container">
+                    <input
+                      type="file"
+                      id="file-upload"
+                      onChange={handleFileSelect}
+                      accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+                      className="file-input"
+                    />
+                    <label htmlFor="file-upload" className="file-input-label">
+                      📁 Escolher Arquivo
+                    </label>
+                  </div>
+                  
+                  {arquivoSelecionado && (
+                    <div className="selected-file">
+                      <div className="file-info">
+                        <span className="file-icon">
+                          {formatarTipoArquivo(arquivoSelecionado.type)}
+                        </span>
+                        <div className="file-details">
+                          <span className="file-name">{arquivoSelecionado.name}</span>
+                          <span className="file-size">{formatarTamanho(arquivoSelecionado.size)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {uploadError && (
+                    <div className="upload-error">
+                      <span className="error-icon">⚠️</span>
+                      <span>{uploadError}</span>
+                    </div>
+                  )}
+                  
+                  <div className="upload-actions">
+                    <button
+                      className="upload-submit-button"
+                      onClick={uploadDocumento}
+                      disabled={!arquivoSelecionado || uploading}
+                    >
+                      {uploading ? '📤 Enviando...' : '📤 Enviar Documento'}
+                    </button>
+                    <button
+                      className="upload-cancel-button"
+                      onClick={cancelarUpload}
+                      disabled={uploading}
+                    >
+                      ❌ Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {documentosLoading ? (
+              <div className="documentos-loading">
+                <Loading text="Carregando documentos..." />
+              </div>
+            ) : documentosError ? (
+              <div className="documentos-error">
+                <div className="error-icon">⚠️</div>
+                <p>{documentosError}</p>
+                <button 
+                  className="retry-button"
+                  onClick={() => agendamento && carregarDocumentos(agendamento.codigo, paginaAtual)}
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            ) : documentos.length === 0 ? (
+              <div className="documentos-empty">
+                <div className="empty-icon">📁</div>
+                <p>Nenhum documento encontrado</p>
+              </div>
+            ) : (
+              <>
+                <div className="documentos-carousel">
+                  {documentos.map((documento) => (
+                    <div key={documento.codigo} className="documento-item">
+                      <div className="documento-icon">
+                        {formatarTipoArquivo(documento.tipoConteudo)}
+                      </div>
+                      <div className="documento-info">
+                        <h4 className="documento-nome" title={documento.nomeArquivo}>
+                          {documento.nomeArquivo}
+                        </h4>
+                        <div className="documento-detalhes">
+                          <span className="documento-tipo">
+                            {formatarTipoArquivo(documento.tipoConteudo)}
+                          </span>
+                          <span className="documento-tamanho">
+                            {formatarTamanho(documento.tamanhoBytes)}
+                          </span>
+                          <span className="documento-data">
+                            {formatarData(documento.dataUpload)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="documento-actions">
+                        <button
+                          className="download-button"
+                          onClick={() => downloadDocumento(documento.codigo, documento.nomeArquivo)}
+                          title="Download do documento"
+                        >
+                          ⬇️ Download
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Paginação */}
+                {totalPaginas > 1 && (
+                  <div className="documentos-pagination">
+                    <div className="pagination-info">
+                      Página {paginaAtual} de {totalPaginas}
+                    </div>
+                    <div className="pagination-controls">
+                      <button
+                        className="pagination-button"
+                        onClick={() => navegarPagina(paginaAtual - 1)}
+                        disabled={paginaAtual <= 1 || documentosLoading}
+                        title="Página anterior"
+                      >
+                        ← Anterior
+                      </button>
+                      
+                      <div className="pagination-numbers">
+                        {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                          let numeroPagina;
+                          if (totalPaginas <= 5) {
+                            numeroPagina = i + 1;
+                          } else if (paginaAtual <= 3) {
+                            numeroPagina = i + 1;
+                          } else if (paginaAtual >= totalPaginas - 2) {
+                            numeroPagina = totalPaginas - 4 + i;
+                          } else {
+                            numeroPagina = paginaAtual - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={numeroPagina}
+                              className={`pagination-number ${paginaAtual === numeroPagina ? 'active' : ''}`}
+                              onClick={() => navegarPagina(numeroPagina)}
+                              disabled={documentosLoading}
+                            >
+                              {numeroPagina}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        className="pagination-button"
+                        onClick={() => navegarPagina(paginaAtual + 1)}
+                        disabled={paginaAtual >= totalPaginas || documentosLoading}
+                        title="Próxima página"
+                      >
+                        Próxima →
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
