@@ -9,7 +9,6 @@ const OperacionalMenu = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,10 +40,7 @@ const OperacionalMenu = () => {
 
   const filteredRelacionamentos = relacionamentos.filter(rel => {
     const matchesSearch = rel.nomeMedico.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || 
-      (filterStatus === 'active' && rel.ativo) || 
-      (filterStatus === 'inactive' && !rel.ativo);
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
 
   if (loading) {
@@ -163,26 +159,6 @@ const OperacionalMenu = () => {
           </div>
         </div>
         
-        <div className="filter-tabs">
-          <button 
-            className={`filter-tab ${filterStatus === 'all' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('all')}
-          >
-            Todos ({relacionamentos.length})
-          </button>
-          <button 
-            className={`filter-tab ${filterStatus === 'active' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('active')}
-          >
-            Ativos ({relacionamentos.filter(r => r.ativo).length})
-          </button>
-          <button 
-            className={`filter-tab ${filterStatus === 'inactive' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('inactive')}
-          >
-            Inativos ({relacionamentos.filter(r => !r.ativo).length})
-          </button>
-        </div>
       </div>
 
       {/* Grid de relacionamentos */}
@@ -262,23 +238,6 @@ const OperacionalMenu = () => {
         ))}
       </div>
 
-      {/* Footer com estatísticas */}
-      <div className="menu-footer">
-        <div className="footer-stats">
-          <div className="stat-item">
-            <span className="stat-number">{relacionamentos.length}</span>
-            <span className="stat-label">Total</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{relacionamentos.filter(r => r.ativo).length}</span>
-            <span className="stat-label">Ativos</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{filteredRelacionamentos.length}</span>
-            <span className="stat-label">Filtrados</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

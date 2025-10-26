@@ -10,7 +10,6 @@ const AgendamentoDetalhes = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  
   const [agendamento, setAgendamento] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -284,8 +283,8 @@ const AgendamentoDetalhes = () => {
 
   if (loading) {
     return (
-      <div className="agendamento-detalhes-container">
-        <div className="loading-container">
+      <div className="appointment-details">
+        <div className="loading-state">
           <Loading text="Carregando detalhes do agendamento..." />
         </div>
       </div>
@@ -294,17 +293,19 @@ const AgendamentoDetalhes = () => {
 
   if (error) {
     return (
-      <div className="agendamento-detalhes-container">
-        <div className="error-container">
+      <div className="appointment-details">
+        <div className="error-state">
           <div className="error-icon">⚠️</div>
           <h2>Erro ao carregar agendamento</h2>
           <p>{error}</p>
-          <button className="retry-button" onClick={carregarDetalhes}>
-            Tentar novamente
-          </button>
-          <button className="back-button" onClick={voltarParaOperacional}>
-            ← Voltar
-          </button>
+          <div className="error-actions">
+            <button className="btn btn-primary" onClick={carregarDetalhes}>
+              Tentar novamente
+            </button>
+            <button className="btn btn-secondary" onClick={voltarParaOperacional}>
+              Voltar
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -312,13 +313,13 @@ const AgendamentoDetalhes = () => {
 
   if (!agendamento) {
     return (
-      <div className="agendamento-detalhes-container">
-        <div className="empty-container">
+      <div className="appointment-details">
+        <div className="empty-state">
           <div className="empty-icon">📅</div>
           <h2>Agendamento não encontrado</h2>
           <p>O agendamento solicitado não foi encontrado.</p>
-          <button className="back-button" onClick={voltarParaOperacional}>
-            ← Voltar
+          <button className="btn btn-primary" onClick={voltarParaOperacional}>
+            Voltar
           </button>
         </div>
       </div>
@@ -327,107 +328,128 @@ const AgendamentoDetalhes = () => {
 
   const situacao = formatarSituacao(agendamento.situacao);
 
-
   return (
-    <div className="agendamento-detalhes-container">
-      <div className="agendamento-header">
-        <button 
-          className="back-button"
-          onClick={voltarParaOperacional}
-          title="Voltar para operacional"
-        >
-          ← Voltar
-        </button>
-        <div className="header-info">
-          <h1>📅 Detalhes do Agendamento</h1>
-          <p>Informações completas do agendamento selecionado</p>
-        </div>
-        {!editando ? (
+    <div className="appointment-details">
+      {/* Header */}
+      <header className="appointment-header">
+        <div className="header-content">
           <button 
-            className="edit-button"
-            onClick={iniciarEdicao}
-            title="Editar agendamento"
+            className="btn-back"
+            onClick={voltarParaOperacional}
+            title="Voltar para operacional"
           >
-            ✏️ Editar
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Voltar
           </button>
-        ) : (
-          <div className="edit-controls">
-            <button 
-              className="save-button"
-              onClick={salvarAlteracoes}
-              disabled={salvando}
-              title="Salvar alterações"
-            >
-              {salvando ? '💾 Salvando...' : '💾 Salvar'}
-            </button>
-            <button 
-              className="cancel-button"
-              onClick={cancelarEdicao}
-              disabled={salvando}
-              title="Cancelar edição"
-            >
-              ❌ Cancelar
-            </button>
+          
+          <div className="header-info">
+            <h1>Detalhes do Agendamento</h1>
+            <p>Informações completas do agendamento selecionado</p>
           </div>
-        )}
-      </div>
-
-      <div className="agendamento-content">
-        {/* Card Principal */}
-        <div className="agendamento-card principal">
-          <div className="card-header">
-            <div className="header-left">
-              <h2>Agendamento #{agendamento.id}</h2>
-            </div>
-            <div className="header-right">
-              <div 
-                className={`status-badge ${situacao.classe}`}
-                style={{ backgroundColor: situacao.cor }}
+          
+          <div className="header-actions">
+            {!editando ? (
+              <button 
+                className="btn btn-outline"
+                onClick={iniciarEdicao}
+                title="Editar agendamento"
               >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Editar
+              </button>
+            ) : (
+              <div className="edit-actions">
+                <button 
+                  className="btn btn-primary"
+                  onClick={salvarAlteracoes}
+                  disabled={salvando}
+                  title="Salvar alterações"
+                >
+                  {salvando ? (
+                    <>
+                      <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"/>
+                        <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      </svg>
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                        <polyline points="17,21 17,13 7,13 7,21"/>
+                        <polyline points="7,3 7,8 15,8"/>
+                      </svg>
+                      Salvar
+                    </>
+                  )}
+                </button>
+                <button 
+                  className="btn btn-secondary"
+                  onClick={cancelarEdicao}
+                  disabled={salvando}
+                  title="Cancelar edição"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                  Cancelar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div className="appointment-content">
+        {/* Main Info Card */}
+        <div className="info-card main-card">
+          <div className="card-header">
+            <div className="card-title">
+              <h2>Agendamento #{agendamento.id}</h2>
+              <div className={`status-badge status-${situacao.classe}`}>
                 {situacao.texto}
               </div>
             </div>
           </div>
 
-          <div className="card-content">
+          <div className="card-body">
             <div className="info-grid">
-              <div className="info-item">
-                <span className="label">📅 Data do Agendamento:</span>
+              <div className="info-field">
+                <label>Data do Agendamento</label>
                 {editando ? (
                   <input
                     type="datetime-local"
                     value={dadosEditaveis.dtAgendamento ? new Date(dadosEditaveis.dtAgendamento).toISOString().slice(0, 16) : ''}
                     onChange={(e) => handleInputChange('dtAgendamento', e.target.value)}
-                    className="edit-input"
+                    className="form-input"
                   />
                 ) : (
-                  <span className="value">{formatarData(agendamento.dtAgendamento)}</span>
+                  <div className="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    {formatarData(agendamento.dtAgendamento)}
+                  </div>
                 )}
               </div>
               
-              <div className="info-item full-width">
-                <span className="label">📝 Descrição:</span>
-                {editando ? (
-                  <textarea
-                    value={dadosEditaveis.descricao || ''}
-                    onChange={(e) => handleInputChange('descricao', e.target.value)}
-                    className="edit-textarea"
-                    maxLength="155"
-                    placeholder="Descrição do agendamento (máx. 155 caracteres)"
-                  />
-                ) : (
-                  <span className="value">{agendamento.descricao || 'Não informado'}</span>
-                )}
-              </div>
-              
-              
-              <div className="info-item">
-                <span className="label">📊 Situação:</span>
+              <div className="info-field">
+                <label>Situação</label>
                 {editando ? (
                   <select
                     value={dadosEditaveis.situacao || ''}
                     onChange={(e) => handleInputChange('situacao', parseInt(e.target.value))}
-                    className="edit-select"
+                    className="form-select"
                   >
                     <option value="0">Ativo</option>
                     <option value="1">Desativo</option>
@@ -435,48 +457,25 @@ const AgendamentoDetalhes = () => {
                     <option value="3">Cancelado</option>
                   </select>
                 ) : (
-                  <span className="value">{agendamento.situacao !== null ? formatarSituacao(agendamento.situacao).texto : 'Não informado'}</span>
+                  <div className="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                      <line x1="9" y1="9" x2="9.01" y2="9"/>
+                      <line x1="15" y1="9" x2="15.01" y2="9"/>
+                    </svg>
+                    {agendamento.situacao !== null ? formatarSituacao(agendamento.situacao).texto : 'Não informado'}
+                  </div>
                 )}
               </div>
               
-              <div className="info-item full-width">
-                <span className="label">📝 Observação:</span>
-                {editando ? (
-                  <textarea
-                    value={dadosEditaveis.observacao || ''}
-                    onChange={(e) => handleInputChange('observacao', e.target.value)}
-                    className="edit-textarea"
-                    maxLength="255"
-                    placeholder="Observações do agendamento (máx. 255 caracteres)"
-                  />
-                ) : (
-                  <span className="value">{agendamento.observacao || 'Não informado'}</span>
-                )}
-              </div>
-              
-              {(editando ? dadosEditaveis.situacao === 3 : agendamento.situacao === 3) && (
-                <div className="info-item full-width">
-                  <span className="label">❌ Motivo do Cancelamento:</span>
-                  {editando ? (
-                    <textarea
-                      value={dadosEditaveis.motivoCancelamento || ''}
-                      onChange={(e) => handleInputChange('motivoCancelamento', e.target.value)}
-                      className="edit-textarea"
-                      placeholder="Motivo do cancelamento"
-                    />
-                  ) : (
-                    <span className="value">{agendamento.motivoCancelamento || 'Não informado'}</span>
-                  )}
-                </div>
-              )}
-              
-              <div className="info-item">
-                <span className="label">⚡ Prioridade:</span>
+              <div className="info-field">
+                <label>Prioridade</label>
                 {editando ? (
                   <select
                     value={dadosEditaveis.prioridade || ''}
                     onChange={(e) => handleInputChange('prioridade', parseInt(e.target.value) || '')}
-                    className="edit-select"
+                    className="form-select"
                   >
                     <option value="">Selecione a prioridade</option>
                     <option value="1">Rotina</option>
@@ -484,74 +483,163 @@ const AgendamentoDetalhes = () => {
                     <option value="3">Urgente</option>
                   </select>
                 ) : (
-                  <span className="value">
+                  <div className="info-value">
                     {agendamento.prioridade ? (
-                      <span 
-                        className={`prioridade-badge ${formatarPrioridade(agendamento.prioridade).classe}`}
-                        style={{ backgroundColor: formatarPrioridade(agendamento.prioridade).cor }}
-                      >
+                      <span className={`priority-badge priority-${formatarPrioridade(agendamento.prioridade).classe}`}>
                         {formatarPrioridade(agendamento.prioridade).texto}
                       </span>
                     ) : (
-                      'Não informado'
+                      <span className="text-muted">Não informado</span>
                     )}
-                  </span>
+                  </div>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Card de Datas Adicionais */}
-        <div className="agendamento-card">
-          <div className="card-header">
-            <h3>📅 Informações de Data</h3>
-          </div>
-          <div className="card-content">
-            <div className="info-grid">
-              <div className="info-item">
-                <span className="label">📅 Data de Criação:</span>
-                <span className="value">{formatarData(agendamento.dtInclusao)}</span>
+              
+              <div className="info-field full-width">
+                <label>Descrição</label>
+                {editando ? (
+                  <textarea
+                    value={dadosEditaveis.descricao || ''}
+                    onChange={(e) => handleInputChange('descricao', e.target.value)}
+                    className="form-textarea"
+                    maxLength="155"
+                    placeholder="Descrição do agendamento (máx. 155 caracteres)"
+                  />
+                ) : (
+                  <div className="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                      <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    {agendamento.descricao || 'Não informado'}
+                  </div>
+                )}
               </div>
               
-              <div className="info-item">
-                <span className="label">🔄 Data da Última Atualização:</span>
-                <span className="value">{agendamento.dtSituacao ? formatarData(agendamento.dtSituacao) : 'Não informado'}</span>
+              <div className="info-field full-width">
+                <label>Observação</label>
+                {editando ? (
+                  <textarea
+                    value={dadosEditaveis.observacao || ''}
+                    onChange={(e) => handleInputChange('observacao', e.target.value)}
+                    className="form-textarea"
+                    maxLength="255"
+                    placeholder="Observações do agendamento (máx. 255 caracteres)"
+                  />
+                ) : (
+                  <div className="info-value">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                      <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    {agendamento.observacao || 'Não informado'}
+                  </div>
+                )}
+              </div>
+              
+              {(editando ? dadosEditaveis.situacao === 3 : agendamento.situacao === 3) && (
+                <div className="info-field full-width">
+                  <label>Motivo do Cancelamento</label>
+                  {editando ? (
+                    <textarea
+                      value={dadosEditaveis.motivoCancelamento || ''}
+                      onChange={(e) => handleInputChange('motivoCancelamento', e.target.value)}
+                      className="form-textarea"
+                      placeholder="Motivo do cancelamento"
+                    />
+                  ) : (
+                    <div className="info-value">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                      </svg>
+                      {agendamento.motivoCancelamento || 'Não informado'}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Info Card */}
+        <div className="info-card">
+          <div className="card-header">
+            <h3>Informações de Data</h3>
+          </div>
+          <div className="card-body">
+            <div className="info-grid">
+              <div className="info-field">
+                <label>Data de Criação</label>
+                <div className="info-value">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  {formatarData(agendamento.dtInclusao)}
+                </div>
+              </div>
+              
+              <div className="info-field">
+                <label>Última Atualização</label>
+                <div className="info-value">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 4v6h6"/>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                  </svg>
+                  {agendamento.dtSituacao ? formatarData(agendamento.dtSituacao) : 'Não informado'}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Card de Documentos */}
-        <div className="agendamento-card">
+        {/* Documents Card */}
+        <div className="info-card">
           <div className="card-header">
-            <h3>📁 Documentos</h3>
-            <div className="documentos-info">
+            <div className="card-title">
+              <h3>Documentos</h3>
               {totalItens > 0 && (
-                <span className="documentos-count">
+                <span className="documents-count">
                   {totalItens} documento{totalItens !== 1 ? 's' : ''}
                 </span>
               )}
-              <button
-                className="upload-button"
-                onClick={() => setMostrarUpload(!mostrarUpload)}
-                title="Adicionar documento"
-              >
-                📤 {mostrarUpload ? 'Cancelar' : 'Adicionar'}
-              </button>
             </div>
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={() => setMostrarUpload(!mostrarUpload)}
+              title="Adicionar documento"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+              {mostrarUpload ? 'Cancelar' : 'Adicionar'}
+            </button>
           </div>
-          <div className="card-content">
-            {/* Interface de Upload */}
+          
+          <div className="card-body">
+            {/* Upload Interface */}
             {mostrarUpload && (
               <div className="upload-section">
                 <div className="upload-header">
-                  <h4>📤 Adicionar Documento</h4>
+                  <h4>Adicionar Documento</h4>
                   <p>Selecione um arquivo para enviar (máx. 10MB)</p>
                 </div>
                 
                 <div className="upload-form">
-                  <div className="file-input-container">
+                  <div className="file-upload">
                     <input
                       type="file"
                       id="file-upload"
@@ -559,17 +647,22 @@ const AgendamentoDetalhes = () => {
                       accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt"
                       className="file-input"
                     />
-                    <label htmlFor="file-upload" className="file-input-label">
-                      📁 Escolher Arquivo
+                    <label htmlFor="file-upload" className="file-label">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      Escolher Arquivo
                     </label>
                   </div>
                   
                   {arquivoSelecionado && (
                     <div className="selected-file">
                       <div className="file-info">
-                        <span className="file-icon">
+                        <div className="file-icon">
                           {formatarTipoArquivo(arquivoSelecionado.type)}
-                        </span>
+                        </div>
                         <div className="file-details">
                           <span className="file-name">{arquivoSelecionado.name}</span>
                           <span className="file-size">{formatarTamanho(arquivoSelecionado.size)}</span>
@@ -580,102 +673,139 @@ const AgendamentoDetalhes = () => {
                   
                   {uploadError && (
                     <div className="upload-error">
-                      <span className="error-icon">⚠️</span>
-                      <span>{uploadError}</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                      </svg>
+                      {uploadError}
                     </div>
                   )}
                   
                   <div className="upload-actions">
                     <button
-                      className="upload-submit-button"
+                      className="btn btn-primary"
                       onClick={uploadDocumento}
                       disabled={!arquivoSelecionado || uploading}
                     >
-                      {uploading ? '📤 Enviando...' : '📤 Enviar Documento'}
+                      {uploading ? (
+                        <>
+                          <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"/>
+                            <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                          </svg>
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7,10 12,15 17,10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                          </svg>
+                          Enviar Documento
+                        </>
+                      )}
                     </button>
                     <button
-                      className="upload-cancel-button"
+                      className="btn btn-secondary"
                       onClick={cancelarUpload}
                       disabled={uploading}
                     >
-                      ❌ Cancelar
+                      Cancelar
                     </button>
                   </div>
                 </div>
               </div>
             )}
 
+            {/* Documents List */}
             {documentosLoading ? (
-              <div className="documentos-loading">
+              <div className="documents-loading">
                 <Loading text="Carregando documentos..." />
               </div>
             ) : documentosError ? (
-              <div className="documentos-error">
-                <div className="error-icon">⚠️</div>
+              <div className="documents-error">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="15" y1="9" x2="9" y2="15"/>
+                  <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
                 <p>{documentosError}</p>
                 <button 
-                  className="retry-button"
+                  className="btn btn-primary"
                   onClick={() => agendamento && carregarDocumentos(agendamento.codigo, paginaAtual)}
                 >
                   Tentar novamente
                 </button>
               </div>
             ) : documentos.length === 0 ? (
-              <div className="documentos-empty">
-                <div className="empty-icon">📁</div>
+              <div className="documents-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                </svg>
                 <p>Nenhum documento encontrado</p>
               </div>
             ) : (
               <>
-                <div className="documentos-carousel">
+                <div className="documents-list">
                   {documentos.map((documento) => (
-                    <div key={documento.codigo} className="documento-item">
-                      <div className="documento-icon">
+                    <div key={documento.codigo} className="document-item">
+                      <div className="document-icon">
                         {formatarTipoArquivo(documento.tipoConteudo)}
                       </div>
-                      <div className="documento-info">
-                        <h4 className="documento-nome" title={documento.nomeArquivo}>
+                      <div className="document-info">
+                        <h4 className="document-name" title={documento.nomeArquivo}>
                           {documento.nomeArquivo}
                         </h4>
-                        <div className="documento-detalhes">
-                          <span className="documento-tipo">
+                        <div className="document-meta">
+                          <span className="document-type">
                             {formatarTipoArquivo(documento.tipoConteudo)}
                           </span>
-                          <span className="documento-tamanho">
+                          <span className="document-size">
                             {formatarTamanho(documento.tamanhoBytes)}
                           </span>
-                          <span className="documento-data">
+                          <span className="document-date">
                             {formatarData(documento.dataUpload)}
                           </span>
                         </div>
                       </div>
-                      <div className="documento-actions">
+                      <div className="document-actions">
                         <button
-                          className="download-button"
+                          className="btn btn-outline btn-sm"
                           onClick={() => downloadDocumento(documento.codigo, documento.nomeArquivo)}
                           title="Download do documento"
                         >
-                          ⬇️ Download
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7,10 12,15 17,10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                          </svg>
+                          Download
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Paginação */}
+                {/* Pagination */}
                 {totalPaginas > 1 && (
-                  <div className="documentos-pagination">
+                  <div className="pagination">
                     <div className="pagination-info">
                       Página {paginaAtual} de {totalPaginas}
                     </div>
                     <div className="pagination-controls">
                       <button
-                        className="pagination-button"
+                        className="btn btn-outline btn-sm"
                         onClick={() => navegarPagina(paginaAtual - 1)}
                         disabled={paginaAtual <= 1 || documentosLoading}
                         title="Página anterior"
                       >
-                        ← Anterior
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15,18 9,12 15,6"/>
+                        </svg>
+                        Anterior
                       </button>
                       
                       <div className="pagination-numbers">
@@ -705,12 +835,15 @@ const AgendamentoDetalhes = () => {
                       </div>
                       
                       <button
-                        className="pagination-button"
+                        className="btn btn-outline btn-sm"
                         onClick={() => navegarPagina(paginaAtual + 1)}
                         disabled={paginaAtual >= totalPaginas || documentosLoading}
                         title="Próxima página"
                       >
-                        Próxima →
+                        Próxima
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9,18 15,12 9,6"/>
+                        </svg>
                       </button>
                     </div>
                   </div>

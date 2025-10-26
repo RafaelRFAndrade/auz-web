@@ -88,13 +88,17 @@ const Operacional = () => {
   const formatarData = (dataString) => {
     try {
       const data = new Date(dataString);
-      return data.toLocaleDateString('pt-BR', {
+      const dataFormatada = data.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        year: 'numeric'
       });
+      const horaFormatada = data.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      return `${dataFormatada} ${horaFormatada}`;
     } catch (error) {
       return dataString;
     }
@@ -215,34 +219,35 @@ const Operacional = () => {
 
   return (
     <div className="operacional-container">
-      {/* Header moderno com gradiente */}
-      <div className="operacional-header">
-        <div className="header-background">
+      {/* Header fixo e consistente */}
+      <header className="operacional-header-fixed">
+        <div className="header-container">
           <button 
-            className="back-button"
+            className="btn-voltar"
             onClick={voltarParaMenu}
             title="Voltar para menu operacional"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="19" y1="12" x2="5" y2="12"/>
               <polyline points="12,19 5,12 12,5"/>
             </svg>
             Voltar
           </button>
-          <div className="header-content">
-            <div className="header-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          
+          <div className="header-main">
+            <div className="medico-avatar">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20,21v-2a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
             </div>
-            <div className="header-info">
-              <h1>{nomeMedico || 'Médico'}</h1>
-              <p>Gerencie agendamentos e pacientes do relacionamento</p>
+            <div className="medico-info">
+              <h1 className="medico-nome">Olá, {nomeMedico || 'Médico'}</h1>
+              <p className="medico-descricao">Gerencie agendamentos e pacientes do relacionamento</p>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="operacional-content">
         {/* Seção de Agendamentos */}
@@ -326,50 +331,42 @@ const Operacional = () => {
                 </button>
               </div>
             ) : agendamentos.length > 0 ? (
-              <div className={`cards-grid ${agendamentoAnimation}`}>
+              <div className="agendamentos-grid-fixed">
                 {agendamentos.map((agendamento, index) => (
                   <div 
                     key={agendamento.codigoAgendamento || agendamento.codigo} 
-                    className="agendamento-card"
+                    className="agendamento-card-fixed"
                     onClick={() => verDetalhesAgendamento(agendamento)}
                     title="Clique para ver detalhes"
-                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <div className="card-glow"></div>
-                    <div className="card-content">
-                      <div className="card-header">
-                        <div className="paciente-avatar">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M20,21v-2a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                          </svg>
-                        </div>
-                        <div className="card-info">
-                          <h3>{agendamento.nomePaciente}</h3>
-                          <p className="atendimento">{agendamento.nomeAtendimento}</p>
-                        </div>
-                        <div className="data-badge">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
-                          </svg>
-                          <span>{formatarData(agendamento.dataAgendamento)}</span>
-                        </div>
+                    <div className="card-header-fixed">
+                      <div className="patient-avatar-fixed">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                          <circle cx="12" cy="7" r="4"/>
+                        </svg>
                       </div>
-                      <div className="card-action">
-                        <button 
-                          className="action-button"
-                          onClick={() => verDetalhesAgendamento(agendamento)}
-                          title="Ver detalhes do agendamento"
-                        >
-                          <span className="action-text">Ver detalhes</span>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M9 18l6-6-6-6"/>
-                          </svg>
-                        </button>
+                      <div className="patient-info-fixed">
+                        <div className="patient-name-fixed">{agendamento.nomePaciente}</div>
+                        <div className="appointment-type-fixed">{agendamento.nomeAtendimento || 'Atendimento'}</div>
                       </div>
+                      <div className="date-badge-fixed">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                          <line x1="16" y1="2" x2="16" y2="6"/>
+                          <line x1="8" y1="2" x2="8" y2="6"/>
+                          <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <span>{formatarData(agendamento.dataAgendamento)}</span>
+                      </div>
+                    </div>
+                    <div className="card-footer-fixed">
+                      <button className="view-details-btn-fixed">
+                        Ver detalhes
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9,18 15,12 9,6"/>
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))}
