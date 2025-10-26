@@ -937,6 +937,7 @@ const UsuariosParceiro = () => {
                     value={editFormData.tipoPermissao}
                     onChange={handleEditInputChange}
                     className="form-select"
+                    disabled
                   >
                     <option value={1}>Administrador</option>
                     <option value={2}>Usuário</option>
@@ -952,6 +953,7 @@ const UsuariosParceiro = () => {
                     value={editFormData.situacao}
                     onChange={handleEditInputChange}
                     className="form-select"
+                    disabled
                   >
                     <option value={0}>Ativo</option>
                     <option value={1}>Desativo</option>
