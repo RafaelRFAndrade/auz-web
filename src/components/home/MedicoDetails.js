@@ -17,9 +17,88 @@ const MedicoDetails = () => {
   const [fotoPerfil, setFotoPerfil] = useState(null);
   const [isUploadingFoto, setIsUploadingFoto] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  
+  // Estados para usuários relacionados
+  const [usuariosRelacionados, setUsuariosRelacionados] = useState([]);
+  const [usuariosLoading, setUsuariosLoading] = useState(false);
+  const [usuariosError, setUsuariosError] = useState(null);
+  const [usuariosPagina, setUsuariosPagina] = useState(1);
+  const [usuariosTotalPaginas, setUsuariosTotalPaginas] = useState(0);
+  const [usuariosTotalItens, setUsuariosTotalItens] = useState(0);
+  
+  // Estados para vincular usuário
+  const [isVinculando, setIsVinculando] = useState(false);
 
   const showAlert = (type, title, message) => setAlert({ show: true, type, title, message });
   const closeAlert = () => setAlert(prev => ({ ...prev, show: false }));
+
+  // Função para carregar usuários relacionados
+  const carregarUsuariosRelacionados = async (codigoMedico, pagina = 1) => {
+    try {
+      setUsuariosLoading(true);
+      setUsuariosError(null);
+      const response = await medicoService.getUsuariosRelacionados(codigoMedico, pagina, 4);
+      setUsuariosRelacionados(response.usuariosVinculados || []);
+      setUsuariosTotalPaginas(response.totalPaginas || 0);
+      setUsuariosTotalItens(response.itens || 0);
+      setUsuariosPagina(pagina);
+    } catch (error) {
+      console.error('Erro ao carregar usuários relacionados:', error);
+      setUsuariosError('Erro ao carregar usuários relacionados. Tente novamente.');
+    } finally {
+      setUsuariosLoading(false);
+    }
+  };
+
+  const navegarPaginaUsuarios = (novaPagina) => {
+    if (medicoData && medicoData.medico) {
+      carregarUsuariosRelacionados(medicoData.medico.codigo, novaPagina);
+    }
+  };
+
+  // Função para vincular usuário ao médico
+  const vincularUsuario = async () => {
+    if (!medicoData || !medicoData.medico) {
+      showAlert('error', 'Erro', 'Dados do médico não encontrados');
+      return;
+    }
+
+    try {
+      setIsVinculando(true);
+      await usuarioService.relacionarUsuario(medicoData.medico.codigo);
+      
+      // Recarregar lista de usuários relacionados
+      await carregarUsuariosRelacionados(medicoData.medico.codigo, usuariosPagina);
+      
+      showAlert('success', 'Sucesso', 'Usuário vinculado ao médico com sucesso!');
+    } catch (error) {
+      console.error('Erro ao vincular usuário:', error);
+      let errorMessage = 'Erro desconhecido';
+      let alertTitle = 'Erro ao Vincular';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.Mensagem) {
+        errorMessage = error.response.data.Mensagem;
+      } else if (error.response?.data?.mensagem) {
+        errorMessage = error.response.data.mensagem;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Tratamento específico para usuário já relacionado
+      if (errorMessage.toLowerCase().includes('já relacionados') || 
+          errorMessage.toLowerCase().includes('already related') ||
+          errorMessage.toLowerCase().includes('usuário e médico já relacionados')) {
+        alertTitle = 'Usuário Já Vinculado';
+        errorMessage = 'Este usuário já está vinculado a este médico.';
+      }
+      
+      showAlert('error', alertTitle, errorMessage);
+    } finally {
+      setIsVinculando(false);
+    }
+  };
 
   // Funções para gerenciar foto de perfil
   const carregarFotoPerfil = async (codigoMedico) => {
@@ -217,6 +296,8 @@ const MedicoDetails = () => {
         
         if (response && response.medico && response.medico.codigo) {
           await carregarFotoPerfil(response.medico.codigo);
+          // Carregar usuários relacionados
+          carregarUsuariosRelacionados(response.medico.codigo);
         }
       } catch (error) {
         console.error('Erro ao buscar detalhes do médico:', error);
@@ -714,6 +795,155 @@ const MedicoDetails = () => {
                     </div>
                     <p>Nenhum atendimento encontrado</p>
                   </div>
+                )}
+              </div>
+            </div>
+
+            {/* Usuários Relacionados */}
+            <div className="info-card full-width">
+              <div className="card-header">
+                <div className="card-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <div className="card-header-content">
+                  <h2>Usuários Vinculados ({usuariosTotalItens || 0})</h2>
+                  <button 
+                    className="btn-vincular-usuario"
+                    onClick={vincularUsuario}
+                    disabled={isVinculando}
+                    title="Vincular seu usuário a este médico"
+                  >
+                    {isVinculando ? (
+                      <div className="btn-spinner"></div>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                      </svg>
+                    )}
+                    {isVinculando ? 'Vinculando...' : 'Vincular Usuário'}
+                  </button>
+                </div>
+              </div>
+              <div className="card-content">
+                {usuariosLoading ? (
+                  <div className="loading-state">
+                    <div className="loading-spinner">Carregando usuários...</div>
+                  </div>
+                ) : usuariosError ? (
+                  <div className="error-state">
+                    <div className="error-icon">⚠️</div>
+                    <p>{usuariosError}</p>
+                    <button 
+                      className="btn-primary"
+                      onClick={() => medicoData && carregarUsuariosRelacionados(medicoData.medico.codigo, usuariosPagina)}
+                    >
+                      Tentar novamente
+                    </button>
+                  </div>
+                ) : usuariosRelacionados.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                    </div>
+                    <p>Nenhum usuário vinculado encontrado</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="usuarios-list">
+                      {usuariosRelacionados.map((usuario, index) => (
+                        <div key={index} className="usuario-item">
+                          <div className="usuario-avatar">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                              <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                          </div>
+                          <div className="usuario-info">
+                            <h4 className="usuario-nome">{usuario.nomeUsuario}</h4>
+                            <p className="usuario-email">{usuario.emailUsuario}</p>
+                            <div className="usuario-details">
+                              <span className="usuario-vinculo">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                Vinculado em: {formatDate(usuario.dtVinculo)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Paginação dos usuários */}
+                    {usuariosTotalPaginas > 1 && (
+                      <div className="usuarios-pagination">
+                        <div className="pagination-info">
+                          Página {usuariosPagina} de {usuariosTotalPaginas}
+                        </div>
+                        <div className="pagination-controls">
+                          <button
+                            className="pagination-button"
+                            onClick={() => navegarPaginaUsuarios(usuariosPagina - 1)}
+                            disabled={usuariosPagina <= 1 || usuariosLoading}
+                            title="Página anterior"
+                          >
+                            ← Anterior
+                          </button>
+                          
+                          <div className="pagination-numbers">
+                            {Array.from({ length: Math.min(5, usuariosTotalPaginas) }, (_, i) => {
+                              let numeroPagina;
+                              if (usuariosTotalPaginas <= 5) {
+                                numeroPagina = i + 1;
+                              } else if (usuariosPagina <= 3) {
+                                numeroPagina = i + 1;
+                              } else if (usuariosPagina >= usuariosTotalPaginas - 2) {
+                                numeroPagina = usuariosTotalPaginas - 4 + i;
+                              } else {
+                                numeroPagina = usuariosPagina - 2 + i;
+                              }
+                              
+                              return (
+                                <button
+                                  key={numeroPagina}
+                                  className={`pagination-number ${usuariosPagina === numeroPagina ? 'active' : ''}`}
+                                  onClick={() => navegarPaginaUsuarios(numeroPagina)}
+                                  disabled={usuariosLoading}
+                                >
+                                  {numeroPagina}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          
+                          <button
+                            className="pagination-button"
+                            onClick={() => navegarPaginaUsuarios(usuariosPagina + 1)}
+                            disabled={usuariosPagina >= usuariosTotalPaginas || usuariosLoading}
+                            title="Próxima página"
+                          >
+                            Próxima →
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

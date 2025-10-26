@@ -27,44 +27,23 @@
   position: relative;
 }
 
-/* Modern Header */
+/* Modern Header - Estado Único */
 .details-header {
   position: relative;
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
   padding: 0;
   overflow: hidden;
-}
-
-.header-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  opacity: 0.98;
-}
-
-.header-background::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-  opacity: 0.3;
+  min-height: 200px;
 }
 
 .medico-details-container .header-content {
-  position: relative;
-  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding: 40px;
   gap: 30px;
+  min-height: 200px;
 }
 
 .medico-details-container .header-left {
@@ -75,27 +54,23 @@
 }
 
 .medico-details-container .btn-back {
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: white;
   padding: 12px 20px;
   border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
+  transition: opacity 0.2s ease;
 }
 
 .medico-details-container .btn-back:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
 }
 
 .medico-details-container .profile-section {
@@ -119,31 +94,19 @@
   object-fit: cover;
   border: 4px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-}
-
-.profile-photo:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
 }
 
 .profile-photo-placeholder {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   border: 4px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
   color: rgba(255, 255, 255, 0.8);
-}
-
-.profile-photo-placeholder:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .btn-upload-photo {
@@ -160,15 +123,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
   box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
   font-weight: bold;
+  transition: opacity 0.2s ease;
 }
 
 .btn-upload-photo:hover {
-  background: linear-gradient(135deg, #059669, #047857);
-  transform: scale(1.15);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+  opacity: 0.9;
 }
 
 .medico-details-container .profile-info {
@@ -265,28 +226,24 @@
 .medico-details-container .btn-edit {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 12px 24px;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-  border: 2px solid rgba(255, 255, 255, 0.2);
   text-align: center;
+  transition: opacity 0.2s ease;
 }
 
 .medico-details-container .btn-edit:hover {
-  background: linear-gradient(135deg, #059669, #047857);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
-  border-color: rgba(255, 255, 255, 0.3);
+  opacity: 0.9;
 }
 
 .medico-details-container .edit-actions {
@@ -298,59 +255,53 @@
 .medico-details-container .btn-save {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   color: white;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 12px 24px;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: opacity 0.2s ease;
 }
 
 .medico-details-container .btn-save:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+  opacity: 0.9;
 }
 
 .medico-details-container .btn-save:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
 .medico-details-container .btn-cancel {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 12px 24px;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transition: opacity 0.2s ease;
 }
 
 .medico-details-container .btn-cancel:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+  opacity: 0.9;
 }
 
 .medico-details-container .btn-cancel:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
 .medico-details-container .btn-spinner {
@@ -374,8 +325,11 @@
 
 .medico-details-container .content-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  justify-items: center;
 }
 
 .medico-details-container .info-card {
@@ -387,10 +341,14 @@
   transition: all 0.3s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   position: relative;
+  width: 100%;
+  max-width: 500px;
 }
 
 .medico-details-container .info-card.full-width {
   grid-column: 1 / -1;
+  max-width: none;
+  width: 100%;
 }
 
 .medico-details-container .info-card:hover {
@@ -440,6 +398,48 @@
   font-weight: 700;
   color: #0f172a;
   margin: 0;
+}
+
+.medico-details-container .card-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+
+.medico-details-container .btn-vincular-usuario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.medico-details-container .btn-vincular-usuario:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.medico-details-container .btn-vincular-usuario:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+}
+
+.medico-details-container .btn-vincular-usuario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .medico-details-container .card-content {
@@ -973,9 +973,29 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .content-grid {
+  .medico-details-container .content-grid {
     grid-template-columns: 1fr;
     gap: 24px;
+    max-width: 600px;
+  }
+  
+  .medico-details-container .info-card {
+    max-width: 100%;
+  }
+  
+  .medico-details-container .info-card.full-width {
+    max-width: none;
+    width: 100%;
+  }
+  
+  .medico-details-container .card-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .medico-details-container .btn-vincular-usuario {
+    align-self: flex-end;
   }
 }
 
@@ -1217,4 +1237,189 @@
 /* Smooth Transitions */
 * {
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Usuários Relacionados */
+.usuarios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.usuario-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.usuario-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e0;
+}
+
+.usuario-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 50%;
+  color: white;
+  flex-shrink: 0;
+}
+
+.usuario-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.usuario-nome {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+  word-break: break-word;
+}
+
+.usuario-email {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 8px 0;
+  word-break: break-word;
+}
+
+.usuario-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.usuario-vinculo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.usuarios-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.usuarios-pagination .pagination-info {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.usuarios-pagination .pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.usuarios-pagination .pagination-button {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.usuarios-pagination .pagination-button:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e0;
+  color: #475569;
+}
+
+.usuarios-pagination .pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.usuarios-pagination .pagination-numbers {
+  display: flex;
+  gap: 4px;
+}
+
+.usuarios-pagination .pagination-number {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #64748b;
+  min-width: 40px;
+  text-align: center;
+}
+
+.usuarios-pagination .pagination-number:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e0;
+  color: #475569;
+}
+
+.usuarios-pagination .pagination-number.active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: white;
+}
+
+.usuarios-pagination .pagination-number:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive para usuários */
+@media (max-width: 768px) {
+  .usuario-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .usuario-info {
+    text-align: center;
+  }
+
+  .usuarios-pagination {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .usuarios-pagination .pagination-controls {
+    justify-content: center;
+  }
+
+  .usuarios-pagination .pagination-numbers {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }

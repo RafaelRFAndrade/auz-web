@@ -190,6 +190,23 @@ export const medicoService = {
       }
       throw error;
     }
+  },
+
+  getUsuariosRelacionados: async (codigoMedico, pagina = 1, itensPorPagina = 4) => {
+    try {
+      const response = await medicoClient.get('/Medico/UsuariosRelacionados', {
+        params: {
+          CodigoMedico: codigoMedico,
+          Pagina: pagina,
+          ItensPorPagina: itensPorPagina
+        }
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar usuários relacionados:', error);
+      throw error;
+    }
   }
 };
 

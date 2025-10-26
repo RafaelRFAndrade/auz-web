@@ -484,7 +484,7 @@ const Doctors = () => {
           <div className="header-content">
             <div className="welcome-section">
               <h1 className="welcome-title">
-                Olá, <span className="highlight">{userData.name}</span>
+                <span className="highlight">Operadores</span>
               </h1>
               <p className="welcome-subtitle">Gerencie os operadores da sua clínica</p>
             </div>

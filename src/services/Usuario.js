@@ -303,6 +303,17 @@ export const usuarioService = {
       console.error('Erro ao obter informações do token:', error);
       return null;
     }
+  },
+
+  relacionarUsuario: async (codigoMedico) => {
+    try {
+      const response = await usuarioClient.post('/Usuario/Relacionar', {
+        codigoMedico: codigoMedico
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
