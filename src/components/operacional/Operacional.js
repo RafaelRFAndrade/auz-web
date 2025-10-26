@@ -199,6 +199,20 @@ const Operacional = () => {
     navigate('/operacional');
   };
 
+  const verDetalhesAgendamento = (agendamento) => {
+    const codigo = agendamento.codigoAgendamento || agendamento.codigo;
+    
+    const stateData = {
+      agendamento: agendamento,
+      nomeMedico: nomeMedico,
+      codigoMedico: codigoMedicoUsuarioOperacional || codigoMedico
+    };
+    
+    navigate(`/agendamento/${codigo}`, {
+      state: stateData
+    });
+  };
+
   return (
     <div className="operacional-container">
       <div className="operacional-header">
@@ -270,20 +284,25 @@ const Operacional = () => {
             ) : agendamentos.length > 0 ? (
               <div className={`cards-container ${agendamentoAnimation}`}>
                 {agendamentos.map((agendamento) => (
-                  <div key={agendamento.codigoAgendamento} className="agendamento-card">
-                    <div className="card-header">
-                      <div className="paciente-info">
-                        <h3>{agendamento.nomePaciente}</h3>
-                        <p className="atendimento">{agendamento.nomeAtendimento}</p>
+                  <div 
+                    key={agendamento.codigoAgendamento || agendamento.codigo} 
+                    className="agendamento-card clickable-card"
+                    onClick={() => verDetalhesAgendamento(agendamento)}
+                    title="Clique para ver detalhes"
+                  >
+                      <div className="card-header">
+                        <div className="paciente-info">
+                          <h3>{agendamento.nomePaciente}</h3>
+                          <p className="atendimento">{agendamento.nomeAtendimento}</p>
+                        </div>
+                        <div className="data-info">
+                          <span className="data">{formatarData(agendamento.dataAgendamento)}</span>
+                        </div>
                       </div>
-                      <div className="data-info">
-                        <span className="data">{formatarData(agendamento.dataAgendamento)}</span>
+                      <div className="card-footer">
+                        <span className="click-hint">👆 Clique para ver detalhes</span>
                       </div>
                     </div>
-                    <div className="card-footer">
-                      <span className="codigo">Código: {agendamento.codigoAgendamento}</span>
-                    </div>
-                  </div>
                 ))}
               </div>
             ) : (
@@ -382,7 +401,6 @@ const Operacional = () => {
                       </div>
 
                       <div className="card-footer">
-                        <span className="codigo">Código: {paciente.codigo}</span>
                       </div>
                     </div>
                   );

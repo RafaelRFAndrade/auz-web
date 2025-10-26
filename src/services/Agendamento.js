@@ -140,6 +140,28 @@ export const agendamentoService = {
       console.error('Erro ao buscar agendamentos da home:', error);
       throw error;
     }
+  },
+
+  // Buscar detalhes de um agendamento específico
+  getDetalhes: async (codigoAgendamento) => {
+    try {
+      const response = await agendamentoClient.get(`/Agendamento/${codigoAgendamento}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do agendamento:', error);
+      throw error;
+    }
+  },
+
+  // Atualizar um agendamento
+  atualizar: async (dadosAgendamento) => {
+    try {
+      const response = await agendamentoClient.patch('/Agendamento/Detalhado', dadosAgendamento);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao atualizar agendamento:', error);
+      throw error;
+    }
   }
 };
 

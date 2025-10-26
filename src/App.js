@@ -20,6 +20,7 @@ const UsuariosParceiro = lazy(() => import('./components/parceiro/UsuariosParcei
 const ParceiroInfo = lazy(() => import('./components/parceiro/ParceiroInfo'));
 const OperacionalMenu = lazy(() => import('./components/operacional/OperacionalMenu'));
 const Operacional = lazy(() => import('./components/operacional/Operacional'));
+const AgendamentoDetalhes = lazy(() => import('./components/agendamento/AgendamentoDetalhes'));
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -254,6 +255,18 @@ function App() {
                 <AuthenticatedLayout>
                   <Suspense fallback={<Loading text="Carregando operacional..." />}>
                     <Operacional />
+                  </Suspense>
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/agendamento/:codigoAgendamento" 
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Suspense fallback={<Loading text="Carregando detalhes do agendamento..." />}>
+                    <AgendamentoDetalhes />
                   </Suspense>
                 </AuthenticatedLayout>
               </ProtectedRoute>

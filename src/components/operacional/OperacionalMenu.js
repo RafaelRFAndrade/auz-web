@@ -93,7 +93,6 @@ const OperacionalMenu = () => {
               <div className="medico-icon">👨‍⚕️</div>
               <div className="card-info">
                 <h3>{relacionamento.nomeMedico}</h3>
-                <p className="codigo">Código: {relacionamento.codigo}</p>
               </div>
             </div>
             
