@@ -440,7 +440,7 @@ const Patients = () => {
                   
                   <div className="patient-actions">
                     <button 
-                      className="action-btn view-btn" 
+                      className="btn-view" 
                       onClick={() => navigate(`/patient-details/${patient.id}`)}
                       title="Ver detalhes"
                     >
@@ -450,7 +450,7 @@ const Patients = () => {
                       </svg>
                     </button>
                     <button 
-                      className="action-btn edit-btn" 
+                      className="btn-edit" 
                       onClick={() => handleEdit(patient.id)}
                       title="Editar"
                     >
@@ -460,7 +460,7 @@ const Patients = () => {
                       </svg>
                     </button>
                     <button 
-                      className="action-btn delete-btn" 
+                      className="btn-delete" 
                       onClick={() => handleDelete(patient.id)}
                       title="Excluir"
                     >
