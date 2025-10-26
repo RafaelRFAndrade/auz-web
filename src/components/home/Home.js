@@ -352,7 +352,7 @@ const Home = () => {
                 {appointmentsList.map((atendimento, index) => (
                   <div key={index} className="activity-card modern-card">
                     <div className="card-header">
-                      <div className="card-title">{atendimento.nomeAtendimento}</div>
+                      <div className="card-title">{atendimento.descricao}</div>
                       <div className="card-badge status-active">Em Andamento</div>
                     </div>
                     <div className="card-content">
