@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { atendimentoService } from '../../services/Atendimento';
+import { documentoService } from '../../services/Documento';
 import { usuarioService } from '../../services/Usuario';
 import './AppointmentDetails.css';
 import Alert from '../../components/custom/Alert';
@@ -11,9 +12,85 @@ const AppointmentDetails = () => {
   const [atendimento, setAtendimento] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [alert, setAlert] = useState({ show: false, type: 'info', title: '', message: '' });
+  
+  // Estados para documentos
+  const [documentos, setDocumentos] = useState([]);
+  const [documentosLoading, setDocumentosLoading] = useState(false);
+  const [documentosError, setDocumentosError] = useState(null);
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(0);
+  const [totalItens, setTotalItens] = useState(0);
+  const itensPorPagina = 5;
+  
+  // Estados para carrossel
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(4);
 
   const showAlert = (type, title, message) => setAlert({ show: true, type, title, message });
   const closeAlert = () => setAlert(prev => ({ ...prev, show: false }));
+
+  const carregarDocumentos = async (codigoEntidade, pagina = 1) => {
+    try {
+      setDocumentosLoading(true);
+      setDocumentosError(null);
+      const response = await documentoService.buscarDocumentos(codigoEntidade, pagina, itensPorPagina);
+      setDocumentos(response.documentos || []);
+      setTotalPaginas(response.totalPaginas || 0);
+      setTotalItens(response.itens || 0);
+      setPaginaAtual(pagina);
+    } catch (error) {
+      console.error('Erro ao carregar documentos:', error);
+      setDocumentosError('Erro ao carregar documentos. Tente novamente.');
+    } finally {
+      setDocumentosLoading(false);
+    }
+  };
+
+  const navegarPagina = (novaPagina) => {
+    // FORÇAR usando codigoAtendimento da URL
+    carregarDocumentos(codigoAtendimento, novaPagina);
+  };
+
+  // Funções do carrossel
+  const nextSlide = () => {
+    const maxSlide = Math.max(0, documentos.length - itemsPerView);
+    setCurrentSlide(prev => Math.min(prev + 1, maxSlide));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide(prev => Math.max(prev - 1, 0));
+  };
+
+  const goToSlide = (slideIndex) => {
+    setCurrentSlide(slideIndex);
+  };
+
+  // Calcular itens visíveis baseado no tamanho da tela
+  const updateItemsPerView = () => {
+    const width = window.innerWidth;
+    if (width < 768) {
+      setItemsPerView(1);
+    } else if (width < 1200) {
+      setItemsPerView(2);
+    } else if (width < 1600) {
+      setItemsPerView(3);
+    } else {
+      setItemsPerView(4); // Mais itens em telas grandes
+    }
+  };
+
+  // Resetar slide quando documentos mudarem
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [documentos]);
+
+  // Atualizar itens por view quando a tela redimensionar
+  useEffect(() => {
+    updateItemsPerView();
+    const handleResize = () => updateItemsPerView();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchAtendimentoDetails = async () => {
@@ -26,6 +103,9 @@ const AppointmentDetails = () => {
         setIsLoading(true);
         const response = await atendimentoService.getAtendimentoDetails(codigoAtendimento);
         setAtendimento(response);
+        
+        // Carregar documentos usando o codigoAtendimento da URL
+        carregarDocumentos(codigoAtendimento);
       } catch (error) {
         console.error('Erro ao buscar detalhes do atendimento:', error);
         if (error.response?.status === 401) {
@@ -65,6 +145,15 @@ const AppointmentDetails = () => {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
+  const formatarTipoArquivo = (tipoConteudo) => {
+    if (tipoConteudo?.startsWith('image/')) return '🖼️ Imagem';
+    if (tipoConteudo?.startsWith('application/pdf')) return '📄 PDF';
+    if (tipoConteudo?.startsWith('text/')) return '📝 Texto';
+    if (tipoConteudo?.includes('word')) return '📄 Word';
+    if (tipoConteudo?.includes('excel') || tipoConteudo?.includes('spreadsheet')) return '📊 Excel';
+    return '📄 Documento';
+  };
+
   const getSituacaoText = (situacao) => {
     switch (situacao) {
       case 0: return 'Ativo';
@@ -91,9 +180,10 @@ const AppointmentDetails = () => {
       }
       
       setIsLoading(true);
-      const response = await atendimentoService.downloadDocumento(codigoDocumento);
+      const response = await documentoService.downloadDocumento(codigoDocumento);
       
-      const blob = new Blob([response.data]);
+      // A resposta já é um blob quando usamos responseType: 'blob'
+      const blob = response.data;
       const url = window.URL.createObjectURL(blob);
       
       const link = document.createElement('a');
@@ -302,50 +392,176 @@ const AppointmentDetails = () => {
             </div>
           </div>
 
-          {/* Documentos */}
+          {/* Documentos - Carrossel */}
           <div className="details-section">
             <div className="section-header">
               <h2 className="section-title">
                 <span className="section-icon">📄</span>
-                Documentos ({atendimento.documentos?.length || 0})
+                Documentos ({totalItens || 0})
               </h2>
             </div>
             <div className="section-content">
-              {atendimento.documentos && atendimento.documentos.length > 0 ? (
-                <div className="documentos-list">
-                  {atendimento.documentos.map((documento, index) => (
-                    <div key={index} className="documento-item">
-                      <div className="documento-header">
-                        <div className="documento-icon">
-                          {documento.tipoConteudo?.startsWith('image/') ? '🖼️' : '📄'}
-                        </div>
-                        <div className="documento-info">
-                          <h4 className="documento-nome">{documento.nomeArquivo}</h4>
-                          <div className="documento-details">
-                            <span className="documento-tipo">{documento.tipoConteudo}</span>
-                            <span className="documento-tamanho">{formatFileSize(documento.tamanhoBytes)}</span>
-                            <span className="documento-data">{formatDate(documento.dataUpload)}</span>
-                          </div>
-                        </div>
-                        <div className="documento-actions">
-                          <button 
-                            className="btn-download"
-                            onClick={() => handleDownloadDocumento(documento.codigo, documento.nomeArquivo)}
-                            title="Baixar documento"
-                            disabled={isLoading}
-                          >
-                            {isLoading ? '⏳' : '⬇️'} Download
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              {documentosLoading ? (
+                <div className="loading-state">
+                  <div className="loading-spinner">Carregando documentos...</div>
                 </div>
-              ) : (
+              ) : documentosError ? (
+                <div className="error-state">
+                  <div className="error-icon">⚠️</div>
+                  <p>{documentosError}</p>
+                  <button 
+                    className="btn-primary"
+                    onClick={() => atendimento && carregarDocumentos(atendimento.codigo, paginaAtual)}
+                  >
+                    Tentar novamente
+                  </button>
+                </div>
+              ) : documentos.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-icon">📄</div>
                   <p>Nenhum documento encontrado</p>
                 </div>
+              ) : (
+                <>
+                  <div className="documentos-carousel">
+                    <div className="documentos-carousel-header">
+                      <h3 className="documentos-carousel-title">
+                        Documentos ({documentos.length})
+                      </h3>
+                      <div className="carousel-controls">
+                        <button
+                          className="carousel-btn"
+                          onClick={prevSlide}
+                          disabled={currentSlide === 0}
+                          title="Documento anterior"
+                        >
+                          ← Anterior
+                        </button>
+                        <button
+                          className="carousel-btn"
+                          onClick={nextSlide}
+                          disabled={currentSlide >= documentos.length - itemsPerView}
+                          title="Próximo documento"
+                        >
+                          Próximo →
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="documentos-container">
+                      <div 
+                        className="documentos-track"
+                        style={{
+                          transform: `translateX(-${currentSlide * (100 / itemsPerView)}%)`
+                        }}
+                      >
+                        {documentos.map((documento, index) => (
+                          <div key={documento.codigo || index} className="documento-item">
+                            <div className="documento-header">
+                              <div className="documento-icon">
+                                {formatarTipoArquivo(documento.tipoConteudo)}
+                              </div>
+                              <div className="documento-info">
+                                <h4 className="documento-nome" title={documento.nomeArquivo}>
+                                  {documento.nomeArquivo}
+                                </h4>
+                                <div className="documento-details">
+                                  <span className="documento-tipo">
+                                    {formatarTipoArquivo(documento.tipoConteudo)}
+                                  </span>
+                                  <span className="documento-tamanho">
+                                    {formatFileSize(documento.tamanhoBytes)}
+                                  </span>
+                                  <span className="documento-data">
+                                    {formatDate(documento.dataUpload)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="documento-actions">
+                                <button 
+                                  className="btn-download"
+                                  onClick={() => handleDownloadDocumento(documento.codigo, documento.nomeArquivo)}
+                                  title="Baixar documento"
+                                  disabled={isLoading}
+                                >
+                                  {isLoading ? '⏳' : '⬇️'} Download
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Indicadores do carrossel */}
+                    {documentos.length > itemsPerView && (
+                      <div className="carousel-indicators">
+                        {Array.from({ length: Math.ceil(documentos.length / itemsPerView) }, (_, i) => (
+                          <button
+                            key={i}
+                            className={`carousel-indicator ${Math.floor(currentSlide / itemsPerView) === i ? 'active' : ''}`}
+                            onClick={() => goToSlide(i * itemsPerView)}
+                            title={`Ir para slide ${i + 1}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Paginação */}
+                  {totalPaginas > 1 && (
+                    <div className="documentos-pagination">
+                      <div className="pagination-info">
+                        Página {paginaAtual} de {totalPaginas}
+                      </div>
+                      <div className="pagination-controls">
+                        <button
+                          className="pagination-button"
+                          onClick={() => navegarPagina(paginaAtual - 1)}
+                          disabled={paginaAtual <= 1 || documentosLoading}
+                          title="Página anterior"
+                        >
+                          ← Anterior
+                        </button>
+                        
+                        <div className="pagination-numbers">
+                          {Array.from({ length: Math.min(5, totalPaginas) }, (_, i) => {
+                            let numeroPagina;
+                            if (totalPaginas <= 5) {
+                              numeroPagina = i + 1;
+                            } else if (paginaAtual <= 3) {
+                              numeroPagina = i + 1;
+                            } else if (paginaAtual >= totalPaginas - 2) {
+                              numeroPagina = totalPaginas - 4 + i;
+                            } else {
+                              numeroPagina = paginaAtual - 2 + i;
+                            }
+                            
+                            return (
+                              <button
+                                key={numeroPagina}
+                                className={`pagination-number ${paginaAtual === numeroPagina ? 'active' : ''}`}
+                                onClick={() => navegarPagina(numeroPagina)}
+                                disabled={documentosLoading}
+                              >
+                                {numeroPagina}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        
+                        <button
+                          className="pagination-button"
+                          onClick={() => navegarPagina(paginaAtual + 1)}
+                          disabled={paginaAtual >= totalPaginas || documentosLoading}
+                          title="Próxima página"
+                        >
+                          Próxima →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
