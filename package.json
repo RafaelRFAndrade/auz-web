@@ -11,13 +11,14 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "cross-env DISABLE_ESLINT_PLUGIN=true react-scripts start",
+    "build": "cross-env DISABLE_ESLINT_PLUGIN=true react-scripts build",
+    "test": "react-scripts test --watchAll=false",
+    "test:watch": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -37,5 +38,13 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(axios)/)"
+    ]
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }
