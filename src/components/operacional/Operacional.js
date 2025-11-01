@@ -31,27 +31,39 @@ const Operacional = () => {
   const [pacienteAnimation, setPacienteAnimation] = useState('');
 
   useEffect(() => {
-    // Obter dados do state da navegação
-    if (location.state) {
-      setNomeMedico(location.state.nomeMedico || '');
-      setCodigoMedicoUsuarioOperacional(location.state.codigoMedicoUsuarioOperacional || codigoMedico);
-    } else {
-      setCodigoMedicoUsuarioOperacional(codigoMedico);
+    // Resetar estados quando codigoMedico mudar
+    setAgendamentos([]);
+    setPacientes([]);
+    setLoadingAgendamentos(true);
+    setLoadingPacientes(true);
+    setErrorAgendamentos(null);
+    setErrorPacientes(null);
+    setCurrentAgendamentoPage(1);
+    setCurrentPacientePage(1);
+    setAgendamentoAnimation('');
+    setPacienteAnimation('');
+    setIsTransitioningAgendamentos(false);
+    setIsTransitioningPacientes(false);
+    
+    // Obter dados do state da navegação ou usar apenas o parâmetro da URL
+    const medicoCodigo = codigoMedico || location.state?.codigoMedicoUsuarioOperacional;
+    const medicoNome = location.state?.nomeMedico || '';
+    
+    if (medicoCodigo) {
+      setNomeMedico(medicoNome);
+      setCodigoMedicoUsuarioOperacional(medicoCodigo);
+      carregarDados(medicoCodigo);
     }
+  }, [codigoMedico]);
 
-    if (codigoMedico || codigoMedicoUsuarioOperacional) {
-      carregarDados();
-    }
-  }, [codigoMedico, location.state]);
-
-  const carregarDados = async () => {
-    const codigo = codigoMedicoUsuarioOperacional || codigoMedico;
+  const carregarDados = async (codigoParaUsar = null) => {
+    const codigo = codigoParaUsar || codigoMedicoUsuarioOperacional || codigoMedico;
     if (!codigo) return;
 
     // Carregar agendamentos e pacientes em paralelo
     Promise.all([
-      carregarAgendamentos(codigo),
-      carregarPacientes(codigo)
+      carregarAgendamentos(codigo, 1),
+      carregarPacientes(codigo, 1)
     ]);
   };
 
@@ -62,9 +74,12 @@ const Operacional = () => {
       const response = await operacionalService.obterAgendamentosOperacionais(codigo, page, 4);
       setAgendamentos(response.agendamentoOperacionais || []);
       setTotalAgendamentoPages(response.totalPaginas || 1);
+      setCurrentAgendamentoPage(page);
     } catch (error) {
       console.error('Erro ao carregar agendamentos:', error);
       setErrorAgendamentos('Erro ao carregar agendamentos. Tente novamente.');
+      setAgendamentos([]);
+      setTotalAgendamentoPages(1);
     } finally {
       setLoadingAgendamentos(false);
     }
@@ -77,9 +92,12 @@ const Operacional = () => {
       const response = await operacionalService.obterPacientesOperacionais(codigo, page, 4);
       setPacientes(response.listaPacientes || []);
       setTotalPacientePages(response.totalPaginas || 1);
+      setCurrentPacientePage(page);
     } catch (error) {
       console.error('Erro ao carregar pacientes:', error);
       setErrorPacientes('Erro ao carregar pacientes. Tente novamente.');
+      setPacientes([]);
+      setTotalPacientePages(1);
     } finally {
       setLoadingPacientes(false);
     }

@@ -556,36 +556,87 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: relative;
+  width: 100%;
+  min-height: 120px;
+  box-sizing: border-box;
 }
 
 .info-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.95rem;
-  padding: 12px;
-  background: rgba(248, 250, 252, 0.8);
-  border-radius: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.5);
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 0.95rem !important;
+  padding: 12px !important;
+  background: rgba(248, 250, 252, 0.8) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(226, 232, 240, 0.5) !important;
+  position: relative !important;
+  width: 100% !important;
+  min-height: 48px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+
+.info-row-email {
+  order: 1 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+.info-row-phone {
+  order: 2 !important;
+  top: auto !important;
+  left: 0 !important;
+  right: 0 !important;
 }
 
 .info-icon {
-  width: 18px;
-  height: 18px;
-  color: #94a3b8;
-  flex-shrink: 0;
+  width: 18px !important;
+  height: 18px !important;
+  color: #94a3b8 !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  display: inline-block !important;
 }
 
 .info-label {
-  color: #475569;
-  font-weight: 600;
-  min-width: 70px;
+  color: #475569 !important;
+  font-weight: 600 !important;
+  min-width: 70px !important;
+  width: 70px !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
 }
 
 .info-value {
-  color: #0f172a;
-  font-weight: 500;
-  flex: 1;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  position: relative !important;
+  display: block !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  box-sizing: border-box !important;
+}
+
+.info-value-email {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+.info-value-phone {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
 }
 
 /* Empty State */
@@ -708,7 +759,25 @@
 }
 
 .modal-body {
-  padding: 0 32px 32px;
+  padding: 0 32px 64px 32px !important;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  min-height: auto !important;
+  box-sizing: border-box !important;
+}
+
+.modal-body form {
+  width: 100% !important;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: space-between !important;
+  min-height: 100% !important;
+  gap: 0 !important;
 }
 
 .form-group {
@@ -741,6 +810,125 @@
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
+/* FORÇAR TODOS os campos da modal a serem estáticos e alinhados à esquerda */
+.form-group-nome {
+  position: relative !important;
+  width: 100% !important;
+  margin-bottom: 24px !important;
+  display: block !important;
+  order: 0 !important;
+  text-align: left !important;
+  align-self: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  left: 0 !important;
+  right: auto !important;
+}
+
+.form-group-crm {
+  position: relative !important;
+  width: 100% !important;
+  margin-bottom: 24px !important;
+  display: block !important;
+  order: 1 !important;
+  text-align: left !important;
+  align-self: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  left: 0 !important;
+  right: auto !important;
+}
+
+.form-group-email {
+  position: relative !important;
+  width: 100% !important;
+  margin-bottom: 24px !important;
+  display: block !important;
+  order: 2 !important;
+  text-align: left !important;
+  align-self: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  left: 0 !important;
+  right: auto !important;
+}
+
+.form-group-phone {
+  position: relative !important;
+  width: 100% !important;
+  margin-bottom: 24px !important;
+  display: block !important;
+  order: 3 !important;
+  text-align: left !important;
+  align-self: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  left: 0 !important;
+  right: auto !important;
+}
+
+.form-group-cpf {
+  position: relative !important;
+  width: 100% !important;
+  margin-bottom: 24px !important;
+  display: block !important;
+  order: 4 !important;
+  text-align: left !important;
+  align-self: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  left: 0 !important;
+  right: auto !important;
+}
+
+/* FORÇAR estilos estáticos para TODOS os inputs da modal - alinhados à esquerda */
+.input-nome-static,
+.input-crm-static,
+.input-email-static,
+.input-phone-static,
+.input-cpf-static {
+  width: 100% !important;
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  box-sizing: border-box !important;
+  background: #fff !important;
+  position: relative !important;
+  display: block !important;
+  min-height: 52px !important;
+  border: 2px solid #e5e7eb !important;
+  text-align: left !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  left: 0 !important;
+  right: auto !important;
+}
+
+.input-nome-static:focus,
+.input-crm-static:focus,
+.input-email-static:focus,
+.input-phone-static:focus,
+.input-cpf-static:focus {
+  outline: none !important;
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+  text-align: left !important;
+}
+
+/* FORÇAR labels a ficarem alinhadas à esquerda */
+.form-group-nome label,
+.form-group-crm label,
+.form-group-email label,
+.form-group-phone label,
+.form-group-cpf label {
+  text-align: left !important;
+  width: 100% !important;
+  display: block !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
 .form-group input::placeholder {
   color: #9ca3af;
   font-weight: 400;
@@ -767,11 +955,26 @@
 }
 
 .modal-footer {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  padding: 24px 32px 32px;
-  border-top: 1px solid rgba(226, 232, 240, 0.5);
+  display: flex !important;
+  gap: 16px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding-top: 16px !important;
+  padding-bottom: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  border-top: 1px solid rgba(226, 232, 240, 0.5) !important;
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 8px !important;
+  margin-bottom: 0 !important;
+  order: 999 !important;
+  flex-shrink: 0 !important;
+  align-self: center !important;
+  box-sizing: border-box !important;
 }
 
 /* Delete Modal */

@@ -283,6 +283,17 @@ const MedicoDetails = () => {
   };
 
   useEffect(() => {
+    // Resetar estados quando codigoMedico mudar
+    setMedicoData(null);
+    setIsEditing(false);
+    setEditedData({});
+    setFotoPerfil(null);
+    setUsuariosRelacionados([]);
+    setUsuariosPagina(1);
+    setUsuariosTotalPaginas(0);
+    setUsuariosTotalItens(0);
+    setUsuariosError(null);
+    
     const fetchMedicoDetails = async () => {
       try {
         if (!usuarioService.isAuthenticated()) {

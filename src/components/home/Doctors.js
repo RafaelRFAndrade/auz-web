@@ -1,9 +1,135 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usuarioService } from '../../services/Usuario';
 import { medicoService } from '../../services/Medico';
 import './Doctors.css';
 import Alert from '../../components/custom/Alert';
+
+const DoctorCard = memo(({ doctor, onView, onEdit, onDelete }) => {
+  const safeId = String(doctor?.id || '').trim();
+  const safeName = String(doctor?.name || '').trim() || 'Nome não informado';
+  const safeEmail = String(doctor?.email || '').trim() || 'Não informada';
+  const safeCrm = String(doctor?.crm || '').trim() || 'Não informado';
+  const safePhone = String(doctor?.phone || '').trim() || 'Não informado';
+  const emailValue = safeEmail && safeEmail !== '' && safeEmail !== 'undefined' && safeEmail !== 'null' 
+    ? safeEmail 
+    : 'Não informada';
+  const phoneValue = safePhone && safePhone !== '' && safePhone !== 'undefined' && safePhone !== 'null'
+    ? safePhone
+    : 'Não informado';
+  
+  return (
+    <div className="doctor-card">
+      <div className="card-header">
+        <div className="doctor-avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div className="doctor-info">
+          <h3 className="doctor-name">{safeName}</h3>
+          <p className="doctor-crm">CRM: {safeCrm}</p>
+        </div>
+        <div className="card-actions">
+          <button 
+            className="btn-details" 
+            onClick={onView}
+            title="Ver detalhes"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <button 
+            className="btn-edit" 
+            onClick={onEdit}
+            title="Editar operador"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </button>
+          <button 
+            className="btn-delete" 
+            onClick={onDelete}
+            title="Excluir operador"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="3,6 5,6 21,6"></polyline>
+              <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div className="card-content" style={{ position: 'relative', width: '100%', minHeight: '120px' }}>
+        <div className="info-row info-row-email" style={{ 
+          position: 'relative', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '12px',
+          width: '100%',
+          minHeight: '48px',
+          padding: '12px',
+          margin: '0',
+          flexShrink: 0,
+          order: 1
+        }}>
+          <svg className="info-icon" style={{ flexShrink: 0, width: '18px', height: '18px' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          <span className="info-label" style={{ flexShrink: 0, minWidth: '70px', width: '70px' }}>Email:</span>
+          <span className="info-value info-value-email" style={{ 
+            flex: '1', 
+            minWidth: 0,
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
+            display: 'block',
+            position: 'relative'
+          }}>{emailValue}</span>
+        </div>
+        <div className="info-row info-row-phone" style={{ 
+          position: 'relative', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '12px',
+          width: '100%',
+          minHeight: '48px',
+          padding: '12px',
+          margin: '0',
+          flexShrink: 0,
+          order: 2
+        }}>
+          <svg className="info-icon" style={{ flexShrink: 0, width: '18px', height: '18px' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span className="info-label" style={{ flexShrink: 0, minWidth: '70px', width: '70px' }}>Telefone:</span>
+          <span className="info-value info-value-phone" style={{ 
+            flex: '1', 
+            minWidth: 0,
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
+            display: 'block',
+            position: 'relative'
+          }}>{phoneValue}</span>
+        </div>
+      </div>
+    </div>
+  );
+}, (prevProps, nextProps) => {
+  const idsEqual = String(prevProps.doctor.id || '') === String(nextProps.doctor.id || '');
+  const namesEqual = String(prevProps.doctor.name || '') === String(nextProps.doctor.name || '');
+  const emailsEqual = String(prevProps.doctor.email || '') === String(nextProps.doctor.email || '');
+  const crmsEqual = String(prevProps.doctor.crm || '') === String(nextProps.doctor.crm || '');
+  const phonesEqual = String(prevProps.doctor.phone || '') === String(nextProps.doctor.phone || '');
+  
+  return idsEqual && namesEqual && emailsEqual && crmsEqual && phonesEqual;
+});
+
+DoctorCard.displayName = 'DoctorCard';
 
 const Doctors = () => {
   const [userData, setUserData] = useState({ name: 'Usuário' });
@@ -36,6 +162,10 @@ const Doctors = () => {
     message: ''
   });
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  
+  const debounceTimeoutRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const renderKeyRef = useRef(0);
 
   const showAlert = (type, title, message) => {
     setAlert({
@@ -53,81 +183,117 @@ const Doctors = () => {
     }));
   };
 
-  // Debounce para busca
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(null, args), delay);
+  const normalizeDoctor = (doc) => {
+    if (!doc) return null;
+    
+    const normalized = {
+      id: String(doc.codigo || doc.id || ''),
+      name: String(doc.nome || ''),
+      email: String(doc.email || 'Não informada'),
+      crm: String(doc.crm || ''),
+      phone: String(doc.telefone || 'Não informado')
     };
+    
+    if (!normalized.id || normalized.id === 'null' || normalized.id === 'undefined') {
+      return null;
+    }
+    
+    return normalized;
   };
 
   const fetchDoctors = useCallback(async (filtro = '', pagina = 1) => {
+    if (!isMountedRef.current) return;
+    
     try {
       setIsLoading(true);
-      const response = await medicoService.getAllMedicos(filtro, pagina, pagination.itensPorPagina);
+      const itensPorPagina = 12;
       
-      console.log('📋 Response médicos:', response);
+      setDoctors([]);
+      renderKeyRef.current = renderKeyRef.current + 1;
+      
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      if (!isMountedRef.current) return;
+      
+      const response = await medicoService.getAllMedicos(filtro, pagina, itensPorPagina);
+      
+      if (!isMountedRef.current) return;
+      
+      let mappedDoctors = [];
       
       if (response && response.listaMedicos && Array.isArray(response.listaMedicos)) {
-        const mappedDoctors = response.listaMedicos.map(doc => ({
-          id: doc.codigo, 
-          name: doc.nome,
-          email: doc.email || 'Não informada',
-          crm: doc.crm,
-          phone: doc.telefone
-        }));
+        mappedDoctors = response.listaMedicos
+          .map(normalizeDoctor)
+          .filter(doc => doc !== null && doc.id && doc.id !== '');
         
-        setDoctors(mappedDoctors);
-        
-        // Atualizar informações de paginação
-        const totalItens = response.itens || 0;
-        const totalPaginas = response.totalPaginas || Math.ceil(totalItens / pagination.itensPorPagina);
-        
-        
-        setPagination(prev => ({
-          ...prev,
-          pagina: pagina,
-          totalItens: totalItens,
-          totalPaginas: totalPaginas
-        }));
+        if (isMountedRef.current && mappedDoctors.length > 0) {
+          const freshDoctors = mappedDoctors.map(doc => ({
+            id: String(doc.id),
+            name: String(doc.name),
+            email: String(doc.email),
+            crm: String(doc.crm),
+            phone: String(doc.phone)
+          }));
+          setDoctors(freshDoctors);
+          
+          const totalItens = response.itens || 0;
+          const totalPaginas = response.totalPaginas || Math.ceil(totalItens / itensPorPagina);
+          
+          setPagination(prev => ({
+            ...prev,
+            pagina: pagina,
+            totalItens: totalItens,
+            totalPaginas: totalPaginas,
+            itensPorPagina: itensPorPagina
+          }));
+        } else if (isMountedRef.current) {
+          setDoctors([]);
+        }
       } 
       else if (Array.isArray(response)) {
-        const mappedDoctors = response.map(doc => ({
-          id: doc.codigo || doc.id,
-          name: doc.nome,
-          email: doc.email || 'Não informada',
-          crm: doc.crm,
-          phone: doc.telefone
-        }));
+        mappedDoctors = response
+          .map(normalizeDoctor)
+          .filter(doc => doc !== null && doc.id && doc.id !== '');
         
-        setDoctors(mappedDoctors);
-        
-        // Se não há informações de paginação na resposta, usar valores padrão
-        // Se temos exatamente 25 registros, pode haver mais páginas
-        const totalItens = response.length === 25 ? 26 : response.length; // Assumir que há mais se temos 25
-        const totalPaginas = Math.ceil(totalItens / pagination.itensPorPagina);
-        
-        
-        setPagination(prev => ({
-          ...prev,
-          pagina: pagina,
-          totalItens: totalItens,
-          totalPaginas: totalPaginas
-        }));
+        if (isMountedRef.current && mappedDoctors.length > 0) {
+          const freshDoctors = mappedDoctors.map(doc => ({
+            id: String(doc.id),
+            name: String(doc.name),
+            email: String(doc.email),
+            crm: String(doc.crm),
+            phone: String(doc.phone)
+          }));
+          setDoctors(freshDoctors);
+          
+          const totalItens = response.length === 25 ? 26 : response.length;
+          const totalPaginas = Math.ceil(totalItens / itensPorPagina);
+          
+          setPagination(prev => ({
+            ...prev,
+            pagina: pagina,
+            totalItens: totalItens,
+            totalPaginas: totalPaginas,
+            itensPorPagina: itensPorPagina
+          }));
+        } else if (isMountedRef.current) {
+          setDoctors([]);
+        }
       }
       else {
-        console.error('Formato de resposta inesperado:', response);
-        setDoctors([]);
-        setPagination(prev => ({
-          ...prev,
-          pagina: 1,
-          totalItens: 0,
-          totalPaginas: 0
-        }));
+        if (isMountedRef.current) {
+          setDoctors([]);
+          setPagination(prev => ({
+            ...prev,
+            pagina: 1,
+            totalItens: 0,
+            totalPaginas: 0,
+            itensPorPagina: itensPorPagina
+          }));
+        }
       }
     } catch (error) {
-      console.error('Erro ao buscar médicos:', error);
+      if (!isMountedRef.current) return;
+      
       if (error.response && error.response.status === 401) {
         usuarioService.logout();
         navigate('/login');
@@ -140,19 +306,62 @@ const Doctors = () => {
         totalPaginas: 0
       }));
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
-  }, [navigate, pagination.itensPorPagina]);
+  }, [navigate]);
 
-  // Função de busca com debounce
-  const debouncedSearch = useCallback(
-    debounce((searchValue) => {
-      fetchDoctors(searchValue, 1); // Reset para primeira página ao buscar
-    }, 500),
-    [fetchDoctors]
-  );
+  const debouncedSearchFunc = useCallback((searchValue) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    
+    debounceTimeoutRef.current = setTimeout(() => {
+      if (isMountedRef.current) {
+        fetchDoctors(searchValue, 1);
+      }
+    }, 500);
+  }, [fetchDoctors]);
 
   useEffect(() => {
+    setDoctors([]);
+    setDoctors([]);
+    setSearchTerm('');
+    setIsSearchExpanded(false);
+    setIsLoading(true);
+    renderKeyRef.current = renderKeyRef.current + 1;
+    setPagination({
+      pagina: 1,
+      itensPorPagina: 12,
+      totalItens: 0,
+      totalPaginas: 0
+    });
+    setFormData({
+      nome: '',
+      crm: '',
+      email: '',
+      telefone: '',
+      documentoFederal: '',
+    });
+    setErrors({});
+    setShowModal(false);
+    setShowDeleteModal(false);
+    setDoctorToDelete(null);
+    setAlert({
+      show: false,
+      type: 'info',
+      title: '',
+      message: ''
+    });
+    
+    isMountedRef.current = true;
+    
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+      debounceTimeoutRef.current = null;
+    }
+    
     const fetchUserData = async () => {
       try {
         if (!usuarioService.isAuthenticated()) {
@@ -160,10 +369,11 @@ const Doctors = () => {
             return;
         } else {
           const homeData = await usuarioService.getHome();
-          setUserData({ name: homeData.nomeUsuario });
+          if (isMountedRef.current) {
+            setUserData({ name: homeData.nomeUsuario });
+          }
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
         if (error.response && error.response.status === 401) {
           usuarioService.logout();
         }
@@ -171,15 +381,45 @@ const Doctors = () => {
     };
 
     fetchUserData();
-    fetchDoctors('', 1); // Carrega primeira página de médicos
+    
+    const loadTimer = setTimeout(() => {
+      if (isMountedRef.current) {
+        setDoctors([]);
+        renderKeyRef.current = renderKeyRef.current + 1;
+        fetchDoctors('', 1);
+      }
+    }, 150);
+
+    return () => {
+      clearTimeout(loadTimer);
+      isMountedRef.current = false;
+      setDoctors([]);
+      setDoctors([]);
+      renderKeyRef.current = 0;
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+        debounceTimeoutRef.current = null;
+      }
+    };
   }, [navigate, fetchDoctors]);
 
-  // Busca quando o termo de pesquisa muda (apenas se não for a primeira carga)
   useEffect(() => {
-    if (searchTerm !== '') {
-      debouncedSearch(searchTerm);
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
     }
-  }, [searchTerm, debouncedSearch]);
+    
+    if (searchTerm !== '') {
+      debouncedSearchFunc(searchTerm);
+    } else if (searchTerm === '' && isMountedRef.current) {
+      fetchDoctors('', 1);
+    }
+    
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [searchTerm, debouncedSearchFunc, fetchDoctors]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -188,7 +428,6 @@ const Doctors = () => {
   const toggleSearch = () => {
     setIsSearchExpanded(!isSearchExpanded);
     if (!isSearchExpanded) {
-      // Focar no input quando expandir
       setTimeout(() => {
         const searchInput = document.querySelector('.modern-search-input');
         if (searchInput) {
@@ -196,22 +435,25 @@ const Doctors = () => {
         }
       }, 100);
     } else {
-      // Limpar busca quando colapsar
       setSearchTerm('');
     }
   };
 
   const handleSearchBlur = () => {
-    // Só colapsar se não há texto na busca
     if (searchTerm.trim() === '') {
       setIsSearchExpanded(false);
     }
   };
 
-  // Funções de paginação
   const handlePageChange = (novaPagina) => {
     if (novaPagina >= 1 && novaPagina <= pagination.totalPaginas && pagination.totalPaginas > 1) {
-      fetchDoctors(searchTerm, novaPagina);
+      setDoctors([]);
+      setIsLoading(true);
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          fetchDoctors(searchTerm, novaPagina);
+        }
+      }, 10);
     }
   };
 
@@ -238,9 +480,16 @@ const Doctors = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    let normalizedValue = String(value || '').trim();
+    
+    if (name === 'nome' || name === 'crm' || name === 'email' || name === 'telefone' || name === 'documentoFederal') {
+      normalizedValue = normalizedValue || '';
+    }
+    
     setFormData({
       ...formData,
-      [name]: value
+      [name]: normalizedValue
     });
     
     if (errors[name]) {
@@ -355,7 +604,7 @@ const Doctors = () => {
       }
       
       setShowModal(false);
-      await fetchDoctors(searchTerm, pagination.pagina); // Recarrega com o filtro atual
+      await fetchDoctors(searchTerm, pagination.pagina);
       
       setFormData({
         nome: '',
@@ -372,7 +621,6 @@ const Doctors = () => {
         );
 
     } catch (error) {
-      console.error('Erro ao cadastrar/atualizar médico:', error);
       
       showAlert(
         'error',
@@ -402,9 +650,12 @@ const Doctors = () => {
   const handleCPFChange = (e) => {
     const rawValue = e.target.value.replace(/\D/g, '');
     const formattedValue = formatCPF(rawValue);
+    
+    const normalizedCPF = String(formattedValue || '').trim();
+    
     setFormData({
       ...formData,
-      documentoFederal: formattedValue
+      documentoFederal: normalizedCPF
     });
     
     if (errors.documentoFederal) {
@@ -418,9 +669,12 @@ const Doctors = () => {
   const handlePhoneChange = (e) => {
     const rawValue = e.target.value.replace(/\D/g, '');
     const formattedValue = formatPhone(rawValue);
+    
+    const normalizedPhone = String(formattedValue || '').trim();
+    
     setFormData({
       ...formData,
-      telefone: formattedValue
+      telefone: normalizedPhone
     });
     
     if (errors.telefone) {
@@ -435,23 +689,21 @@ const Doctors = () => {
     try {
       const medico = await medicoService.getMedicoById(id);
       
-      // Formatar CPF e telefone para exibição
       const formattedCPF = formatCPF(medico.documentoFederal || '');
       const formattedPhone = formatPhone(medico.telefone || '');
       
       setFormData({
-        nome: medico.nome || '',
-        crm: medico.crm || '',
-        email: medico.email || '',
-        telefone: formattedPhone,
-        documentoFederal: formattedCPF,
-        id: medico.codigo 
+        nome: String(medico.nome || '').trim(),
+        crm: String(medico.crm || '').trim(),
+        email: String(medico.email || '').trim(),
+        telefone: String(formattedPhone || '').trim(),
+        documentoFederal: String(formattedCPF || '').trim(),
+        id: medico.codigo || id
       });
       
       setErrors({});
       setShowModal(true);
     } catch (error) {
-      console.error('Erro ao buscar dados do médico:', error);
     }
   };
 
@@ -463,7 +715,7 @@ const Doctors = () => {
   const confirmDelete = async () => {
     try {
       await medicoService.deleteMedico(doctorToDelete);
-      await fetchDoctors(searchTerm, pagination.pagina); // Recarrega com o filtro atual
+      await fetchDoctors(searchTerm, pagination.pagina);
       setShowDeleteModal(false);
       showAlert('success', 'Sucesso', 'Médico excluído com sucesso!');
     } catch (error) {
@@ -479,7 +731,6 @@ const Doctors = () => {
   return (
     <div className="doctors-container">
       <div className="main-content">
-        {/* Modern Header Section with Integrated Search */}
         <div className="dashboard-header">
           <div className="header-content">
             <div className="welcome-section">
@@ -498,7 +749,6 @@ const Doctors = () => {
           
         </div>
 
-        {/* Modern Doctors Section */}
         <div className="doctors-section">
           <div className="section-header">
             <div className="section-title">
@@ -513,7 +763,6 @@ const Doctors = () => {
                 {pagination.totalItens} operador{pagination.totalItens !== 1 ? 'es' : ''}
               </div>
               
-              {/* Inline Search */}
               <div className="section-search">
                 {!isSearchExpanded ? (
                   <button className="search-toggle-btn" onClick={toggleSearch}>
@@ -562,73 +811,41 @@ const Doctors = () => {
               <div className="loading-spinner">Carregando operadores...</div>
             </div>
           ) : (
-            <div className="doctors-grid">
-              {doctors.length > 0 ? (
-                doctors.map(doctor => (
-                  <div key={doctor.id} className="doctor-card">
-                    <div className="card-header">
-                      <div className="doctor-avatar">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                      </div>
-                      <div className="doctor-info">
-                        <h3 className="doctor-name">{doctor.name}</h3>
-                        <p className="doctor-crm">CRM: {doctor.crm}</p>
-                      </div>
-                      <div className="card-actions">
-                        <button 
-                          className="btn-details" 
-                          onClick={() => navigate(`/medico-details/${doctor.id}`)}
-                          title="Ver detalhes"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                          </svg>
-                        </button>
-                        <button 
-                          className="btn-edit" 
-                          onClick={() => handleEdit(doctor.id)}
-                          title="Editar operador"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                          </svg>
-                        </button>
-                        <button 
-                          className="btn-delete" 
-                          onClick={() => handleDelete(doctor.id)}
-                          title="Excluir operador"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="3,6 5,6 21,6"></polyline>
-                            <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                    <div className="card-content">
-                      <div className="info-row">
-                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                          <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                        <span className="info-label">Email:</span>
-                        <span className="info-value">{doctor.email}</span>
-                      </div>
-                      <div className="info-row">
-                        <svg className="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                        </svg>
-                        <span className="info-label">Telefone:</span>
-                        <span className="info-value">{doctor.phone}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))
+            <div className="doctors-grid" key={`doctors-grid-${renderKeyRef.current}`}>
+              {doctors && Array.isArray(doctors) && doctors.length > 0 ? (
+                doctors.map((doctor, index) => {
+                  if (!doctor) {
+                    return null;
+                  }
+                  
+                  const safeDoctor = {
+                    id: String(doctor.id || '').trim(),
+                    name: String(doctor.name || '').trim(),
+                    email: String(doctor.email || 'Não informada').trim(),
+                    crm: String(doctor.crm || '').trim(),
+                    phone: String(doctor.phone || 'Não informado').trim()
+                  };
+                  
+                  if (!safeDoctor.id || 
+                      safeDoctor.id === '' || 
+                      safeDoctor.id === 'null' || 
+                      safeDoctor.id === 'undefined' ||
+                      safeDoctor.id === 'NaN') {
+                    return null;
+                  }
+                  
+                  const cardKey = `doc-${safeDoctor.id}-${renderKeyRef.current}-pg${pagination.pagina}-i${index}`;
+                  
+                  return (
+                    <DoctorCard 
+                      key={cardKey}
+                      doctor={safeDoctor}
+                      onView={() => navigate(`/medico-details/${safeDoctor.id}`)}
+                      onEdit={() => handleEdit(safeDoctor.id)}
+                      onDelete={() => handleDelete(safeDoctor.id)}
+                    />
+                  );
+                }).filter(Boolean)
               ) : (
                 <div className="empty-state">
                   <div className="empty-icon">
@@ -652,7 +869,6 @@ const Doctors = () => {
             </div>
           )}
 
-          {/* Controles de Paginação */}
           {!isLoading && doctors.length > 0 && (
             <div className="pagination-container">
               <div className="pagination-info">
@@ -737,7 +953,6 @@ const Doctors = () => {
       </div>
 
 
-      {/* Modern Modal de Cadastro/Edição */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-container">
@@ -758,79 +973,312 @@ const Doctors = () => {
                   <div className="error-message general-error">{errors.general}</div>
                 )}
                 
-                <div className="form-group">
-                  <label htmlFor="nome">Nome Completo*</label>
+                <div className="form-group form-group-nome" style={{ 
+                  position: 'relative',
+                  width: '100%',
+                  marginBottom: '24px',
+                  display: 'block',
+                  order: 0,
+                  textAlign: 'left',
+                  alignSelf: 'flex-start'
+                }}>
+                  <label htmlFor="nome" style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '0.95rem',
+                    position: 'relative',
+                    textAlign: 'left',
+                    width: '100%'
+                  }}>Nome Completo*</label>
                   <input
                     type="text"
                     id="nome"
                     name="nome"
-                    value={formData.nome}
+                    value={String(formData.nome || '').trim()}
                     onChange={handleChange}
-                    className={errors.nome ? 'input-error' : ''}
+                    className={`input-nome-static ${errors.nome ? 'input-error' : ''}`}
                     placeholder="Digite o nome completo"
+                    style={{
+                      width: '100%',
+                      padding: '16px 20px',
+                      border: `2px solid ${errors.nome ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      boxSizing: 'border-box',
+                      background: '#fff',
+                      position: 'relative',
+                      display: 'block',
+                      minHeight: '52px',
+                      boxShadow: errors.nome ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none',
+                      textAlign: 'left',
+                      marginLeft: '0',
+                      marginRight: 'auto',
+                      left: '0',
+                      right: 'auto'
+                    }}
                   />
-                  {errors.nome && <div className="error-message">{errors.nome}</div>}
+                  {errors.nome && <div className="error-message" style={{ 
+                    color: '#ef4444',
+                    fontSize: '0.875rem',
+                    marginTop: '6px',
+                    fontWeight: '500',
+                    position: 'relative'
+                  }}>{errors.nome}</div>}
                 </div>
                 
-                <div className="form-group">
-                  <label htmlFor="crm">CRM*</label>
+                <div className="form-group form-group-crm" style={{ 
+                  position: 'relative',
+                  width: '100%',
+                  marginBottom: '24px',
+                  display: 'block',
+                  order: 1,
+                  textAlign: 'left',
+                  alignSelf: 'flex-start'
+                }}>
+                  <label htmlFor="crm" style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '0.95rem',
+                    position: 'relative',
+                    textAlign: 'left',
+                    width: '100%'
+                  }}>CRM*</label>
                   <input
                     type="text"
                     id="crm"
                     name="crm"
-                    value={formData.crm}
+                    value={String(formData.crm || '').trim()}
                     onChange={handleChange}
                     placeholder="12345-UF"
-                    className={errors.crm ? 'input-error' : ''}
+                    className={`input-crm-static ${errors.crm ? 'input-error' : ''}`}
+                    style={{
+                      width: '100%',
+                      padding: '16px 20px',
+                      border: `2px solid ${errors.crm ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      boxSizing: 'border-box',
+                      background: '#fff',
+                      position: 'relative',
+                      display: 'block',
+                      minHeight: '52px',
+                      boxShadow: errors.crm ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none',
+                      textAlign: 'left',
+                      marginLeft: '0',
+                      marginRight: 'auto',
+                      left: '0',
+                      right: 'auto'
+                    }}
                   />
-                  {errors.crm && <div className="error-message">{errors.crm}</div>}
+                  {errors.crm && <div className="error-message" style={{ 
+                    color: '#ef4444',
+                    fontSize: '0.875rem',
+                    marginTop: '6px',
+                    fontWeight: '500',
+                    position: 'relative'
+                  }}>{errors.crm}</div>}
                 </div>
                 
-                <div className="form-group">
-                  <label htmlFor="email">Email*</label>
+                <div className="form-group form-group-email" style={{ 
+                  position: 'relative',
+                  width: '100%',
+                  marginBottom: '24px',
+                  display: 'block',
+                  order: 2,
+                  textAlign: 'left',
+                  alignSelf: 'flex-start'
+                }}>
+                  <label htmlFor="email" style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '0.95rem',
+                    position: 'relative',
+                    textAlign: 'left',
+                    width: '100%'
+                  }}>Email*</label>
                   <input
                     type="email"
                     id="email"
                     name="email"
-                    value={formData.email}
+                    value={String(formData.email || '').trim()}
                     onChange={handleChange}
-                    className={errors.email ? 'input-error' : ''}
+                    className={`input-email-static ${errors.email ? 'input-error' : ''}`}
                     placeholder="operador@clinica.com"
+                    style={{
+                      width: '100%',
+                      padding: '16px 20px',
+                      border: `2px solid ${errors.email ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      boxSizing: 'border-box',
+                      background: '#fff',
+                      position: 'relative',
+                      display: 'block',
+                      minHeight: '52px',
+                      boxShadow: errors.email ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none',
+                      textAlign: 'left',
+                      marginLeft: '0',
+                      marginRight: 'auto',
+                      left: '0',
+                      right: 'auto'
+                    }}
                   />
-                  {errors.email && <div className="error-message">{errors.email}</div>}
+                  {errors.email && <div className="error-message" style={{ 
+                    color: '#ef4444',
+                    fontSize: '0.875rem',
+                    marginTop: '6px',
+                    fontWeight: '500',
+                    position: 'relative'
+                  }}>{errors.email}</div>}
                 </div>
                 
-                <div className="form-group">
-                  <label htmlFor="telefone">Telefone*</label>
+                <div className="form-group form-group-phone" style={{ 
+                  position: 'relative',
+                  width: '100%',
+                  marginBottom: '24px',
+                  display: 'block',
+                  order: 3,
+                  textAlign: 'left',
+                  alignSelf: 'flex-start'
+                }}>
+                  <label htmlFor="telefone" style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '0.95rem',
+                    position: 'relative',
+                    textAlign: 'left',
+                    width: '100%'
+                  }}>Telefone*</label>
                   <input
                     type="text"
                     id="telefone"
                     name="telefone"
-                    value={formData.telefone}
+                    value={String(formData.telefone || '').trim()}
                     onChange={handlePhoneChange}
                     placeholder="(XX) XXXXX-XXXX"
-                    className={errors.telefone ? 'input-error' : ''}
+                    className={`input-phone-static ${errors.telefone ? 'input-error' : ''}`}
                     maxLength={15}
+                    style={{
+                      width: '100%',
+                      padding: '16px 20px',
+                      border: `2px solid ${errors.telefone ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      boxSizing: 'border-box',
+                      background: '#fff',
+                      position: 'relative',
+                      display: 'block',
+                      minHeight: '52px',
+                      boxShadow: errors.telefone ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none',
+                      textAlign: 'left',
+                      marginLeft: '0',
+                      marginRight: 'auto',
+                      left: '0',
+                      right: 'auto'
+                    }}
                   />
-                  {errors.telefone && <div className="error-message">{errors.telefone}</div>}
+                  {errors.telefone && <div className="error-message" style={{ 
+                    color: '#ef4444',
+                    fontSize: '0.875rem',
+                    marginTop: '6px',
+                    fontWeight: '500',
+                    position: 'relative'
+                  }}>{errors.telefone}</div>}
                 </div>
                 
-                <div className="form-group">
-                  <label htmlFor="documentoFederal">CPF*</label>
+                <div className="form-group form-group-cpf" style={{ 
+                  position: 'relative',
+                  width: '100%',
+                  marginBottom: '24px',
+                  display: 'block',
+                  order: 4,
+                  textAlign: 'left',
+                  alignSelf: 'flex-start'
+                }}>
+                  <label htmlFor="documentoFederal" style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '0.95rem',
+                    position: 'relative',
+                    textAlign: 'left',
+                    width: '100%'
+                  }}>CPF*</label>
                   <input
                     type="text"
                     id="documentoFederal"
                     name="documentoFederal"
-                    value={formData.documentoFederal}
+                    value={String(formData.documentoFederal || '').trim()}
                     onChange={handleCPFChange}
                     placeholder="XXX.XXX.XXX-XX"
-                    className={errors.documentoFederal ? 'input-error' : ''}
+                    className={`input-cpf-static ${errors.documentoFederal ? 'input-error' : ''}`}
                     maxLength={14}
+                    style={{
+                      width: '100%',
+                      padding: '16px 20px',
+                      border: `2px solid ${errors.documentoFederal ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease',
+                      boxSizing: 'border-box',
+                      background: '#fff',
+                      position: 'relative',
+                      display: 'block',
+                      minHeight: '52px',
+                      boxShadow: errors.documentoFederal ? '0 0 0 4px rgba(239, 68, 68, 0.1)' : 'none',
+                      textAlign: 'left',
+                      marginLeft: '0',
+                      marginRight: 'auto',
+                      left: '0',
+                      right: 'auto'
+                    }}
                   />
-                  {errors.documentoFederal && <div className="error-message">{errors.documentoFederal}</div>}
+                  {errors.documentoFederal && <div className="error-message" style={{ 
+                    color: '#ef4444',
+                    fontSize: '0.875rem',
+                    marginTop: '6px',
+                    fontWeight: '500',
+                    position: 'relative'
+                  }}>{errors.documentoFederal}</div>}
                 </div>
                 
-                <div className="modal-footer">
+                <div className="modal-footer" style={{ 
+                  position: 'relative',
+                  width: '100%',
+                  display: 'flex',
+                  gap: '16px',
+                  justifyContent: 'center',
+                  paddingTop: '16px',
+                  paddingBottom: '0',
+                  paddingLeft: '0',
+                  paddingRight: '0',
+                  marginTop: '8px',
+                  marginBottom: '0',
+                  marginLeft: '0',
+                  marginRight: '0',
+                  order: 999,
+                  flexShrink: 0,
+                  alignSelf: 'center',
+                  boxSizing: 'border-box'
+                }}>
                   <button type="button" className="btn-secondary" onClick={handleCloseModal}>
                     <span className="btn-icon">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -863,7 +1311,6 @@ const Doctors = () => {
         </div>
       )}
 
-       {/* Modern Modal de Confirmação de Exclusão */}
     {showDeleteModal && (
       <div className="modal-overlay">
         <div className="modal-popup delete-modal">
@@ -918,14 +1365,13 @@ const Doctors = () => {
       </div>
     )}
 
-       {/* alerta de Erro */}
        <Alert
         show={alert.show}
         type={alert.type}
         title={alert.title}
         message={alert.message}
         onClose={closeAlert}
-        duration={7000} // 7 segundos
+        duration={7000}
       />
   </div>
   );

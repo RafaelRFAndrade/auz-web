@@ -149,6 +149,17 @@ const AppointmentDetails = () => {
   }, []);
 
   useEffect(() => {
+    // Resetar estados quando codigoAtendimento mudar
+    setAtendimento(null);
+    setDocumentos([]);
+    setAgendamentos([]);
+    setDocumentosPaginaAtual(1);
+    setAgendamentosPaginaAtual(1);
+    setCurrentSlide(0);
+    setCurrentAgendamentoSlide(0);
+    setDocumentosError(null);
+    setAgendamentosError(null);
+    
     const fetchAtendimentoDetails = async () => {
       try {
         if (!usuarioService.isAuthenticated()) {

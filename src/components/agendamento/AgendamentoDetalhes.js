@@ -34,6 +34,17 @@ const AgendamentoDetalhes = () => {
   const [uploadError, setUploadError] = useState(null);
 
   useEffect(() => {
+    // Resetar estados quando codigoAgendamento mudar
+    setAgendamento(null);
+    setDadosOriginais(null);
+    setEditando(false);
+    setDadosEditaveis({});
+    setDocumentos([]);
+    setPaginaAtual(1);
+    setTotalPaginas(0);
+    setTotalItens(0);
+    setError(null);
+    
     if (codigoAgendamento) {
       carregarDetalhes();
     } else {
@@ -48,6 +59,15 @@ const AgendamentoDetalhes = () => {
       setError(null);
       const response = await agendamentoService.getDetalhes(codigoAgendamento);
       setAgendamento(response);
+      
+      // Salvar dados originais para navegação (incluindo dados do state ou do response)
+      if (response) {
+        setDadosOriginais({
+          codigoMedico: response.codigoMedico || location.state?.codigoMedico,
+          nomeMedico: response.nomeMedico || location.state?.nomeMedico,
+          codigoAgendamento: response.codigo || codigoAgendamento
+        });
+      }
       
       // Carregar documentos após carregar o agendamento
       if (response && response.codigo) {
@@ -114,19 +134,21 @@ const AgendamentoDetalhes = () => {
 
   const voltarParaOperacional = () => {
     // Volta para a página operacional específica do médico
-    if (dadosOriginais?.codigoMedico) {
-      navigate(`/operacional/${dadosOriginais.codigoMedico}`, {
+    // Tenta usar dadosOriginais primeiro, depois location.state, depois agendamento
+    const codigoMedico = dadosOriginais?.codigoMedico || 
+                         location.state?.codigoMedico || 
+                         location.state?.codigoMedicoUsuarioOperacional ||
+                         agendamento?.codigoMedico;
+    
+    const nomeMedico = dadosOriginais?.nomeMedico || 
+                       location.state?.nomeMedico || 
+                       agendamento?.nomeMedico || '';
+    
+    if (codigoMedico) {
+      navigate(`/operacional/${codigoMedico}`, {
         state: {
-          nomeMedico: dadosOriginais.nomeMedico,
-          codigoMedicoUsuarioOperacional: dadosOriginais.codigoMedico
-        }
-      });
-    } else if (location.state?.codigoMedico) {
-      // Usa o código do médico do state da navegação
-      navigate(`/operacional/${location.state.codigoMedico}`, {
-        state: {
-          nomeMedico: location.state.nomeMedico,
-          codigoMedicoUsuarioOperacional: location.state.codigoMedico
+          nomeMedico: nomeMedico,
+          codigoMedicoUsuarioOperacional: codigoMedico
         }
       });
     } else {

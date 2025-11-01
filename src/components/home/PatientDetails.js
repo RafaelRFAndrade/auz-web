@@ -114,6 +114,11 @@ const PatientDetails = () => {
   };
 
   useEffect(() => {
+    // Resetar estados quando codigoPaciente mudar
+    setPacienteData(null);
+    setIsEditing(false);
+    setEditedData({});
+    
     const fetchPacienteDetails = async () => {
       try {
         if (!usuarioService.isAuthenticated()) {

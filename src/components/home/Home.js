@@ -26,6 +26,16 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Resetar estados quando o componente for montado
+    setCurrentAppointmentPage(1);
+    setCurrentScheduledPage(1);
+    setAppointmentsList([]);
+    setScheduledList([]);
+    setAppointmentAnimation('');
+    setScheduledAnimation('');
+    setIsTransitioningAppointments(false);
+    setIsTransitioningScheduled(false);
+    
     const fetchData = async () => {
       try {
         if (!usuarioService.isAuthenticated()) {
