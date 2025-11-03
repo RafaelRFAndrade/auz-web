@@ -2,7 +2,7 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production=false
+RUN npm ci --legacy-peer-deps
 COPY . .
 ENV DISABLE_ESLINT_PLUGIN=true
 RUN npm run build
