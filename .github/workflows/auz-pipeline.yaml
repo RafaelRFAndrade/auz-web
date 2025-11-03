@@ -1,9 +1,10 @@
-name: Build and Deploy API
+name: Build and Deploy Frontend
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,6 +23,8 @@ jobs:
       - name: Set up Docker Build and Push
         uses: docker/build-push-action@v5.3.0
         with:
+          context: .
+          file: ./Dockerfile
           push: true
           tags: auzys/auz-frontend:latest
           no-cache: true
