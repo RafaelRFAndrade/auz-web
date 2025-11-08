@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL = 'http://189.126.105.186:8080';
 
 const atendimentoClient = axios.create({
   baseURL: API_BASE_URL,

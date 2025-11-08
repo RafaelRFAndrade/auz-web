@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL = 'http://189.126.105.186:8080';
 
 const medicoClient = axios.create({
   baseURL: API_BASE_URL,
@@ -153,7 +153,7 @@ export const medicoService = {
       const formData = new FormData();
       formData.append('File', file);
       formData.append('CodigoEntidade', codigoEntidade);
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080'}/Medico/FotoDePerfil`, {
+      const response = await fetch(`${API_BASE_URL}/Medico/FotoDePerfil`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
