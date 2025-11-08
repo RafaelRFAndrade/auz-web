@@ -1,0 +1,71 @@
+services:
+  auz-app:
+    image: auzys/auz-core-api:latest
+    container_name: auz-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Connection String
+      - CONNECTION_STRING=
+      - ConnectionStrings__DefaultConnection=
+
+      # JWT Configuration
+      - JWT_KEY=
+      - Jwt__Key=
+      - Jwt__Issuer=
+      - Jwt__Audience=
+      - Jwt__ExpireMinutes=
+
+      # AWS Configuration
+      - AWS_ACCESS_KEY=
+      - AWS_SECRET_KEY=
+      - AWS_REGION=
+      - AWS_BUCKET=
+      - AWS__AccessKey=
+      - AWS__SecretKey=
+      - AWS__Region=
+      - AWS__Bucket=
+
+      # ASP.NET Core Configuration
+      - ASPNETCORE_ENVIRONMENT=
+      - ASPNETCORE_URLS=
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - auz-network
+    labels:
+      - "com.portainer.stack.name="
+      - "com.portainer.stack.description="
+
+  auz-web:
+    image: auzys/auz-frontend:latest
+    container_name: auz-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - auz-network
+    depends_on:
+      - auz-app
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "com.portainer.stack.name="
+      - "com.portainer.stack.description="
+
+networks:
+  auz-network:
+    driver: bridge
