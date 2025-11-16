@@ -33,10 +33,30 @@ const AgendamentoDetalhes = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
 
+  // Preservar dados originais do location.state imediatamente (executa apenas uma vez)
+  useEffect(() => {
+    // PRESERVAR DADOS ORIGINAIS IMEDIATAMENTE do location.state
+    // Isso garante que os dados sejam mantidos mesmo antes da API responder
+    if (location.state) {
+      const stateData = {
+        codigoMedico: location.state.codigoMedico || location.state.codigoMedicoUsuarioOperacional || null,
+        nomeMedico: location.state.nomeMedico || '',
+        codigoAgendamento: codigoAgendamento,
+        agendamento: location.state.agendamento || null
+      };
+      
+      // Forçar os dados originais a serem setados imediatamente
+      if (stateData.codigoMedico || stateData.nomeMedico) {
+        setDadosOriginais(stateData);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Executa apenas uma vez na montagem
+
   useEffect(() => {
     // Resetar estados quando codigoAgendamento mudar
     setAgendamento(null);
-    setDadosOriginais(null);
+    // NÃO resetar dadosOriginais aqui - eles devem ser preservados
     setEditando(false);
     setDadosEditaveis({});
     setDocumentos([]);
@@ -60,14 +80,23 @@ const AgendamentoDetalhes = () => {
       const response = await agendamentoService.getDetalhes(codigoAgendamento);
       setAgendamento(response);
       
-      // Salvar dados originais para navegação (incluindo dados do state ou do response)
-      if (response) {
-        setDadosOriginais({
-          codigoMedico: response.codigoMedico || location.state?.codigoMedico,
-          nomeMedico: response.nomeMedico || location.state?.nomeMedico,
-          codigoAgendamento: response.codigo || codigoAgendamento
-        });
-      }
+      // FORÇAR preservação dos dados originais
+      // Prioridade: location.state > response > dadosOriginais existentes
+      const codigoMedicoFinal = location.state?.codigoMedico || 
+                                location.state?.codigoMedicoUsuarioOperacional ||
+                                response?.codigoMedico || 
+                                dadosOriginais?.codigoMedico || null;
+      
+      const nomeMedicoFinal = location.state?.nomeMedico || 
+                              response?.nomeMedico || 
+                              dadosOriginais?.nomeMedico || '';
+      
+      // Sempre atualizar dadosOriginais para garantir que estejam corretos
+      setDadosOriginais(prev => ({
+        codigoMedico: codigoMedicoFinal || prev?.codigoMedico || null,
+        nomeMedico: nomeMedicoFinal || prev?.nomeMedico || '',
+        codigoAgendamento: response?.codigo || codigoAgendamento || prev?.codigoAgendamento
+      }));
       
       // Carregar documentos após carregar o agendamento
       if (response && response.codigo) {
@@ -133,27 +162,32 @@ const AgendamentoDetalhes = () => {
   };
 
   const voltarParaOperacional = () => {
-    // Volta para a página operacional específica do médico
-    // Tenta usar dadosOriginais primeiro, depois location.state, depois agendamento
+    // FORÇAR uso dos dados originais preservados
+    // Prioridade: dadosOriginais > location.state > agendamento
     const codigoMedico = dadosOriginais?.codigoMedico || 
                          location.state?.codigoMedico || 
                          location.state?.codigoMedicoUsuarioOperacional ||
-                         agendamento?.codigoMedico;
+                         agendamento?.codigoMedico ||
+                         null;
     
     const nomeMedico = dadosOriginais?.nomeMedico || 
                        location.state?.nomeMedico || 
-                       agendamento?.nomeMedico || '';
+                       agendamento?.nomeMedico || 
+                       '';
     
+    // Sempre garantir que os dados sejam passados corretamente
     if (codigoMedico) {
       navigate(`/operacional/${codigoMedico}`, {
         state: {
-          nomeMedico: nomeMedico,
-          codigoMedicoUsuarioOperacional: codigoMedico
-        }
+          nomeMedico: nomeMedico || '',
+          codigoMedicoUsuarioOperacional: codigoMedico,
+          codigoMedico: codigoMedico
+        },
+        replace: false
       });
     } else {
       // Se não tiver dados, volta para o menu operacional
-      navigate('/operacional');
+      navigate('/operacional', { replace: false });
     }
   };
 

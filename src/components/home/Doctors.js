@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usuarioService } from '../../services/Usuario';
 import { medicoService } from '../../services/Medico';
@@ -7,10 +7,12 @@ import Alert from '../../components/custom/Alert';
 
 const DoctorCard = memo(({ doctor, onView, onEdit, onDelete }) => {
   const safeId = String(doctor?.id || '').trim();
-  const safeName = String(doctor?.name || '').trim() || 'Nome não informado';
+  // FORÇAR preservação do nome - tratar múltiplas possibilidades e garantir valor
+  const nomeRaw = doctor?.name || doctor?.nome || '';
+  const safeName = String(nomeRaw).trim() || 'Nome não informado';
   const safeEmail = String(doctor?.email || '').trim() || 'Não informada';
   const safeCrm = String(doctor?.crm || '').trim() || 'Não informado';
-  const safePhone = String(doctor?.phone || '').trim() || 'Não informado';
+  const safePhone = String(doctor?.phone || doctor?.telefone || '').trim() || 'Não informado';
   const emailValue = safeEmail && safeEmail !== '' && safeEmail !== 'undefined' && safeEmail !== 'null' 
     ? safeEmail 
     : 'Não informada';
@@ -28,7 +30,7 @@ const DoctorCard = memo(({ doctor, onView, onEdit, onDelete }) => {
           </svg>
         </div>
         <div className="doctor-info">
-          <h3 className="doctor-name">{safeName}</h3>
+          <h3 className="doctor-name" title={safeName}>{safeName}</h3>
           <p className="doctor-crm">CRM: {safeCrm}</p>
         </div>
         <div className="card-actions">
@@ -120,12 +122,20 @@ const DoctorCard = memo(({ doctor, onView, onEdit, onDelete }) => {
     </div>
   );
 }, (prevProps, nextProps) => {
-  const idsEqual = String(prevProps.doctor.id || '') === String(nextProps.doctor.id || '');
-  const namesEqual = String(prevProps.doctor.name || '') === String(nextProps.doctor.name || '');
-  const emailsEqual = String(prevProps.doctor.email || '') === String(nextProps.doctor.email || '');
-  const crmsEqual = String(prevProps.doctor.crm || '') === String(nextProps.doctor.crm || '');
-  const phonesEqual = String(prevProps.doctor.phone || '') === String(nextProps.doctor.phone || '');
+  // FORÇAR comparação correta - IGNORAR callbacks (não afetam renderização visual)
+  // Comparar apenas os dados do doctor que afetam a renderização
+  const prevName = String(prevProps.doctor?.name || prevProps.doctor?.nome || '').trim();
+  const nextName = String(nextProps.doctor?.name || nextProps.doctor?.nome || '').trim();
   
+  const idsEqual = String(prevProps.doctor?.id || '') === String(nextProps.doctor?.id || '');
+  const namesEqual = prevName === nextName;
+  const emailsEqual = String(prevProps.doctor?.email || '') === String(nextProps.doctor?.email || '');
+  const crmsEqual = String(prevProps.doctor?.crm || '') === String(nextProps.doctor?.crm || '');
+  const phonesEqual = String(prevProps.doctor?.phone || prevProps.doctor?.telefone || '') === 
+                      String(nextProps.doctor?.phone || nextProps.doctor?.telefone || '');
+  
+  // Retornar true se os dados são iguais (ignorar mudanças nas funções de callback)
+  // Isso evita re-renderizações desnecessárias quando apenas as funções mudam
   return idsEqual && namesEqual && emailsEqual && crmsEqual && phonesEqual;
 });
 
@@ -186,16 +196,25 @@ const Doctors = () => {
   const normalizeDoctor = (doc) => {
     if (!doc) return null;
     
+    // FORÇAR preservação do nome - tratar múltiplas possibilidades
+    const nomeRaw = doc.nome || doc.name || '';
+    const nomeNormalizado = String(nomeRaw).trim();
+    
     const normalized = {
-      id: String(doc.codigo || doc.id || ''),
-      name: String(doc.nome || ''),
-      email: String(doc.email || 'Não informada'),
-      crm: String(doc.crm || ''),
-      phone: String(doc.telefone || 'Não informado')
+      id: String(doc.codigo || doc.id || '').trim(),
+      name: nomeNormalizado || 'Nome não informado', // FORÇAR valor padrão se vazio
+      email: String(doc.email || '').trim() || 'Não informada',
+      crm: String(doc.crm || '').trim() || 'Não informado',
+      phone: String(doc.telefone || doc.phone || '').trim() || 'Não informado'
     };
     
-    if (!normalized.id || normalized.id === 'null' || normalized.id === 'undefined') {
+    if (!normalized.id || normalized.id === 'null' || normalized.id === 'undefined' || normalized.id === '') {
       return null;
+    }
+    
+    // Garantir que o nome nunca seja uma string vazia
+    if (!normalized.name || normalized.name.trim() === '') {
+      normalized.name = 'Nome não informado';
     }
     
     return normalized;
@@ -227,13 +246,17 @@ const Doctors = () => {
           .filter(doc => doc !== null && doc.id && doc.id !== '');
         
         if (isMountedRef.current && mappedDoctors.length > 0) {
-          const freshDoctors = mappedDoctors.map(doc => ({
-            id: String(doc.id),
-            name: String(doc.name),
-            email: String(doc.email),
-            crm: String(doc.crm),
-            phone: String(doc.phone)
-          }));
+          const freshDoctors = mappedDoctors.map(doc => {
+            // FORÇAR preservação do nome - garantir que nunca seja vazio
+            const nomePreservado = String(doc.name || '').trim() || 'Nome não informado';
+            return {
+              id: String(doc.id || '').trim(),
+              name: nomePreservado,
+              email: String(doc.email || '').trim() || 'Não informada',
+              crm: String(doc.crm || '').trim() || 'Não informado',
+              phone: String(doc.phone || '').trim() || 'Não informado'
+            };
+          });
           setDoctors(freshDoctors);
           
           const totalItens = response.itens || 0;
@@ -256,13 +279,17 @@ const Doctors = () => {
           .filter(doc => doc !== null && doc.id && doc.id !== '');
         
         if (isMountedRef.current && mappedDoctors.length > 0) {
-          const freshDoctors = mappedDoctors.map(doc => ({
-            id: String(doc.id),
-            name: String(doc.name),
-            email: String(doc.email),
-            crm: String(doc.crm),
-            phone: String(doc.phone)
-          }));
+          const freshDoctors = mappedDoctors.map(doc => {
+            // FORÇAR preservação do nome - garantir que nunca seja vazio
+            const nomePreservado = String(doc.name || '').trim() || 'Nome não informado';
+            return {
+              id: String(doc.id || '').trim(),
+              name: nomePreservado,
+              email: String(doc.email || '').trim() || 'Não informada',
+              crm: String(doc.crm || '').trim() || 'Não informado',
+              phone: String(doc.phone || '').trim() || 'Não informado'
+            };
+          });
           setDoctors(freshDoctors);
           
           const totalItens = response.length === 25 ? 26 : response.length;
@@ -685,7 +712,7 @@ const Doctors = () => {
     }
   };
 
-  const handleEdit = async (id) => {
+  const handleEdit = useCallback(async (id) => {
     try {
       const medico = await medicoService.getMedicoById(id);
       
@@ -705,12 +732,25 @@ const Doctors = () => {
       setShowModal(true);
     } catch (error) {
     }
-  };
+  }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     setDoctorToDelete(id);
     setShowDeleteModal(true);
-  };
+  }, []);
+  
+  // FORÇAR callbacks estáveis para evitar re-renderizações desnecessárias
+  const handleViewDoctor = useCallback((id) => {
+    navigate(`/medico-details/${id}`);
+  }, [navigate]);
+
+  const handleEditDoctor = useCallback((id) => {
+    handleEdit(id);
+  }, [handleEdit]);
+
+  const handleDeleteDoctor = useCallback((id) => {
+    handleDelete(id);
+  }, [handleDelete]);
   
   const confirmDelete = async () => {
     try {
@@ -727,6 +767,52 @@ const Doctors = () => {
       setShowDeleteModal(false);
     }
   };
+
+  // FORÇAR lista estável de cards memorizados - evita recriação desnecessária
+  const doctorsCards = useMemo(() => {
+    if (!doctors || !Array.isArray(doctors) || doctors.length === 0) {
+      return null;
+    }
+
+    return doctors.map((doctor, index) => {
+      if (!doctor) {
+        return null;
+      }
+      
+      // FORÇAR preservação do nome - garantir que nunca seja vazio
+      const nomeRaw = doctor.name || doctor.nome || '';
+      const nomePreservado = String(nomeRaw).trim() || 'Nome não informado';
+      
+      // FORÇAR objeto estável - criar uma vez e reutilizar
+      const doctorId = String(doctor.id || '').trim();
+      if (!doctorId || doctorId === '' || doctorId === 'null' || doctorId === 'undefined' || doctorId === 'NaN') {
+        return null;
+      }
+      
+      const safeDoctor = {
+        id: doctorId,
+        name: nomePreservado,
+        email: String(doctor.email || '').trim() || 'Não informada',
+        crm: String(doctor.crm || '').trim() || 'Não informado',
+        phone: String(doctor.phone || doctor.telefone || '').trim() || 'Não informado'
+      };
+      
+      // FORÇAR key estável baseada apenas no ID
+      const cardKey = `doc-${safeDoctor.id}`;
+      
+      // FORÇAR callbacks - memo ignora mudanças nas funções
+      // O memo está configurado para comparar apenas os dados do doctor
+      return (
+        <DoctorCard 
+          key={cardKey}
+          doctor={safeDoctor}
+          onView={() => handleViewDoctor(safeDoctor.id)}
+          onEdit={() => handleEditDoctor(safeDoctor.id)}
+          onDelete={() => handleDeleteDoctor(safeDoctor.id)}
+        />
+      );
+    }).filter(Boolean);
+  }, [doctors, handleViewDoctor, handleEditDoctor, handleDeleteDoctor]);
 
   return (
     <div className="doctors-container">
@@ -812,41 +898,7 @@ const Doctors = () => {
             </div>
           ) : (
             <div className="doctors-grid" key={`doctors-grid-${renderKeyRef.current}`}>
-              {doctors && Array.isArray(doctors) && doctors.length > 0 ? (
-                doctors.map((doctor, index) => {
-                  if (!doctor) {
-                    return null;
-                  }
-                  
-                  const safeDoctor = {
-                    id: String(doctor.id || '').trim(),
-                    name: String(doctor.name || '').trim(),
-                    email: String(doctor.email || 'Não informada').trim(),
-                    crm: String(doctor.crm || '').trim(),
-                    phone: String(doctor.phone || 'Não informado').trim()
-                  };
-                  
-                  if (!safeDoctor.id || 
-                      safeDoctor.id === '' || 
-                      safeDoctor.id === 'null' || 
-                      safeDoctor.id === 'undefined' ||
-                      safeDoctor.id === 'NaN') {
-                    return null;
-                  }
-                  
-                  const cardKey = `doc-${safeDoctor.id}-${renderKeyRef.current}-pg${pagination.pagina}-i${index}`;
-                  
-                  return (
-                    <DoctorCard 
-                      key={cardKey}
-                      doctor={safeDoctor}
-                      onView={() => navigate(`/medico-details/${safeDoctor.id}`)}
-                      onEdit={() => handleEdit(safeDoctor.id)}
-                      onDelete={() => handleDelete(safeDoctor.id)}
-                    />
-                  );
-                }).filter(Boolean)
-              ) : (
+              {doctorsCards ? doctorsCards : (
                 <div className="empty-state">
                   <div className="empty-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
