@@ -258,11 +258,19 @@ const AgendamentoDetalhes = () => {
   const downloadDocumento = async (codigoDocumento, nomeArquivo) => {
     try {
       const response = await documentoService.downloadDocumento(codigoDocumento);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // A resposta já é um blob quando usamos responseType: 'blob'
+      const blob = response.data;
+      
+      // Obter o tipo MIME do header, se disponível
+      const contentType = response.headers['content-type'] || response.headers['Content-Type'] || 'application/octet-stream';
+      
+      // Criar um novo blob com o tipo MIME correto para garantir compatibilidade
+      const typedBlob = new Blob([blob], { type: contentType });
+      
+      const url = window.URL.createObjectURL(typedBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = nomeArquivo;
+      a.download = nomeArquivo || 'documento';
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
