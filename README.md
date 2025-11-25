@@ -1,70 +1,176 @@
-# Getting Started with Create React App
+# AuzWeb - Sistema de Gestão de Agendamentos Médicos
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<div align="center">
 
-## Available Scripts
+![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react&logoColor=white)
+![React Router](https://img.shields.io/badge/React_Router-6.8.1-CA4245?logo=react-router&logoColor=white)
+![Axios](https://img.shields.io/badge/Axios-1.8.4-5A29E4?logo=axios&logoColor=white)
 
-In the project directory, you can run:
+Sistema web moderno para gestão de agendamentos, pacientes e médicos
 
-### `npm start`
+**Desenvolvido especialmente para clínicas pequenas**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+[Começar](#instalação) • [Funcionalidades](#funcionalidades) • [Tecnologias](#tecnologias)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+</div>
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Funcionalidades
 
-### `npm run build`
+### Gestão de Usuários
+- Autenticação e autorização
+- Registro de novos usuários
+- Perfis de parceiros e operacionais
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Agendamentos
+- Visualização de calendário
+- Criação e edição de agendamentos
+- Detalhes completos de agendamentos
+- Upload e download de documentos (PDF, imagens, etc.)
+- Busca e filtros avançados
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Gestão Médica
+- Cadastro de médicos
+- Visualização de relacionamentos
+- Dashboard operacional
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Gestão de Pacientes
+- Cadastro completo de pacientes
+- Histórico de atendimentos
+- Documentos associados
 
-### `npm run eject`
+### Menu Operacional
+- Interface dedicada para usuários operacionais
+- Visualização de agendamentos e pacientes
+- Navegação intuitiva com carrosséis
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Tecnologias
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **React 18.2.0** - Biblioteca JavaScript para interfaces
+- **React Router DOM 6.8.1** - Roteamento de páginas
+- **Axios 1.8.4** - Cliente HTTP para APIs
+- **CSS3** - Estilização moderna e responsiva
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## Instalação
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Pré-requisitos
+- Node.js (versão 14 ou superior)
+- npm ou yarn
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Passos
 
-### Code Splitting
+1. **Clone o repositório**
+```bash
+git clone <url-do-repositorio>
+cd AuzWeb/auz-web
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+2. **Instale as dependências**
+```bash
+npm install
+```
 
-### Analyzing the Bundle Size
+3. **Configure a API**
+   - Edite os arquivos em `src/services/` para configurar a URL da API
+   - Por padrão: `http://189.126.105.186:8080`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+4. **Inicie o servidor de desenvolvimento**
+```bash
+npm start
+```
 
-### Making a Progressive Web App
+5. **Acesse a aplicação**
+   - Abra [http://localhost:3000](http://localhost:3000) no navegador
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Scripts Disponíveis
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+| Comando | Descrição |
+|---------|-----------|
+| `npm start` | Inicia o servidor de desenvolvimento |
+| `npm test` | Executa os testes unitários |
+| `npm run build` | Cria build de produção |
+| `npm run test:watch` | Executa testes em modo watch |
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Estrutura do Projeto
 
-### `npm run build` fails to minify
+```
+auz-web/
+├── public/              # Arquivos estáticos
+├── src/
+│   ├── components/      # Componentes React
+│   │   ├── agendamento/ # Detalhes de agendamentos
+│   │   ├── home/        # Páginas principais
+│   │   ├── Login/       # Autenticação
+│   │   ├── operacional/ # Menu operacional
+│   │   ├── parceiro/    # Gestão de parceiros
+│   │   └── custom/       # Componentes reutilizáveis
+│   ├── services/         # Serviços de API
+│   ├── styles/          # Estilos globais
+│   └── utils/           # Utilitários
+└── package.json
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+## Autenticação
+
+O sistema utiliza autenticação baseada em tokens JWT armazenados no `localStorage`. As rotas protegidas verificam automaticamente a autenticação do usuário.
+
+---
+
+## Docker
+
+O projeto inclui suporte para Docker:
+
+```bash
+# Build da imagem
+docker build -t auz-web .
+
+# Executar com docker-compose
+docker-compose up
+```
+
+---
+
+## Testes
+
+Execute os testes com:
+```bash
+npm test
+```
+
+Os testes utilizam:
+- Jest
+- React Testing Library
+
+---
+
+## Licença
+
+Este projeto é privado e de uso interno.
+
+---
+
+## Contribuição
+
+Para contribuir com o projeto:
+1. Crie uma branch para sua feature
+2. Faça commit das alterações
+3. Abra um Pull Request
+
+---
+
+<div align="center">
+
+**Desenvolvido para gestão médica de clínicas pequenas**
+
+</div>
